@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="http://schema.phpunit.de/5.1/phpunit.xsd"
+	bootstrap="./vendor/autoload.php"
+	strict="true" verbose="true">
+	<testsuites>
+		<testsuite name="dictionary-api">
+			<directory>tests</directory>
+		</testsuite>
+	</testsuites>
+	<php>
+		<ini name="error_reporting" value="-1" />
+		<ini name="post_max_size" value="8M" />
+	</php>
+</phpunit>

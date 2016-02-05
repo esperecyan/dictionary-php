@@ -1,0 +1,54 @@
+{
+	"name": "esperecyan/dictionary-api",
+	"description": "従来の辞書形式を「主に単語で答えるゲームにおける汎用的な辞書形式」に変換する Web API を提供します。",
+	"type": "project",
+	"homepage": "https://github.com/esperecyan/dictionary-api",
+	"license": "MPL-2.0",
+	"authors": [
+		{
+			"name": "100の人",
+			"homepage": "https://twitter.com/esperecyan",
+			"role": "Developer"
+		}
+	],
+	"support": {
+		"issues": "https://github.com/esperecyan/dictionary-api/issues"
+	},
+	"require": {
+		"php": ">=7.0",
+		"bantu/ini-get-wrapper": "^1.0.1",
+		"esperecyan/url": "^4.1.0",
+		"league/commonmark": "^0.12.0",
+		"league/html-to-markdown": "^4.2.0",
+		"psr/log": "^1.0.0",
+		"scriptfusion/byte-formatter": "^3.2.0",
+		"xemlock/htmlpurifier-html5": "@dev",
+		"ext-bcmath": "*",
+		"ext-ctype": "*",
+		"ext-gettext": "*",
+		"ext-imagick": "*",
+		"ext-intl": "*",
+		"ext-mbstring": "*",
+		"ext-SPL": "*",
+		"ext-zip": "*"
+	},
+	"require-dev": {
+		"lsolesen/pel": "^0.9.3",
+		"phpunit/phpunit": "^5.2.0",
+		"ext-exif": "*",
+		"ext-gd": "*",
+		"ext-xdebug": "*"
+	},
+	"autoload": {
+		"psr-4": {
+			"esperecyan\\dictionary_api\\": "src/"
+		},
+		"exclude-from-classmap": ["/src/public/"]
+	},
+	"autoload-dev": {
+		"psr-4": {
+			"esperecyan\\dictionary_api\\": "tests/"
+		},
+		"exclude-from-classmap": ["/tests/resources/"]
+	}
+}

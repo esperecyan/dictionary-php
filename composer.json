@@ -33,7 +33,6 @@
 		"ext-zip": "*"
 	},
 	"require-dev": {
-		"lsolesen/pel": "^0.9.3",
 		"phpunit/phpunit": "^5.2.0",
 		"ext-exif": "*",
 		"ext-gd": "*",

@@ -56,23 +56,7 @@ class ImageValidatorTest extends \PHPUnit_Framework_TestCase implements \Psr\Log
             [
                 'image/jpeg',
                 function (): string {
-                    $fp = tmpfile();
-                    $path = stream_get_meta_data($fp)['uri'];
-                    $image = imagecreatetruecolor(1001, 1001);
-                    imagejpeg($image, $path);
-                    imagedestroy($image);
-
-                    $jpeg = new pel\PelJpeg($path);
-                    $exif = new pel\PelExif();
-                    $tiff = new pel\PelTiff();
-                    $ifd = new pel\PelIfd(pel\PelIfd::IFD0);
-                    $subIfd = new pel\PelIfd(pel\PelIfd::EXIF);
-                    $subIfd->addEntry(new pel\PelEntryUserComment('テスト', 'utf-8'));
-                    $ifd->addSubIfd($subIfd);
-                    $tiff->setIfd($ifd);
-                    $exif->setTiff($tiff);
-                    $jpeg->setExif($exif);
-                    return $jpeg->getBytes();
+                    return file_get_contents(__DIR__ . '/../resources/generic-dictionary/exif.jpg');
                 },
                 function (string $output) {
                     $image = imagecreatefromstring($output);

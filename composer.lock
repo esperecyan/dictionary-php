@@ -39,16 +39,16 @@
         },
         {
             "name": "esperecyan/url",
-            "version": "v4.3.0",
+            "version": "v4.4.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/esperecyan/url.git",
-                "reference": "5b415cd54a69863198d1bfe8f3e04ee4fac8dbe5"
+                "reference": "da19de48571cbd36b7b876c40f228dfde9c6b390"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/esperecyan/url/zipball/5b415cd54a69863198d1bfe8f3e04ee4fac8dbe5",
-                "reference": "5b415cd54a69863198d1bfe8f3e04ee4fac8dbe5",
+                "url": "https://api.github.com/repos/esperecyan/url/zipball/da19de48571cbd36b7b876c40f228dfde9c6b390",
+                "reference": "da19de48571cbd36b7b876c40f228dfde9c6b390",
                 "shasum": ""
             },
             "require": {
@@ -95,20 +95,20 @@
                 "Web Standards",
                 "url"
             ],
-            "time": "2016-02-13 05:53:17"
+            "time": "2016-02-15 13:23:42"
         },
         {
             "name": "esperecyan/webidl",
-            "version": "v1.3.0",
+            "version": "v1.3.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/esperecyan/webidl.git",
-                "reference": "e9f982c56dadc934178acbfe24726fdbcb909a61"
+                "reference": "e924b8cf9750db2725c7921f1c68d4731bfdf62c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/esperecyan/webidl/zipball/e9f982c56dadc934178acbfe24726fdbcb909a61",
-                "reference": "e9f982c56dadc934178acbfe24726fdbcb909a61",
+                "url": "https://api.github.com/repos/esperecyan/webidl/zipball/e924b8cf9750db2725c7921f1c68d4731bfdf62c",
+                "reference": "e924b8cf9750db2725c7921f1c68d4731bfdf62c",
                 "shasum": ""
             },
             "require": {
@@ -156,7 +156,7 @@
                 "URIError",
                 "W3C"
             ],
-            "time": "2015-11-04 09:21:21"
+            "time": "2016-02-15 23:31:35"
         },
         {
             "name": "ezyang/htmlpurifier",
@@ -599,22 +599,24 @@
         },
         {
             "name": "phpspec/prophecy",
-            "version": "v1.5.0",
+            "version": "v1.6.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpspec/prophecy.git",
-                "reference": "4745ded9307786b730d7a60df5cb5a6c43cf95f7"
+                "reference": "3c91bdf81797d725b14cb62906f9a4ce44235972"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpspec/prophecy/zipball/4745ded9307786b730d7a60df5cb5a6c43cf95f7",
-                "reference": "4745ded9307786b730d7a60df5cb5a6c43cf95f7",
+                "url": "https://api.github.com/repos/phpspec/prophecy/zipball/3c91bdf81797d725b14cb62906f9a4ce44235972",
+                "reference": "3c91bdf81797d725b14cb62906f9a4ce44235972",
                 "shasum": ""
             },
             "require": {
                 "doctrine/instantiator": "^1.0.2",
+                "php": "^5.3|^7.0",
                 "phpdocumentor/reflection-docblock": "~2.0",
-                "sebastian/comparator": "~1.1"
+                "sebastian/comparator": "~1.1",
+                "sebastian/recursion-context": "~1.0"
             },
             "require-dev": {
                 "phpspec/phpspec": "~2.0"
@@ -622,7 +624,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "1.4.x-dev"
+                    "dev-master": "1.5.x-dev"
                 }
             },
             "autoload": {
@@ -655,7 +657,7 @@
                 "spy",
                 "stub"
             ],
-            "time": "2015-08-13 10:07:40"
+            "time": "2016-02-15 07:46:21"
         },
         {
             "name": "phpunit/php-code-coverage",
@@ -900,16 +902,16 @@
         },
         {
             "name": "phpunit/phpunit",
-            "version": "5.2.5",
+            "version": "5.2.6",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/phpunit.git",
-                "reference": "db79855b229d4bbcdc055ad74c5dc20ad3f5c5fe"
+                "reference": "98f5f048c0c20b823a897eca14f0b57ca47d8066"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/db79855b229d4bbcdc055ad74c5dc20ad3f5c5fe",
-                "reference": "db79855b229d4bbcdc055ad74c5dc20ad3f5c5fe",
+                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/98f5f048c0c20b823a897eca14f0b57ca47d8066",
+                "reference": "98f5f048c0c20b823a897eca14f0b57ca47d8066",
                 "shasum": ""
             },
             "require": {
@@ -970,7 +972,7 @@
                 "testing",
                 "xunit"
             ],
-            "time": "2016-02-13 06:58:29"
+            "time": "2016-02-16 17:42:12"
         },
         {
             "name": "phpunit/phpunit-mock-objects",

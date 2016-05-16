@@ -44,6 +44,8 @@ class Parser implements \Psr\Log\LoggerAwareInterface
                 default:
                     $this->from = '汎用辞書';
             }
+        } else {
+            $this->from = $from;
         }
     }
     

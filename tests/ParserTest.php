@@ -77,6 +77,29 @@ class ParserTest extends \PHPUnit_Framework_TestCase implements \Psr\Log\LoggerI
                 ちきゅう    // 地球
                 カロン
                 '), 'windows-31j', 'utf-8'),
+                'キャッチフィーリング',
+                '天体 [dummy].cfq',
+                null,
+                [
+                    [
+                        'text' => ['たいよう'],
+                        'description' => ['太陽'],
+                        '@title' => ['天体'],
+                    ],
+                    [
+                        'text' => ['ちきゅう'],
+                        'description' => ['地球'],
+                    ],
+                    [
+                        'text' => ['カロン'],
+                    ],
+                ],
+            ],
+            [
+                mb_convert_encoding($this->stripIndents('たいよう//太陽
+                ちきゅう    // 地球
+                カロン
+                '), 'windows-31j', 'utf-8'),
                 null,
                 '天体 [dummy].cfq',
                 null,

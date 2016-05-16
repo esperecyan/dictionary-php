@@ -13,11 +13,11 @@ Inteligenceωの辞書で画像・音声ファイルへのパスが含まれる�
 なお[ピクトセンス]の辞書は、辞書のテキストをそのまま utf-8 (改行コードはCRLF) で保存すれば、汎用辞書形式になります。
 
 [主に単語で答えるゲームにおける汎用的な辞書形式]: https://github.com/esperecyan/dictionary/blob/master/dictionary.md
-[キャッチフィーリング]: https://secure.pokemori.jp/catchfeeling-runtime
+[キャッチフィーリング]: http://www.forest.impress.co.jp/library/software/catchfeeling/
 [Drawing Catch]: http://drafly.nazo.cc/games/olds/DC
 [きゃっちま]: http://vodka-catchm.seesaa.net/article/115922159.html
 [ピクトセンス]: http://pictsense.com/
-[Inteligenceω]: http://page.freett.com/loxteam/inteli.htm
+[Inteligenceω]: http://loxee.web.fc2.com/inteli.html
 
 例
 ---

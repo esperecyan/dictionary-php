@@ -1,8 +1,8 @@
 <?php
-namespace esperecyan\dictionary_api\serializer;
+namespace esperecyan\dictionary_php\serializer;
 
-use esperecyan\dictionary_api\internal\Dictionary;
-use esperecyan\dictionary_api\parser\GenericDictionaryParser;
+use esperecyan\dictionary_php\internal\Dictionary;
+use esperecyan\dictionary_php\parser\GenericDictionaryParser;
 
 class GenericDictionarySerializer extends AbstractSerializer
 {
@@ -70,11 +70,11 @@ class GenericDictionarySerializer extends AbstractSerializer
 
     /**
      * WordをCSVのレコードに変換します。
-     * @param \esperecyan\dictionary_api\internal\Word $word
+     * @param \esperecyan\dictionary_php\internal\Word $word
      * @param string[] $fieldNames
      * @return string[]
      */
-    protected function convertWordToRecord(\esperecyan\dictionary_api\internal\Word $word, array $fieldNames): array
+    protected function convertWordToRecord(\esperecyan\dictionary_php\internal\Word $word, array $fieldNames): array
     {
         $output = [];
         $fieldsAsMultiDimensionalArray = $word->getFieldsAsMultiDimensionalArray();
@@ -108,9 +108,9 @@ class GenericDictionarySerializer extends AbstractSerializer
      * @param Dictionary $dictionary
      * @throws SyntaxException ZIPファイルについて、CSVファイルの追加により、許容される容量を超過したとき。
      */
-    public function response(\esperecyan\dictionary_api\internal\Dictionary $dictionary)
+    public function response(\esperecyan\dictionary_php\internal\Dictionary $dictionary)
     {
-        $csv = (new \esperecyan\dictionary_api\Parser())->getBinary($this->getAsCSVFile($dictionary));
+        $csv = (new \esperecyan\dictionary_php\Parser())->getBinary($this->getAsCSVFile($dictionary));
         $archiveFileInfo = $dictionary->getArchive();
         if ($archiveFileInfo) {
             $archive = new \ZipArchive();

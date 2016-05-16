@@ -1,12 +1,12 @@
 <?php
-namespace esperecyan\dictionary_api\validator;
+namespace esperecyan\dictionary_php\validator;
 
 use Psr\Log\LogLevel;
 use lsolesen\pel;
 
 class ImageValidatorTest extends \PHPUnit_Framework_TestCase implements \Psr\Log\LoggerInterface
 {
-    use \esperecyan\dictionary_api\LogLevelLoggerTrait;
+    use \esperecyan\dictionary_php\LogLevelLoggerTrait;
     
     /**
      * @param string $type
@@ -56,7 +56,7 @@ class ImageValidatorTest extends \PHPUnit_Framework_TestCase implements \Psr\Log
             [
                 'image/jpeg',
                 function (): string {
-                    return file_get_contents(__DIR__ . '/../resources/generic-dictionary/exif.jpg');
+                    return file_get_contents(__DIR__ . '/../resources/exif.jpg');
                 },
                 function (string $output) {
                     $image = imagecreatefromstring($output);
@@ -105,7 +105,7 @@ class ImageValidatorTest extends \PHPUnit_Framework_TestCase implements \Psr\Log
     /**
      * @param string $type
      * @param \Closure $generateImage
-     * @expectedException \esperecyan\dictionary_api\exception\SyntaxException
+     * @expectedException \esperecyan\dictionary_php\exception\SyntaxException
      * @dataProvider invalidImageProvider
      */
     public function testSyntaxException(string $type, \Closure $generateImage)

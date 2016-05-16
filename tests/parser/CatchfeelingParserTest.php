@@ -1,5 +1,5 @@
 <?php
-namespace esperecyan\dictionary_api\parser;
+namespace esperecyan\dictionary_php\parser;
 
 class CatchfeelingParserTest extends \PHPUnit_Framework_TestCase
 {
@@ -16,9 +16,9 @@ class CatchfeelingParserTest extends \PHPUnit_Framework_TestCase
         $temp = new \SplTempFileObject();
         $temp->fwrite(preg_replace('/\\n */u', "\r\n", $input));
         if (is_null($output)) {
-            $this->setExpectedException('\esperecyan\dictionary_api\exception\SyntaxException');
+            $this->setExpectedException('\esperecyan\dictionary_php\exception\SyntaxException');
         }
-        $this->assertSame($output, array_map(function (\esperecyan\dictionary_api\internal\Word $word): array {
+        $this->assertSame($output, array_map(function (\esperecyan\dictionary_php\internal\Word $word): array {
             return $word->getFieldsAsMultiDimensionalArray();
         }, $parser->parse($temp, $filename, $title)->getWords()));
     }
@@ -123,7 +123,7 @@ class CatchfeelingParserTest extends \PHPUnit_Framework_TestCase
     
     /**
      * @param string $input
-     * @expectedException \esperecyan\dictionary_api\exception\SyntaxException
+     * @expectedException \esperecyan\dictionary_php\exception\SyntaxException
      * @dataProvider invalidDictionaryProvider
      */
     public function testSyntaxException(string $input)

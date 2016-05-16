@@ -1,7 +1,7 @@
 <?php
-namespace esperecyan\dictionary_api;
+namespace esperecyan\dictionary_php;
 
-use esperecyan\dictionary_api\exception\SyntaxException;
+use esperecyan\dictionary_php\exception\SyntaxException;
 
 class Parser implements \Psr\Log\LoggerAwareInterface
 {

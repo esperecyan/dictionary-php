@@ -1,7 +1,7 @@
 <?php
-namespace esperecyan\dictionary_api\validator;
+namespace esperecyan\dictionary_php\validator;
 
-use esperecyan\dictionary_api\htmlpurifier;
+use esperecyan\dictionary_php\htmlpurifier;
 
 /**
  * image-source、audio-source、video-source、description、@summary フィールドの矯正。

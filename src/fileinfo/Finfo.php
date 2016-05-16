@@ -1,5 +1,5 @@
 <?php
-namespace esperecyan\dictionary_api\fileinfo;
+namespace esperecyan\dictionary_php\fileinfo;
 
 /**
  * Fileinfo拡張モジュールに "`\r\n`\r\n" のような文字列を与えた際に発生するエラー「Notice: Array to string conversion」を抑制します。

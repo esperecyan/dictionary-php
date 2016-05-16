@@ -1,11 +1,11 @@
 <?php
-namespace esperecyan\dictionary_api\internal;
+namespace esperecyan\dictionary_php\internal;
 
 use Psr\Log\LogLevel;
 
 class DictionaryTest extends \PHPUnit_Framework_TestCase implements \Psr\Log\LoggerInterface
 {
-    use \esperecyan\dictionary_api\LogLevelLoggerTrait;
+    use \esperecyan\dictionary_php\LogLevelLoggerTrait;
     
     public function testGetWords()
     {

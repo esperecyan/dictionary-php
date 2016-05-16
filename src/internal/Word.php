@@ -1,8 +1,8 @@
 <?php
-namespace esperecyan\dictionary_api\internal;
+namespace esperecyan\dictionary_php\internal;
 
-use esperecyan\dictionary_api\validator;
-use esperecyan\dictionary_api\exception\SyntaxException;
+use esperecyan\dictionary_php\validator;
+use esperecyan\dictionary_php\exception\SyntaxException;
 
 /**
  * ある辞書における1つのお題 (レコード、行) を表します。

@@ -1,5 +1,5 @@
 <?php
-namespace esperecyan\dictionary_api\htmlpurifier;
+namespace esperecyan\dictionary_php\htmlpurifier;
 
 abstract class AbstractFilename extends \HTMLPurifier_AttrDef
 {
@@ -19,7 +19,7 @@ abstract class AbstractFilename extends \HTMLPurifier_AttrDef
     
     public function validate($string, $config, $context)
     {
-        return (new \esperecyan\dictionary_api\validator\FileLocationValidator(
+        return (new \esperecyan\dictionary_php\validator\FileLocationValidator(
             static::FIELD_NAME,
             $this->filenames
         ))->validate($string) ? $string : false;

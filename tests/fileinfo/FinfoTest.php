@@ -1,5 +1,5 @@
 <?php
-namespace esperecyan\dictionary_api\fileinfo;
+namespace esperecyan\dictionary_php\fileinfo;
 
 class FinfoTest extends \PHPUnit_Framework_TestCase
 {

@@ -1,14 +1,14 @@
 <?php
-namespace esperecyan\dictionary_api\serializer;
+namespace esperecyan\dictionary_php\serializer;
 
-use esperecyan\dictionary_api\internal\Dictionary;
+use esperecyan\dictionary_php\internal\Dictionary;
 
 /**
  * @runTestsInSeparateProcesses
  */
 class GenericDictionarySerializerTest extends \PHPUnit_Framework_TestCase
 {
-    use \esperecyan\dictionary_api\PreprocessingTrait;
+    use \esperecyan\dictionary_php\PreprocessingTrait;
     
     /**
      * キーを無視して配列が配列に含まれるか調べる。
@@ -55,7 +55,7 @@ class GenericDictionarySerializerTest extends \PHPUnit_Framework_TestCase
             $serializer->response($dictionary);
             $archive = $this->generateArchive(ob_get_clean());
             
-            $finfo = new \esperecyan\dictionary_api\fileinfo\Finfo(FILEINFO_MIME_TYPE);
+            $finfo = new \esperecyan\dictionary_php\fileinfo\Finfo(FILEINFO_MIME_TYPE);
             for ($i = 0, $l = $archive->numFiles; $i < $l; $i++) {
                 $actualTypes[$archive->getNameIndex($i)] = $finfo->buffer($archive->getFromIndex($i));
             }

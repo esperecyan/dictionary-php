@@ -1,5 +1,5 @@
 <?php
-namespace esperecyan\dictionary_api\validator;
+namespace esperecyan\dictionary_php\validator;
 
 /**
  * image、audio、videoフィールド、src属性値、およびアーカイブ中のファイル名の矯正。

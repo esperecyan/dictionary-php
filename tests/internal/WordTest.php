@@ -1,11 +1,11 @@
 <?php
-namespace esperecyan\dictionary_api\internal;
+namespace esperecyan\dictionary_php\internal;
 
 use Psr\Log\LogLevel;
 
 class WordTest extends \PHPUnit_Framework_TestCase implements \Psr\Log\LoggerInterface
 {
-    use \esperecyan\dictionary_api\LogLevelLoggerTrait;
+    use \esperecyan\dictionary_php\LogLevelLoggerTrait;
     
     public function testGetFieldsAsMultiDimensionalArray()
     {
@@ -528,7 +528,7 @@ class WordTest extends \PHPUnit_Framework_TestCase implements \Psr\Log\LoggerInt
     
     /**
      * @param string[][] $input
-     * @expectedException \esperecyan\dictionary_api\exception\SyntaxException
+     * @expectedException \esperecyan\dictionary_php\exception\SyntaxException
      * @dataProvider invalidWords
      */
     public function testSyntaxException($input)

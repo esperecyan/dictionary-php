@@ -1,5 +1,5 @@
 <?php
-namespace esperecyan\dictionary_api\htmlpurifier;
+namespace esperecyan\dictionary_php\htmlpurifier;
 
 class VideoFilename extends AbstractFilename
 {

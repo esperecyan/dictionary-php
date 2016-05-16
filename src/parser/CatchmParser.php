@@ -1,9 +1,9 @@
 <?php
-namespace esperecyan\dictionary_api\parser;
+namespace esperecyan\dictionary_php\parser;
 
-use esperecyan\dictionary_api\internal\Dictionary;
-use esperecyan\dictionary_api\internal\Word;
-use esperecyan\dictionary_api\exception\SyntaxException;
+use esperecyan\dictionary_php\internal\Dictionary;
+use esperecyan\dictionary_php\internal\Word;
+use esperecyan\dictionary_php\exception\SyntaxException;
 
 class CatchmParser extends AbstractParser
 {
@@ -24,7 +24,7 @@ class CatchmParser extends AbstractParser
         
         $answers = array_filter(array_map(function ($answer) {
             // 正規表現文字列扱いを抑止
-            return (new \esperecyan\dictionary_api\validator\AnswerValidator())->isRegExp($answer)
+            return (new \esperecyan\dictionary_php\validator\AnswerValidator())->isRegExp($answer)
                 ? trim($answer, '/')
                 : $answer;
         }, explode(',', rtrim($textAndDescription[0], ' '))));

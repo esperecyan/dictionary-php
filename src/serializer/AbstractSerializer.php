@@ -1,7 +1,7 @@
 <?php
-namespace esperecyan\dictionary_api\serializer;
+namespace esperecyan\dictionary_php\serializer;
 
-use esperecyan\dictionary_api\validator\FileLocationValidator;
+use esperecyan\dictionary_php\validator\FileLocationValidator;
 
 abstract class AbstractSerializer
 {
@@ -10,11 +10,11 @@ abstract class AbstractSerializer
     
     /**
      * filenameパラメータをともなうcontent-dispositionヘッダを送信します。
-     * @param \esperecyan\dictionary_api\internal\Dictionary $dictionary
+     * @param \esperecyan\dictionary_php\internal\Dictionary $dictionary
      * @param string $extension ピリオドを除く拡張子。
      */
     protected function setFilenameParameter(
-        \esperecyan\dictionary_api\internal\Dictionary $dictionary,
+        \esperecyan\dictionary_php\internal\Dictionary $dictionary,
         string $extension
     ) {
         $title = $dictionary->getTitle();
@@ -40,7 +40,7 @@ abstract class AbstractSerializer
     
     /**
      * 辞書を直列化して出力します。
-     * @param \esperecyan\dictionary_api\internal\Dictionary
+     * @param \esperecyan\dictionary_php\internal\Dictionary
      */
-    abstract public function response(\esperecyan\dictionary_api\internal\Dictionary $dictionary);
+    abstract public function response(\esperecyan\dictionary_php\internal\Dictionary $dictionary);
 }

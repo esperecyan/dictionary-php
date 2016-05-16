@@ -1,11 +1,11 @@
 <?php
-namespace esperecyan\dictionary_api\parser;
+namespace esperecyan\dictionary_php\parser;
 
-use esperecyan\dictionary_api\internal\Dictionary;
-use esperecyan\dictionary_api\internal\Word;
-use esperecyan\dictionary_api\exception\SyntaxException;
+use esperecyan\dictionary_php\internal\Dictionary;
+use esperecyan\dictionary_php\internal\Word;
+use esperecyan\dictionary_php\exception\SyntaxException;
 use ScriptFUSION\Byte\ByteFormatter;
-use esperecyan\dictionary_api\fileinfo\Finfo;
+use esperecyan\dictionary_php\fileinfo\Finfo;
 
 class GenericDictionaryParser extends AbstractParser implements
     \Psr\Log\LoggerAwareInterface,
@@ -189,7 +189,7 @@ class GenericDictionaryParser extends AbstractParser implements
     {
         $path = tempnam(sys_get_temp_dir());
         if ($file) {
-            file_put_contents($path, (new \esperecyan\dictionary_api\Parser())->getBinary($file));
+            file_put_contents($path, (new \esperecyan\dictionary_php\Parser())->getBinary($file));
         }
         register_shutdown_function(function () use ($path) {
             if (file_exists($path)) {
@@ -339,7 +339,7 @@ class GenericDictionaryParser extends AbstractParser implements
      */
     protected function parseArchive(\SplFileInfo $file): \SplTempFileObject
     {
-        $filenameValidator = new \esperecyan\dictionary_api\validator\FileLocationValidator();
+        $filenameValidator = new \esperecyan\dictionary_php\validator\FileLocationValidator();
         $archive = new \ZipArchive();
         $result = $archive->open(
             $file instanceof \SplTempFileObject ? $this->generateTempFile($file) : $file->getRealPath(),
@@ -402,7 +402,7 @@ class GenericDictionaryParser extends AbstractParser implements
             $this->checkFileSize(strlen(bin2hex($binary)) / 2, $topLevelType, $name);
 
             if ($topLevelType === 'image') {
-                $validator = new \esperecyan\dictionary_api\validator\ImageValidator($type, $name);
+                $validator = new \esperecyan\dictionary_php\validator\ImageValidator($type, $name);
                 $validator->setLogger($this);
                 $archive->addFromString($name, $validator->correct($binary));
             }
@@ -437,7 +437,7 @@ class GenericDictionaryParser extends AbstractParser implements
         bool $header = null
     ): Dictionary {
         if ($file instanceof \SplTempFileObject) {
-            $binary = (new \esperecyan\dictionary_api\Parser())->getBinary($file);
+            $binary = (new \esperecyan\dictionary_php\Parser())->getBinary($file);
         }
         
         $byteFormatter = new ByteFormatter();

@@ -1,9 +1,9 @@
 <?php
-namespace esperecyan\dictionary_api\parser;
+namespace esperecyan\dictionary_php\parser;
 
-use esperecyan\dictionary_api\internal\Dictionary;
-use esperecyan\dictionary_api\internal\Word;
-use esperecyan\dictionary_api\exception\SyntaxException;
+use esperecyan\dictionary_php\internal\Dictionary;
+use esperecyan\dictionary_php\internal\Word;
+use esperecyan\dictionary_php\exception\SyntaxException;
 
 class CatchfeelingParser extends AbstractParser
 {
@@ -17,7 +17,7 @@ class CatchfeelingParser extends AbstractParser
         // コメントの分離
         $textAndDescription = preg_split('#[\\t 　]*//#u', $line, 2);
         
-        $text = (new \esperecyan\dictionary_api\validator\AnswerValidator())->isRegExp($textAndDescription[0])
+        $text = (new \esperecyan\dictionary_php\validator\AnswerValidator())->isRegExp($textAndDescription[0])
             ? trim($textAndDescription[0], '/') // 正規表現文字列扱いを抑止
             : $textAndDescription[0];
         

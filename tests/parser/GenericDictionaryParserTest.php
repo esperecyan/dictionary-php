@@ -1,12 +1,12 @@
 <?php
-namespace esperecyan\dictionary_api\parser;
+namespace esperecyan\dictionary_php\parser;
 
 use Psr\Log\LogLevel;
 
 class GenericDictionaryParserTest extends \PHPUnit_Framework_TestCase implements \Psr\Log\LoggerInterface
 {
-    use \esperecyan\dictionary_api\LogLevelLoggerTrait;
-    use \esperecyan\dictionary_api\PreprocessingTrait;
+    use \esperecyan\dictionary_php\LogLevelLoggerTrait;
+    use \esperecyan\dictionary_php\PreprocessingTrait;
     
     /**
      * @param string|\Closure $input
@@ -38,7 +38,7 @@ class GenericDictionaryParserTest extends \PHPUnit_Framework_TestCase implements
         array_walk_recursive($output, (function (string &$field) {
             $field = $this->stripIndents($field);
         })->bindTo($this));
-        $this->assertEquals($output, array_map(function (\esperecyan\dictionary_api\internal\Word $word): array {
+        $this->assertEquals($output, array_map(function (\esperecyan\dictionary_php\internal\Word $word): array {
             return $word->getFieldsAsMultiDimensionalArray();
         }, $dictionary->getWords()));
         $this->assertEquals($logLevels, $this->logLevels);
@@ -221,10 +221,10 @@ class GenericDictionaryParserTest extends \PHPUnit_Framework_TestCase implements
                     $archive->addFromString('svg.svg', '<?xml version="1.0" ?>
                         <svg xmlns="http://www.w3.org/2000/svg"><rect width="100" height="100" /></svg>');
                     
-                    $archive->addFile(__DIR__ . '/../resources/generic-dictionary/mpeg4-aac.m4a', 'mpeg4-aac.m4a');
-                    $archive->addFile(__DIR__ . '/../resources/generic-dictionary/mpeg1-audio-layer3.mp3', 'mpeg1-audio-layer3.mp3');
+                    $archive->addFile(__DIR__ . '/../resources/mpeg4-aac.m4a', 'mpeg4-aac.m4a');
+                    $archive->addFile(__DIR__ . '/../resources/mpeg1-audio-layer3.mp3', 'mpeg1-audio-layer3.mp3');
                     
-                    $archive->addFile(__DIR__ . '/../resources/generic-dictionary/mpeg4-h264.mp4', 'mpeg4-h264.mp4');
+                    $archive->addFile(__DIR__ . '/../resources/mpeg4-h264.mp4', 'mpeg4-h264.mp4');
                     
                     return $archive;
                 },
@@ -267,7 +267,7 @@ class GenericDictionaryParserTest extends \PHPUnit_Framework_TestCase implements
     
     /**
      * @param string|\Closure $input
-     * @expectedException \esperecyan\dictionary_api\exception\SyntaxException
+     * @expectedException \esperecyan\dictionary_php\exception\SyntaxException
      * @dataProvider invalidDictionaryProvider
      */
     public function testSyntaxException($input)
@@ -345,7 +345,7 @@ class GenericDictionaryParserTest extends \PHPUnit_Framework_TestCase implements
                     オッグ,ogg-vorbis.ogg
                     '
                 ));
-                $archive->addFile(__DIR__ . '/../resources/generic-dictionary/ogg-vorbis.ogg', 'ogg-vorbis.ogg');
+                $archive->addFile(__DIR__ . '/../resources/ogg-vorbis.ogg', 'ogg-vorbis.ogg');
                 
                 return $archive;
             }],
@@ -357,7 +357,7 @@ class GenericDictionaryParserTest extends \PHPUnit_Framework_TestCase implements
                     ウェブエム,webm-vp8.webm
                     '
                 ));
-                $archive->addFile(__DIR__ . '/../resources/generic-dictionary/webm-vp8.webm', 'webm-vp8.webm');
+                $archive->addFile(__DIR__ . '/../resources/webm-vp8.webm', 'webm-vp8.webm');
                 
                 return $archive;
             }],

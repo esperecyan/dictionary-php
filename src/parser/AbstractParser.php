@@ -1,5 +1,5 @@
 <?php
-namespace esperecyan\dictionary_api\parser;
+namespace esperecyan\dictionary_php\parser;
 
 abstract class AbstractParser
 {
@@ -64,12 +64,12 @@ abstract class AbstractParser
      * @param \SplFileInfo $file
      * @param string|null $filename
      * @param string|null $title
-     * @throws \esperecyan\dictionary_api\exception\SyntaxException 構文に問題がある時。
-     * @return \esperecyan\dictionary_api\internal\Dictionary
+     * @throws \esperecyan\dictionary_php\exception\SyntaxException 構文に問題がある時。
+     * @return \esperecyan\dictionary_php\internal\Dictionary
      */
     abstract public function parse(
         \SplFileInfo $file,
         string $filename = null,
         string $title = null
-    ): \esperecyan\dictionary_api\internal\Dictionary;
+    ): \esperecyan\dictionary_php\internal\Dictionary;
 }

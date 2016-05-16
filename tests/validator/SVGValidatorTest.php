@@ -1,11 +1,11 @@
 <?php
-namespace esperecyan\dictionary_api\validator;
+namespace esperecyan\dictionary_php\validator;
 
 use Psr\Log\LogLevel;
 
 class SVGValidatorTest extends \PHPUnit_Framework_TestCase implements \Psr\Log\LoggerInterface
 {
-    use \esperecyan\dictionary_api\LogLevelLoggerTrait;
+    use \esperecyan\dictionary_php\LogLevelLoggerTrait;
     
     /**
      * XML文書のインデントを整えます。
@@ -181,7 +181,7 @@ class SVGValidatorTest extends \PHPUnit_Framework_TestCase implements \Psr\Log\L
     
     /**
      * @param string $input
-     * @expectedException \esperecyan\dictionary_api\exception\SyntaxException
+     * @expectedException \esperecyan\dictionary_php\exception\SyntaxException
      * @dataProvider invalidSVGProvider
      */
     public function testSyntaxException(string $input)

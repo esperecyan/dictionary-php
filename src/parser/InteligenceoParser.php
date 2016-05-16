@@ -1,9 +1,9 @@
 <?php
-namespace esperecyan\dictionary_api\parser;
+namespace esperecyan\dictionary_php\parser;
 
-use esperecyan\dictionary_api\internal\Dictionary;
-use esperecyan\dictionary_api\internal\Word;
-use esperecyan\dictionary_api\exception\SyntaxException;
+use esperecyan\dictionary_php\internal\Dictionary;
+use esperecyan\dictionary_php\internal\Word;
+use esperecyan\dictionary_php\exception\SyntaxException;
 use esperecyan\url\URLSearchParams;
 
 class InteligenceoParser extends AbstractParser
@@ -258,7 +258,7 @@ class InteligenceoParser extends AbstractParser
         }
         
         $mode = '|';
-        $answerValidator = new \esperecyan\dictionary_api\validator\AnswerValidator();
+        $answerValidator = new \esperecyan\dictionary_php\validator\AnswerValidator();
         foreach (array_slice($answerFields, 2) as $i => $field) {
             if (isset($field[0]) && $field[0] === '\\' && isset($field[1]) && $field[1] !== '\\') {
                 // 解答オプション

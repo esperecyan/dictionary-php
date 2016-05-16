@@ -1,5 +1,5 @@
 <?php
-namespace esperecyan\dictionary_api;
+namespace esperecyan\dictionary_php;
 
 trait LogLevelLoggerTrait
 {

@@ -4,12 +4,11 @@
 	bootstrap="./vendor/autoload.php"
 	strict="true" verbose="true">
 	<testsuites>
-		<testsuite name="dictionary-api">
+		<testsuite name="dictionary-php">
 			<directory>tests</directory>
 		</testsuite>
 	</testsuites>
 	<php>
 		<ini name="error_reporting" value="-1" />
-		<ini name="post_max_size" value="8M" />
 	</php>
 </phpunit>

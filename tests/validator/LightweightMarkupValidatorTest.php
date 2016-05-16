@@ -1,9 +1,9 @@
 <?php
-namespace esperecyan\dictionary_api\validator;
+namespace esperecyan\dictionary_php\validator;
 
 class LightweightMarkupValidatorTest extends \PHPUnit_Framework_TestCase implements \Psr\Log\LoggerInterface
 {
-    use \esperecyan\dictionary_api\LogLevelLoggerTrait;
+    use \esperecyan\dictionary_php\LogLevelLoggerTrait;
     
     /**
      * @param bool $source

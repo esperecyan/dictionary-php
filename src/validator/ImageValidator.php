@@ -1,7 +1,7 @@
 <?php
-namespace esperecyan\dictionary_api\validator;
+namespace esperecyan\dictionary_php\validator;
 
-use esperecyan\dictionary_api\exception\SyntaxException;
+use esperecyan\dictionary_php\exception\SyntaxException;
 
 /**
  * 画像ファイルの矯正。

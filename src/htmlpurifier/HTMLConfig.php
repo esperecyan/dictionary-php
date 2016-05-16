@@ -1,5 +1,5 @@
 <?php
-namespace esperecyan\dictionary_api\htmlpurifier;
+namespace esperecyan\dictionary_php\htmlpurifier;
 
 /**
  * HTML Standard の要素・属性を ezyang/htmlpurifier で利用できるようにする。

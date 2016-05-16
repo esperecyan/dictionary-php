@@ -1,7 +1,7 @@
 <?php
-namespace esperecyan\dictionary_api\internal;
+namespace esperecyan\dictionary_php\internal;
 
-use esperecyan\dictionary_api\exception\SyntaxException;
+use esperecyan\dictionary_php\exception\SyntaxException;
 
 /**
  * 1つの辞書を表します。
@@ -77,7 +77,7 @@ class Dictionary implements \Psr\Log\LoggerAwareInterface
     
     /**
      * お題を追加します。
-     * @param \esperecyan\dictionary_api\internal\Word $word 2レコード目以降にメタフィールドが含まれるか否かのチェックは行いません。
+     * @param \esperecyan\dictionary_php\internal\Word $word 2レコード目以降にメタフィールドが含まれるか否かのチェックは行いません。
      */
     public function addWord(Word $word)
     {

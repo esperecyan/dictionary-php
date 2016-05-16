@@ -1,5 +1,5 @@
 <?php
-namespace esperecyan\dictionary_api;
+namespace esperecyan\dictionary_php;
 
 use Psr\Log\LogLevel;
 
@@ -24,10 +24,10 @@ class ParserTest extends \PHPUnit_Framework_TestCase implements \Psr\Log\LoggerI
             [
                 function (): \SplFileObject {
                     return new \SplFileObject(
-                        __DIR__ . '/resources/generic-dictionary/formats-output-dictionary.csv'
+                        __DIR__ . '/resources/formats-output-dictionary.csv'
                     );
                 },
-                file_get_contents(__DIR__ . '/resources/generic-dictionary/formats-output-dictionary.csv'),
+                file_get_contents(__DIR__ . '/resources/formats-output-dictionary.csv'),
             ],
             [
                 function (): \SplFileObject {
@@ -310,10 +310,10 @@ class ParserTest extends \PHPUnit_Framework_TestCase implements \Psr\Log\LoggerI
                     $archive->addFromString('svg.svg', '<?xml version="1.0" ?>
                         <svg xmlns="http://www.w3.org/2000/svg"><rect width="100" height="100" /></svg>');
                     
-                    $archive->addFile(__DIR__ . '/resources/generic-dictionary/mpeg4-aac.m4a', 'mpeg4-aac.m4a');
-                    $archive->addFile(__DIR__ . '/resources/generic-dictionary/mpeg1-audio-layer3.mp3', 'mpeg1-audio-layer3.mp3');
+                    $archive->addFile(__DIR__ . '/resources/mpeg4-aac.m4a', 'mpeg4-aac.m4a');
+                    $archive->addFile(__DIR__ . '/resources/mpeg1-audio-layer3.mp3', 'mpeg1-audio-layer3.mp3');
                     
-                    $archive->addFile(__DIR__ . '/resources/generic-dictionary/mpeg4-h264.mp4', 'mpeg4-h264.mp4');
+                    $archive->addFile(__DIR__ . '/resources/mpeg4-h264.mp4', 'mpeg4-h264.mp4');
                     
                     $path = $archive->filename;
                     $archive->close();
@@ -360,7 +360,7 @@ class ParserTest extends \PHPUnit_Framework_TestCase implements \Psr\Log\LoggerI
     /**
      * @param string $input
      * @param string $from
-     * @expectedException \esperecyan\dictionary_api\exception\SyntaxException
+     * @expectedException \esperecyan\dictionary_php\exception\SyntaxException
      * @dataProvider invalidDictionaryProvider
      */
     public function testSyntaxException(string $input, string $from)

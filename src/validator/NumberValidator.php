@@ -1,5 +1,5 @@
 <?php
-namespace esperecyan\dictionary_api\validator;
+namespace esperecyan\dictionary_php\validator;
 
 /**
  * 整数、実数の矯正。

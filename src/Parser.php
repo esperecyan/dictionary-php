@@ -92,8 +92,8 @@ class Parser implements \Psr\Log\LoggerAwareInterface
             if (!in_array($finfo->buffer($binary), ['text/csv', 'text/plain'])) {
                 throw new SyntaxException(sprintf(_('%sの辞書は通常のテキストファイルでなければなりません。'), $this->from));
             }
-            if (!mb_check_encoding($binary, 'windows-31j')) {
-                throw new SyntaxException(sprintf(_('%sの辞書の符号化方式 (文字コード) は shift_jis でなければなりません。'), $this->from));
+            if (!mb_check_encoding($binary, 'Windows-31J')) {
+                throw new SyntaxException(sprintf(_('%sの辞書の符号化方式 (文字コード) は Shift_JIS でなければなりません。'), $this->from));
             }
             
             if ($file instanceof \SplTempFileObject) {
@@ -101,7 +101,7 @@ class Parser implements \Psr\Log\LoggerAwareInterface
             } else {
                 $file = new \SplTempFileObject();
             }
-            $file->fwrite(mb_convert_encoding($binary, 'utf-8', 'windows-31j'));
+            $file->fwrite(mb_convert_encoding($binary, 'UTF-8', 'Windows-31J'));
             $file->rewind();
             
             switch ($this->from) {

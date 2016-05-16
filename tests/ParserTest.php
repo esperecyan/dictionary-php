@@ -76,7 +76,7 @@ class ParserTest extends \PHPUnit_Framework_TestCase implements \Psr\Log\LoggerI
                 mb_convert_encoding($this->stripIndents('たいよう//太陽
                 ちきゅう    // 地球
                 カロン
-                '), 'windows-31j', 'utf-8'),
+                '), 'Windows-31J', 'UTF-8'),
                 'キャッチフィーリング',
                 '天体 [dummy].cfq',
                 null,
@@ -99,7 +99,7 @@ class ParserTest extends \PHPUnit_Framework_TestCase implements \Psr\Log\LoggerI
                 mb_convert_encoding($this->stripIndents('たいよう//太陽
                 ちきゅう    // 地球
                 カロン
-                '), 'windows-31j', 'utf-8'),
+                '), 'Windows-31J', 'UTF-8'),
                 null,
                 '天体 [dummy].cfq',
                 null,
@@ -130,7 +130,7 @@ class ParserTest extends \PHPUnit_Framework_TestCase implements \Psr\Log\LoggerI
                     え\t\t// 衣
                     お  [ 於 ]
                     "
-                ), 'windows-31j', 'utf-8'),
+                ), 'Windows-31J', 'UTF-8'),
                 null,
                 '天体 [dummy].dat',
                 null,
@@ -182,7 +182,7 @@ class ParserTest extends \PHPUnit_Framework_TestCase implements \Psr\Log\LoggerI
                     q,0,しりとりが成立するように並べ替えてください
                     % 問題行と解答行の間のコメント行と空行
 
-                    a,2,リンゴ,1,パン,4,ゴリラ,2,ラッパ,3'), 'windows-31j', 'utf-8'),
+                    a,2,リンゴ,1,パン,4,ゴリラ,2,ラッパ,3'), 'Windows-31J', 'UTF-8'),
                 null,
                 '選択・並べ替え問題.txt',
                 null,
@@ -230,7 +230,7 @@ class ParserTest extends \PHPUnit_Framework_TestCase implements \Psr\Log\LoggerI
                 mb_convert_encoding($this->stripIndents('
                     フシギダネ,ふしぎだね,1,@No.001
                     フシギソウ,@dummy,ふしぎそう,@dummy2,1,@No.002
-                    フシギバナ,ふしぎばな,0001,1.2e3,7E-10, -12 ,@<span style="background: gray;">[リンク](https://example.jp/)</span>'), 'windows-31j', 'utf-8'),
+                    フシギバナ,ふしぎばな,0001,1.2e3,7E-10, -12 ,@<span style="background: gray;">[リンク](https://example.jp/)</span>'), 'Windows-31J', 'UTF-8'),
                 null,
                 'ポケモン.txt',
                 null,

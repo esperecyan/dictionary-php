@@ -128,7 +128,7 @@ class GenericDictionarySerializer extends AbstractSerializer
             $this->setFilenameParameter($dictionary, 'zip');
             $archiveFileInfo->openFile()->fpassthru();
         } else {
-            header('content-type: text/csv; charset=utf-8; header=present');
+            header('content-type: text/csv; charset=UTF-8; header=present');
             $this->setFilenameParameter($dictionary, 'csv');
             $this->setOutputEncoding();
             echo $csv;

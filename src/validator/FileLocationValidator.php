@@ -127,12 +127,12 @@ class FileLocationValidator extends AbstractFieldValidator
      */
     protected function convertToValidFilename(string $filename): string
     {
-        $fullstopIndex = mb_strrpos($filename, '.', 0, 'utf-8');
+        $fullstopIndex = mb_strrpos($filename, '.', 0, 'UTF-8');
         
         return $this->convertToValidFilenameWithoutExtension(
-            is_int($fullstopIndex) ? mb_substr($filename, 0, $fullstopIndex, 'utf-8') : $filename
+            is_int($fullstopIndex) ? mb_substr($filename, 0, $fullstopIndex, 'UTF-8') : $filename
         ) . '.' . $this->convertToValidExtension(
-            is_int($fullstopIndex) ? mb_substr($filename, $fullstopIndex + 1, null, 'utf-8') : ''
+            is_int($fullstopIndex) ? mb_substr($filename, $fullstopIndex + 1, null, 'UTF-8') : ''
         );
     }
     

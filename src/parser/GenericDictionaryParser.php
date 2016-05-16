@@ -67,7 +67,7 @@ class GenericDictionaryParser extends AbstractParser implements
      * @var string
      * @see http://qiita.com/shoyan/items/d9f7c014ba8003e19b57#comment-958a3830a0a450f69071
      */
-    const ENCODING_DETECTION_ORDER = 'ascii,iso-2022-jp,utf-8,eucJP-win,windows-31j';
+    const ENCODING_DETECTION_ORDER = 'US-ASCII,ISO-2022-JP,UTF-8,eucJP-win,Windows-31J';
     
     /** @var string[][] 有効な拡張子。 */
     const VALID_EXTENSIONS = [
@@ -156,26 +156,26 @@ class GenericDictionaryParser extends AbstractParser implements
     }
     
     /**
-     * 符号化方式をutf-8に矯正します。
+     * 符号化方式をUTF-8に矯正します。
      * @param string $binary
      * @throws SyntaxException 符号化方式の検出に失敗した場合。
      * @return \SplTempFileObject
      */
     protected function correctEncoding(string $binary): \SplTempFileObject
     {
-        if (mb_check_encoding($binary, 'utf-8')) {
-            $fromEncoding = 'utf-8';
+        if (mb_check_encoding($binary, 'UTF-8')) {
+            $fromEncoding = 'UTF-8';
         } else {
             $fromEncoding = mb_detect_encoding($binary, self::ENCODING_DETECTION_ORDER);
             if (!$fromEncoding) {
                 throw new SyntaxException(_('CSVファイルの符号化方式 (文字コード) の検出に失敗しました。')
-                    . _('CSVファイルの符号化方式 (文字コード) は utf-8 でなければなりません。'));
+                    . _('CSVファイルの符号化方式 (文字コード) は UTF-8 でなければなりません。'));
             }
-            $this->error(_('CSVファイルの符号化方式 (文字コード) は utf-8 でなければなりません。'));
+            $this->error(_('CSVファイルの符号化方式 (文字コード) は UTF-8 でなければなりません。'));
         }
         
         $file = new \SplTempFileObject();
-        $file->fwrite(mb_convert_encoding($binary, 'utf-8', $fromEncoding));
+        $file->fwrite(mb_convert_encoding($binary, 'UTF-8', $fromEncoding));
         $file->rewind();
         return $file;
     }

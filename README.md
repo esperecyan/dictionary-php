@@ -10,7 +10,7 @@
 Inteligenceωの辞書で画像・音声ファイルへのパスが含まれる場合、単にファイル名を抽出します。
 汎用辞書形式のZIPファイルをPOSTした場合を除き、当APIはCSVファイルのみを返し、ZIPファイル化などは行いません。
 
-なお[ピクトセンス]の辞書は、辞書のテキストをそのまま utf-8 (改行コードはCRLF) で保存すれば、汎用辞書形式になります。
+なお[ピクトセンス]の辞書は、辞書のテキストをそのまま UTF-8 (改行コードはCRLF) で保存すれば、汎用辞書形式になります。
 
 [主に単語で答えるゲームにおける汎用的な辞書形式]: https://github.com/esperecyan/dictionary/blob/master/dictionary.md
 [キャッチフィーリング]: http://www.forest.impress.co.jp/library/software/catchfeeling/

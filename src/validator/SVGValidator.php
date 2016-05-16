@@ -25,8 +25,8 @@ class SVGValidator extends AbstractFieldValidator
     
     public function correct(string $input): string
     {
-        if (!mb_check_encoding($input, 'utf-8')) {
-            throw new SyntaxException(_('SVGファイルの符号化方式 (文字コード) は utf-8 でなければなりません。'));
+        if (!mb_check_encoding($input, 'UTF-8')) {
+            throw new SyntaxException(_('SVGファイルの符号化方式 (文字コード) は UTF-8 でなければなりません。'));
         }
         
         $parser = xml_parser_create_ns();
@@ -36,7 +36,7 @@ class SVGValidator extends AbstractFieldValidator
             throw new SyntaxException(_('整形式になっていません。'));
         }
         
-        $document = new \DOMDocument('1.0', 'utf-8');
+        $document = new \DOMDocument('1.0', 'UTF-8');
         $document->loadXML($input);
 
         // ノードの削除

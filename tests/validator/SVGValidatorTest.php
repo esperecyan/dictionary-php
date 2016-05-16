@@ -194,9 +194,9 @@ class SVGValidatorTest extends \PHPUnit_Framework_TestCase implements \Psr\Log\L
         return [
             [mb_convert_encoding('<?xml version="1.0" ?>
             <svg xmlns="http://www.w3.org/2000/svg">
-                <!-- 符号化方式がutf-8でない。 -->
+                <!-- 符号化方式がUTF-8でない。 -->
                 <rect width="100" height="100" />
-            </svg>', 'utf-16', 'utf-8')
+            </svg>', 'UTF-16', 'UTF-8')
             ],
             ['<?xml version="1.0" ?>
             <svg xmlns="http://www.w3.org/2000/svg">

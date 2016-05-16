@@ -72,8 +72,8 @@ class GenericDictionarySerializerTest extends \PHPUnit_Framework_TestCase
         $this->assertSame(200, http_response_code() ?: 200);
         $this->assertArraySubsetWithoutKey([
             'content-type: '
-                . ($files ? 'application/zip' : 'text/csv; charset=utf-8; header=present'),
-            'content-disposition: attachment; filename*=utf-8\'\'' . rawurlencode($outputFilename),
+                . ($files ? 'application/zip' : 'text/csv; charset=UTF-8; header=present'),
+            'content-disposition: attachment; filename*=UTF-8\'\'' . rawurlencode($outputFilename),
         ], xdebug_get_headers());
     }
     

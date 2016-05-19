@@ -7,21 +7,24 @@ class CatchmParserTest extends \PHPUnit_Framework_TestCase
      * @param string $input
      * @param string|null $filename
      * @param string|null $title
-     * @param string[][][] $output
+     * @param (string|string[]|float|URLSearchParams)[][][] $jsonable
+     * @param (string|string[])[] $metadata
      * @dataProvider dictionaryProvider
      */
     public function testParse(
         string $input,
         string $filename = null,
         string $title = null,
-        array $output = null
+        array $jsonable = null,
+        array $metadata = null
     ) {
         $parser = new CatchmParser();
         $temp = new \SplTempFileObject();
         $temp->fwrite(preg_replace('/\\n */u', "\r\n", $input));
-        $this->assertSame($output, array_map(function (\esperecyan\dictionary_php\internal\Word $word): array {
-            return $word->getFieldsAsMultiDimensionalArray();
-        }, $parser->parse($temp, $filename, $title)->getWords()));
+        $dictionary = $parser->parse($temp, $filename, $title);
+        
+        $this->assertEquals($jsonable, $dictionary->getJsonable());
+        $this->assertEquals($metadata, $dictionary->getMetadata());
     }
     
     public function dictionaryProvider(): array
@@ -48,49 +51,49 @@ class CatchmParserTest extends \PHPUnit_Framework_TestCase
                 [
                     [
                         'text' => ['あ'],
-                        'description' => ['安'],
-                        '@title' => ['天体 [dummy]'],
+                        'description' => [['lml' => '安', 'html' => "<p>安</p>\n"]],
                     ],
                     [
                         'text' => ['い'],
-                        'description' => ['以'],
+                        'description' => [['lml' => '以', 'html' => "<p>以</p>\n"]],
                     ],
                     [
                         'text' => ['う'],
-                        'description' => ['宇'],
+                        'description' => [['lml' => '宇', 'html' => "<p>宇</p>\n"]],
                     ],
                     [
                         'text' => [']非コメント'],
                     ],
                     [
                         'text' => ['え'],
-                        'description' => ['衣'],
+                        'description' => [['lml' => '衣', 'html' => "<p>衣</p>\n"]],
                     ],
                     [
                         'text' => ['お'],
-                        'description' => ['於'],
+                        'description' => [['lml' => '於', 'html' => "<p>於</p>\n"]],
                     ],
                     [
                         'text' => ['か'],
-                        'description' => ['加 ]'],
+                        'description' => [['lml' => '加 ]', 'html' => "<p>加 ]</p>\n"]],
                     ],
                     [
                         'text' => ['き'],
-                        'description' => ['[幾]'],
+                        'description' => [['lml' => '[幾]', 'html' => "<p>[幾]</p>\n"]],
                     ],
                     [
                         'text' => ['く'],
-                        'description' => ['久'],
+                        'description' => [['lml' => '久', 'html' => "<p>久</p>\n"]],
                     ],
                     [
                         'text' => ['け'],
-                        'description' => ['; 計'],
+                        'description' => [['lml' => '; 計', 'html' => "<p>; 計</p>\n"]],
                     ],
                     [
                         'text' => ['こ'],
                         'answer' => ['こ', 'ご'],
                     ],
                 ],
+                ['@title' => '天体 [dummy]'],
             ],
         ];
     }

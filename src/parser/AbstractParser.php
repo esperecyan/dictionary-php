@@ -65,11 +65,11 @@ abstract class AbstractParser
      * @param string|null $filename
      * @param string|null $title
      * @throws \esperecyan\dictionary_php\exception\SyntaxException 構文に問題がある時。
-     * @return \esperecyan\dictionary_php\internal\Dictionary
+     * @return \esperecyan\dictionary_php\Dictionary
      */
     abstract public function parse(
         \SplFileInfo $file,
         string $filename = null,
         string $title = null
-    ): \esperecyan\dictionary_php\internal\Dictionary;
+    ): \esperecyan\dictionary_php\Dictionary;
 }

@@ -1,9 +1,7 @@
 <?php
 namespace esperecyan\dictionary_php\parser;
 
-use esperecyan\dictionary_php\internal\Dictionary;
-use esperecyan\dictionary_php\internal\Word;
-use esperecyan\dictionary_php\exception\SyntaxException;
+use esperecyan\dictionary_php\{Dictionary, internal\Word, exception\SyntaxException};
 
 class CatchfeelingParser extends AbstractParser
 {

@@ -79,9 +79,9 @@ class Parser implements \Psr\Log\LoggerAwareInterface
      * @param \SplFileInfo $file
      * @param bool|null $header CSVにヘッダ行が存在すれば真、存在しなければ偽、不明ならnull。
      * @throws SyntaxException
-     * @return internal\Dictionary
+     * @return Dictionary
      */
-    public function parse(\SplFileInfo $file, $header = null): internal\Dictionary
+    public function parse(\SplFileInfo $file, $header = null): Dictionary
     {
         if ($this->from === '汎用辞書') {
             $parser = new parser\GenericDictionaryParser();

@@ -1,7 +1,10 @@
 <?php
-namespace esperecyan\dictionary_php\internal;
+namespace esperecyan\dictionary_php;
 
-use esperecyan\dictionary_php\exception\SyntaxException;
+use esperecyan\url\URLSearchParams;
+use esperecyan\html_filter\Filter as HTMLFilter;
+use League\CommonMark\CommonMarkConverter;
+use esperecyan\dictionary_php\{exception\SyntaxException, internal\Word};
 
 /**
  * 1つの辞書を表します。
@@ -9,6 +12,9 @@ use esperecyan\dictionary_php\exception\SyntaxException;
 class Dictionary implements \Psr\Log\LoggerAwareInterface
 {
     use \Psr\Log\LoggerAwareTrait;
+    
+    /** @var int generateTempDirectory() で作成するランダムなディレクトリ名の長さ。  */
+    const TEMP_DIRECTORY_NAME_LENGTH = 32;
     
     /** @var Word[] お題の一覧。 */
     protected $words = [];
@@ -19,6 +25,9 @@ class Dictionary implements \Psr\Log\LoggerAwareInterface
     /** @var string[] 画像・音声・動画ファイル名の一覧。 */
     protected $filenames = [];
     
+    /** @var \FilesystemIterator|null 画像・音声・動画ファイルのアーカイブを展開したファイルの一覧。 */
+    protected $files = null;
+    
     /**
      * @param \SplFileInfo|null $archive
      */
@@ -26,6 +35,123 @@ class Dictionary implements \Psr\Log\LoggerAwareInterface
     {
         $this->archive = $archive;
         $this->filenames = $this->getFilenamesFromArchive();
+    }
+    
+    /**
+     * お題の一覧を取得します。
+     * @see https://github.com/esperecyan/dictionary-php#stringstringfloaturlsearchparams-esperecyandictionary_phpdictionarygetjsonable
+     * @return (string|string[]|float|URLSearchParams)[][][]
+     */
+    public function getJsonable(): array
+    {
+        $words = [];
+        foreach ($this->words as $word) {
+            $fieldsAsMultiDimensionalArray = [];
+            foreach ($word->getFieldsAsMultiDimensionalArray() as $fieldName => $fields) {
+                if ($fieldName[0] === '@') {
+                    continue;
+                }
+                foreach ($fields as &$field) {
+                    switch ($fieldName) {
+                        case 'image-source':
+                        case 'audio-source':
+                        case 'video-source':
+                        case 'description':
+                            $field = [
+                                'lml' => $field,
+                                'html' => (new HTMLFilter())->filter((new CommonMarkConverter())->convertToHtml($field)),
+                            ];
+                            break;
+                        case 'weight':
+                            $field = (float)$field;
+                            break;
+                        case 'specifics':
+                            $field = new URLSearchParams($field);
+                            break;
+                    }
+                }
+                $fieldsAsMultiDimensionalArray[$fieldName] = $fields;
+            }
+            $words[] = $fieldsAsMultiDimensionalArray;
+        }
+        return $words;
+    }
+    
+    /**
+     * メタフィールドの一覧を取得します。
+     * @see https://github.com/esperecyan/dictionary-php#stringstring-esperecyandictionary_phpdictionarygetmetadata
+     * @return (string|string[])[]
+     */
+    public function getMetadata(): array
+    {
+        $metadata = [];
+        if (isset($this->words[0])) {
+            foreach ($this->words[0]->getFieldsAsMultiDimensionalArray() as $fieldName => $fields) {
+                if ($fieldName[0] !== '@') {
+                    continue;
+                }
+                switch ($fieldName) {
+                    case '@summary':
+                        $field = [
+                            'lml' => $fields[0],
+                            'html' => (new HTMLFilter())->filter((new CommonMarkConverter())->convertToHtml($fields[0])),
+                        ];
+                        break;
+                    default:
+                        $field = $fields[0];
+                }
+                $metadata[$fieldName] = $field;
+            }
+        }
+        return $metadata;
+    }
+    
+    /**
+     * 辞書に同梱されるファイルを返します。
+     * @return \FilesystemIterator|null
+     */
+    public function getFiles()
+    {
+        if (!$this->files && $this->archive) {
+            $tempDirectoryPath = $this->generateTempDirectory();
+            $archive = new \ZipArchive();
+            $archive->open($this->archive->getRealPath());
+            $archive->extractTo($tempDirectoryPath);
+            $archive->close();
+            $this->files = new \FilesystemIterator($tempDirectoryPath);
+        }
+        return $this->files;
+    }
+    
+    /**
+     * スクリプト終了時に自動的に削除されるディレクトリを作成し、そのパスを返します。
+     * @return string
+     */
+    protected function generateTempDirectory(): string
+    {
+        $path = sys_get_temp_dir() . '/' . bin2hex(random_bytes(self::TEMP_DIRECTORY_NAME_LENGTH));
+        
+        mkdir($path);
+        
+        register_shutdown_function(function () use ($path) {
+            if (!file_exists($path)) {
+                return;
+            }
+
+            foreach (new \RecursiveIteratorIterator(
+                new \RecursiveDirectoryIterator($path, \FilesystemIterator::SKIP_DOTS),
+                \RecursiveIteratorIterator::CHILD_FIRST
+            ) as $file) {
+                if ($file->isDir()) {
+                    rmdir($file->getPathname());
+                } else {
+                    unlink($file->getPathname());
+                }
+            }
+            rmdir($path);
+        });
+        
+        return $path;
     }
     
     /**
@@ -77,7 +203,7 @@ class Dictionary implements \Psr\Log\LoggerAwareInterface
     
     /**
      * お題を追加します。
-     * @param \esperecyan\dictionary_php\internal\Word $word 2レコード目以降にメタフィールドが含まれるか否かのチェックは行いません。
+     * @param Word $word 2レコード目以降にメタフィールドが含まれるか否かのチェックは行いません。
      */
     public function addWord(Word $word)
     {

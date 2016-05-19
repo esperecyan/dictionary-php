@@ -1,7 +1,7 @@
 <?php
 namespace esperecyan\dictionary_php\serializer;
 
-use esperecyan\dictionary_php\internal\Dictionary;
+use esperecyan\dictionary_php\{Dictionary, exception\SyntaxException};
 use esperecyan\dictionary_php\parser\GenericDictionaryParser;
 
 class GenericDictionarySerializer extends AbstractSerializer
@@ -108,7 +108,7 @@ class GenericDictionarySerializer extends AbstractSerializer
      * @param Dictionary $dictionary
      * @throws SyntaxException ZIPファイルについて、CSVファイルの追加により、許容される容量を超過したとき。
      */
-    public function response(\esperecyan\dictionary_php\internal\Dictionary $dictionary)
+    public function response(Dictionary $dictionary)
     {
         $csv = (new \esperecyan\dictionary_php\Parser())->getBinary($this->getAsCSVFile($dictionary));
         $archiveFileInfo = $dictionary->getArchive();

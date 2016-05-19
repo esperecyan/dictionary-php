@@ -1,7 +1,7 @@
 <?php
 namespace esperecyan\dictionary_php\serializer;
 
-use esperecyan\dictionary_php\internal\Dictionary;
+use esperecyan\dictionary_php\Dictionary;
 
 /**
  * @runTestsInSeparateProcesses

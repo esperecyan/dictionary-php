@@ -1,11 +1,31 @@
 <?php
-namespace esperecyan\dictionary_php\internal;
+namespace esperecyan\dictionary_php;
 
+use esperecyan\dictionary_php\internal\Word;
 use Psr\Log\LogLevel;
 
 class DictionaryTest extends \PHPUnit_Framework_TestCase implements \Psr\Log\LoggerInterface
 {
     use \esperecyan\dictionary_php\LogLevelLoggerTrait;
+    use \esperecyan\dictionary_php\PreprocessingTrait;
+    
+    public function testGetFiles()
+    {
+        $archive = $this->generateArchive();
+        for ($i = 1; $i <= 4; $i++) {
+            $archive->addFromString("file$i.svg", '<?xml version="1.0" ?>
+                <svg xmlns="http://www.w3.org/2000/svg"><rect width="100" height="100" /></svg>');
+        }
+        $file = new \SplFileInfo($archive->filename);
+        $archive->close();
+        
+        foreach ((new Dictionary($file))->getFiles() as $i => $file) {
+            $this->assertRegExp(
+                '#^' . str_replace(DIRECTORY_SEPARATOR, '/', sys_get_temp_dir()) . '/[^/]+/file[1-4]\\.svg$#u',
+                str_replace(DIRECTORY_SEPARATOR, '/', $file->getPathname())
+            );
+        }
+    }
     
     public function testGetWords()
     {

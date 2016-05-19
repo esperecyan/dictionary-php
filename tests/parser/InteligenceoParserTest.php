@@ -10,7 +10,8 @@ class InteligenceoParserTest extends \PHPUnit_Framework_TestCase
      * @param string $from
      * @param string|null $filename
      * @param string|null $title
-     * @param string[][][] $output
+     * @param (string|string[]|float|URLSearchParams)[][][] $jsonable
+     * @param (string|string[])[] $metadata
      * @dataProvider dictionaryProvider
      */
     public function testParse(
@@ -18,17 +19,16 @@ class InteligenceoParserTest extends \PHPUnit_Framework_TestCase
         string $from = null,
         string $filename = null,
         string $title = null,
-        array $output = null
+        array $jsonable = null,
+        array $metadata = null
     ) {
         $parser = new InteligenceoParser($from);
         $temp = new \SplTempFileObject();
         $temp->fwrite(preg_replace('/\\n */u', "\r\n", $input));
-        if (is_null($output)) {
-            $this->setExpectedException('\esperecyan\dictionary_php\exception\SyntaxException');
-        }
-        $this->assertEquals($output, array_map(function (\esperecyan\dictionary_php\internal\Word $word): array {
-            return $word->getFieldsAsMultiDimensionalArray();
-        }, $parser->parse($temp, $filename, $title)->getWords()));
+        $dictionary = $parser->parse($temp, $filename, $title);
+        
+        $this->assertEquals($jsonable, $dictionary->getJsonable());
+        $this->assertEquals($metadata, $dictionary->getMetadata());
     }
     
     public function dictionaryProvider(): array
@@ -65,7 +65,6 @@ class InteligenceoParserTest extends \PHPUnit_Framework_TestCase
                         'option' => ['地球', 'カロン', '太陽'],
                         'answer' => ['太陽'],
                         'type' => ['selection'],
-                        '@title' => ['選択・並べ替え問題'],
                     ],
                     [
                         'text' => ['リンゴ'],
@@ -73,7 +72,7 @@ class InteligenceoParserTest extends \PHPUnit_Framework_TestCase
                         'option' => ['リンゴ', 'ゴリラ', 'ラクダ', 'ダチョウ'],
                         'answer' => ['リンゴ'],
                         'type' => ['selection'],
-                        'description' => ['選択肢を表示しなければ問題が成立しない場合。'],
+                        'description' => [['lml' => '選択肢を表示しなければ問題が成立しない場合。', 'html' => "<p>選択肢を表示しなければ問題が成立しない場合。</p>\n"]],
                     ],
                     [
                         'text' => ['「リンゴ」か「パン」'],
@@ -97,6 +96,7 @@ class InteligenceoParserTest extends \PHPUnit_Framework_TestCase
                         'type' => ['selection'],
                     ],
                 ],
+                ['@title' => '選択・並べ替え問題'],
             ],
             [
                 '% 解答行でカンマの連続
@@ -110,9 +110,10 @@ class InteligenceoParserTest extends \PHPUnit_Framework_TestCase
                         'text' => ['太陽'],
                         'image' => ['local/sun.png'],
                         'answer' => ['太陽', 'たいよう', 'sun'],
-                        'description' => ['テスト'],
+                        'description' => [['lml' => 'テスト', 'html' => "<p>テスト</p>\n"]],
                     ],
                 ],
+                [],
             ],
             [
                 'q,0,部分一致
@@ -127,6 +128,7 @@ class InteligenceoParserTest extends \PHPUnit_Framework_TestCase
                         'question' => ['部分一致'],
                     ],
                 ],
+                [],
             ],
             [
                 'フシギダネ,ふしぎだね,1,@No.001
@@ -139,22 +141,26 @@ class InteligenceoParserTest extends \PHPUnit_Framework_TestCase
                     [
                         'text' => ['フシギダネ'],
                         'answer' => ['ふしぎだね'],
-                        'description' => ['No.001'],
-                        'weight' => ['1'],
+                        'description' => [['lml' => 'No.001', 'html' => "<p>No.001</p>\n"]],
+                        'weight' => [1],
                     ],
                     [
                         'text' => ['フシギソウ'],
                         'answer' => ['ふしぎそう'],
-                        'description' => ['No.002'],
-                        'weight' => ['1'],
+                        'description' => [['lml' => 'No.002', 'html' => "<p>No.002</p>\n"]],
+                        'weight' => [1],
                     ],
                     [
                         'text' => ['フシギバナ'],
                         'answer' => ['ふしぎばな'],
-                        'description' => ['<span>[リンク](https://example.jp/)</span>'],
-                        'weight' => ['0.000833'],
+                        'description' => [[
+                            'lml' => '<span>[リンク](https://example.jp/)</span>',
+                            'html' => "<p><span><a href=\"https://example.jp/\">リンク</a></span></p>\n",
+                        ]],
+                        'weight' => [0.000833],
                     ],
                 ],
+                [],
             ],
         ];
     }

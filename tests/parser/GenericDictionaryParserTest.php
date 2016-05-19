@@ -12,7 +12,8 @@ class GenericDictionaryParserTest extends \PHPUnit_Framework_TestCase implements
      * @param string|\Closure $input
      * @param string|null $filename
      * @param string|null $title
-     * @param string[][][] $output
+     * @param (string|string[]|float|URLSearchParams)[][][] $jsonable
+     * @param (string|string[])[] $metadata
      * @param string[] $logLevels
      * @dataProvider dictionaryProvider
      */
@@ -20,7 +21,8 @@ class GenericDictionaryParserTest extends \PHPUnit_Framework_TestCase implements
         $input,
         string $filename = null,
         string $title = null,
-        array $output = null,
+        array $jsonable = null,
+        array $metadata = null,
         array $logLevels = []
     ) {
         $parser = new GenericDictionaryParser();
@@ -35,12 +37,18 @@ class GenericDictionaryParserTest extends \PHPUnit_Framework_TestCase implements
             $dictionary = $parser->parse($this->generateTempFileObject($this->stripIndents($input)), $filename, $title);
         }
         
-        array_walk_recursive($output, (function (string &$field) {
-            $field = $this->stripIndents($field);
+        array_walk_recursive($jsonable, (function (&$field) {
+            if (is_string($field)) {
+                $field = $this->stripIndents($field);
+            }
         })->bindTo($this));
-        $this->assertEquals($output, array_map(function (\esperecyan\dictionary_php\internal\Word $word): array {
-            return $word->getFieldsAsMultiDimensionalArray();
-        }, $dictionary->getWords()));
+        $this->assertEquals($jsonable, $dictionary->getJsonable());
+        array_walk_recursive($metadata, (function (string &$field) {
+            if (is_string($field)) {
+                $field = $this->stripIndents($field);
+            }
+        })->bindTo($this));
+        $this->assertEquals($metadata, $dictionary->getMetadata());
         $this->assertEquals($logLevels, $this->logLevels);
     }
     
@@ -68,31 +76,44 @@ class GenericDictionaryParserTest extends \PHPUnit_Framework_TestCase implements
                         'text' => ['太陽'],
                         'image' => ['local/sun.png'],
                         'answer' => ['たいよう', 'おひさま'],
-                        'description' => ['恒星。'],
-                        '@title' => ['天体'],
-                        '@summary' => ['恒星、惑星、衛星などのリスト。'],
+                        'description' => [['lml' => '恒星。', 'html' => "<p>恒星。</p>\n"]],
                     ],
                     [
                         'text' => ['地球'],
                         'image' => ['local/earth.png'],
                         'answer' => ['ちきゅう'],
-                        'description' => ['惑星。'],
+                        'description' => [['lml' => '惑星。', 'html' => "<p>惑星。</p>\n"]],
                     ],
                     [
                         'text' => ['カロン'],
                         'image' => ['local/charon.png'],
-                        'description' => [
-                            '冥王星の衛星。
+                        'description' => [[
+                            'lml' => '冥王星の衛星。
 
-                            > カロンは1978年6月22日にアメリカの天文学者ジェームズ・クリスティーによって発見された。
-                            > その後、冥王星が冥府の王プルートーの名に因むことから、
-                            > この衛星はギリシア神話の冥府の川・アケローンの渡し守カローンにちなんで「カロン」と命名された。
-                            > なおクリスティーは当初から一貫してCharonの「char」を
-                            > 妻シャーリーン（Charlene） のニックネーム「シャー（Char）」と同じように発音していたため、
-                            > これが英語圏で定着して「シャーロン」と呼ばれるようになった。
-                            引用元: [カロン (衛星) - Wikipedia](https://ja.wikipedia.org/wiki/%E3%82%AB%E3%83%AD%E3%83%B3_(%E8%A1%9B%E6%98%9F))'
-                        ],
+                                > カロンは1978年6月22日にアメリカの天文学者ジェームズ・クリスティーによって発見された。
+                                > その後、冥王星が冥府の王プルートーの名に因むことから、
+                                > この衛星はギリシア神話の冥府の川・アケローンの渡し守カローンにちなんで「カロン」と命名された。
+                                > なおクリスティーは当初から一貫してCharonの「char」を
+                                > 妻シャーリーン（Charlene） のニックネーム「シャー（Char）」と同じように発音していたため、
+                                > これが英語圏で定着して「シャーロン」と呼ばれるようになった。
+                                引用元: [カロン (衛星) - Wikipedia](https://ja.wikipedia.org/wiki/%E3%82%AB%E3%83%AD%E3%83%B3_(%E8%A1%9B%E6%98%9F))',
+                            'html' => '<p>冥王星の衛星。</p>
+                                <blockquote>
+                                <p>カロンは1978年6月22日にアメリカの天文学者ジェームズ・クリスティーによって発見された。
+                                その後、冥王星が冥府の王プルートーの名に因むことから、
+                                この衛星はギリシア神話の冥府の川・アケローンの渡し守カローンにちなんで「カロン」と命名された。
+                                なおクリスティーは当初から一貫してCharonの「char」を
+                                妻シャーリーン（Charlene） のニックネーム「シャー（Char）」と同じように発音していたため、
+                                これが英語圏で定着して「シャーロン」と呼ばれるようになった。
+                                引用元: <a href="https://ja.wikipedia.org/wiki/%E3%82%AB%E3%83%AD%E3%83%B3_(%E8%A1%9B%E6%98%9F)">カロン (衛星) - Wikipedia</a></p>
+                                </blockquote>
+                                ',
+                        ]],
                     ],
+                ],
+                [
+                    '@title' => '天体',
+                    '@summary' => ['lml' => '恒星、惑星、衛星などのリスト。', 'html' => "<p>恒星、惑星、衛星などのリスト。</p>\n"],
                 ],
                 [LogLevel::ERROR, LogLevel::ERROR, LogLevel::ERROR],
             ],
@@ -104,8 +125,10 @@ class GenericDictionaryParserTest extends \PHPUnit_Framework_TestCase implements
                 [
                     [
                         'text' => ['たいよう'],
-                        '@title' => ['天体'],
                     ],
+                ],
+                [
+                    '@title' => '天体',
                 ],
             ],
             [
@@ -116,8 +139,10 @@ class GenericDictionaryParserTest extends \PHPUnit_Framework_TestCase implements
                 [
                     [
                         'text' => ['たいよう'],
-                        '@title' => ['天体 Ver'],
                     ],
+                ],
+                [
+                    '@title' => '天体 Ver',
                 ],
             ],
             [
@@ -129,8 +154,10 @@ class GenericDictionaryParserTest extends \PHPUnit_Framework_TestCase implements
                 [
                     [
                         'text' => ['たいよう'],
-                        '@title' => ['テスト'],
                     ],
+                ],
+                [
+                    '@title' => 'テスト',
                 ],
             ],
             [
@@ -165,33 +192,46 @@ class GenericDictionaryParserTest extends \PHPUnit_Framework_TestCase implements
                     [
                         'text' => ['テスト'],
                         'image' => ['local/test.png'],
-                        'image-source' => [
-                            '見出し1
+                        'image-source' => [[
+                            'lml' => '見出し1
 
-                            本文
+                                本文
 
-                            見出し2 本文
+                                見出し2 本文
 
-                            見出し3 [リンク](https://example.jp/) 強調 名前 強勢 心の声 コード'
-                        ],
-                        'description' => [
-                            '見出し1
-                            ====
-                            
-                            本文
-                            
-                            見出し2
-                            ====
-                            
-                            本文
-                            
-                            見出し3
-                            ----
-                            
-                            [リンク](https://example.jp/) **強調** **名前** _強勢_ _心の声_`コード`'
-                        ],
+                                見出し3 [リンク](https://example.jp/) 強調 名前 強勢 心の声 コード',
+                            'html' => '<p>見出し1</p>
+                                <p>本文</p>
+                                <p>見出し2 本文</p>
+                                <p>見出し3 <a href="https://example.jp/">リンク</a> 強調 名前 強勢 心の声 コード</p>
+                                ',
+                        ]],
+                        'description' => [[
+                            'lml' => '見出し1
+                                ====
+
+                                本文
+
+                                見出し2
+                                ====
+
+                                本文
+
+                                見出し3
+                                ----
+
+                                [リンク](https://example.jp/) **強調** **名前** _強勢_ _心の声_`コード`',
+                            'html' => '<h1>見出し1</h1>
+                                <p>本文</p>
+                                <h1>見出し2</h1>
+                                <p>本文</p>
+                                <h2>見出し3</h2>
+                                <p><a href="https://example.jp/">リンク</a> <strong>強調</strong> <strong>名前</strong> <em>強勢</em> <em>心の声</em><code>コード</code></p>
+                                ',
+                        ]],
                     ],
                 ],
+                [],
                 [LogLevel::ERROR, LogLevel::ERROR],
             ],
             [
@@ -260,6 +300,7 @@ class GenericDictionaryParserTest extends \PHPUnit_Framework_TestCase implements
                         'video' => ['local/webm-vb8.mp4'],
                     ],
                 ],
+                [],
                 [LogLevel::ERROR],
             ],
         ];

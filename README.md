@@ -1,14 +1,14 @@
-主に単語で答えるゲームにおける汎用的な辞書形式に関するPHPライブラリ
-===============================================================
-次のゲームの辞書を[主に単語で答えるゲームにおける汎用的な辞書形式] \(以下、汎用辞書形式)に変換する API を提供します。
-また、汎用辞書形式のファイルを与えた場合、校正可能なら校正して返します。
+主に単語で答えるゲームにおける辞書の構文解析・直列化を行うPHPライブラリ
+===================================================================
+次のゲームの辞書を構文解析し、相互に変換できるようにする API を提供します。
 
+* [主に単語で答えるゲームにおける汎用的な辞書形式] \(以下、汎用辞書形式)
 * [キャッチフィーリング]、[Drawing Catch] \(*.cfq)
 * [きゃっちま] \(*.dat) ※暗号化後のファイルは扱えません
 * [Inteligenceω] \(*.txt) ※暗号化後のファイルは扱えません
 
 Inteligenceωの辞書で画像・音声ファイルへのパスが含まれる場合、単にファイル名を抽出します。
-汎用辞書形式のZIPファイルをPOSTした場合を除き、当APIはCSVファイルのみを返し、ZIPファイル化などは行いません。
+当ライブラリでは、Inteligenceωの辞書と画像・音声ファイルをまとめて扱うことはできません。
 
 なお[ピクトセンス]の辞書は、辞書のテキストをそのまま UTF-8 (改行コードはCRLF) で保存すれば、汎用辞書形式になります。
 
@@ -87,7 +87,6 @@ Composer のインストール方法については、[Composer のグローバ�
 
 パブリックAPI
 -------------
-
 ### [class esperecyan\dictionary_php\Parser(string $from = null, string $filename = null, string $title = null)](./src/Parser.php)
 構文解析器。
 
@@ -122,8 +121,51 @@ Composer のインストール方法については、[Composer のグローバ�
 #### [void esperecyan\dictionary_php\serializer\GenericDictionarySerializer#response(Dictionary $dictionary)](./src/serializer/GenericDictionarySerializer.php#L106-136)
 content-type応答ヘッダをともなって辞書を出力します。
 
-### [class esperecyan\dictionary_php\internal\Dictionary](./src/internal/Dictionary.php)
+### [class esperecyan\dictionary_php\Dictionary](./src/Dictionary.php)
 辞書データ。
+
+#### [(string|string\[\]|float|URLSearchParams)\[\]\[\]\[\] esperecyan\dictionary_php\Dictionary#getJsonable()](./src/Dictionary.php#L40-77)
+次のような構造の多次元配列で表されたお題の一覧を返します。
+
+- \[0] => 
+	- \[text] => array(文字列)
+	- \[image] => array(文字列)
+	- \[image-source] =>
+		- \[0] => 
+			- \[lml] => CommonMark (文字列)
+			- \[html] => HTML (文字列)
+	- \[audio] => array(文字列)
+	- \[audio-source] =>
+		- \[0] => 
+			- \[lml] => CommonMark (文字列)
+			- \[html] => HTML (文字列)
+	- \[video] => array(文字列, ……)
+	- \[video-source] =>
+		- \[0] => 
+			- \[lml] => CommonMark (文字列)
+			- \[html] => HTML (文字列)
+	- \[answer] => array(文字列, ……)
+	- \[description] => array(文字列)
+	- \[weight] => array(浮動小数点数)
+	- \[specifics] => array([esperecyan\url\URLSearchParams](https://esperecyan.github.io/url/class-esperecyan.url.URLSearchParams))
+	- \[question] => array(文字列)
+	- \[option] => array(文字列, ……)
+	- \[type] => array(文字列)
+- \[1] => ……
+- \[2] => ……
+- ……
+
+#### [(string|string\[\])\[\] esperecyan\dictionary_php\Dictionary#getMetadata()](./src/Dictionary.php#L79-105)
+次のような構造の多次元配列で表されたメタフィールドの一覧を返します。
+
+- \[@title] => 文字列
+- \[@summary] =>
+	- \[lml] => CommonMark (文字列)
+	- \[html] => HTML (文字列)
+- \[@regard] => 文字列
+
+#### [FilesystemIterator|null esperecyan\dictionary_php\Dictionary#getFiles()](./src/Dictionary.php#L107-122)
+辞書に同梱されるファイルを返します。
 
 ### Parser#parse() における例外 [esperecyan\dictionary_php\SyntaxException](./src/SyntaxException.php)
 SyntaxException#getMessage() から、ユーザーに示すエラーメッセージを取得できます。

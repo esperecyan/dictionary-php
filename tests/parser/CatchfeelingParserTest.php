@@ -7,20 +7,24 @@ class CatchfeelingParserTest extends \PHPUnit_Framework_TestCase
      * @param string $input
      * @param string|null $filename
      * @param string|null $title
-     * @param string[][][] $output
+     * @param (string|string[]|float|URLSearchParams)[][][] $jsonable
+     * @param (string|string[])[] $metadata
      * @dataProvider dictionaryProvider
      */
-    public function testParse(string $input, string $filename = null, string $title = null, array $output = null)
-    {
+    public function testParse(
+        string $input,
+        string $filename = null,
+        string $title = null,
+        array $jsonable = null,
+        array $metadata = null
+    ) {
         $parser = new CatchfeelingParser();
         $temp = new \SplTempFileObject();
         $temp->fwrite(preg_replace('/\\n */u', "\r\n", $input));
-        if (is_null($output)) {
-            $this->setExpectedException('\esperecyan\dictionary_php\exception\SyntaxException');
-        }
-        $this->assertSame($output, array_map(function (\esperecyan\dictionary_php\internal\Word $word): array {
-            return $word->getFieldsAsMultiDimensionalArray();
-        }, $parser->parse($temp, $filename, $title)->getWords()));
+        $dictionary = $parser->parse($temp, $filename, $title);
+        
+        $this->assertEquals($jsonable, $dictionary->getJsonable());
+        $this->assertEquals($metadata, $dictionary->getMetadata());
     }
     
     public function dictionaryProvider(): array
@@ -36,16 +40,17 @@ class CatchfeelingParserTest extends \PHPUnit_Framework_TestCase
                 [
                     [
                         'text' => ['たいよう'],
-                        'description' => ['太陽'],
+                        'description' => [['lml' => '太陽', 'html' => "<p>太陽</p>\n"]],
                     ],
                     [
                         'text' => ['ちきゅう'],
-                        'description' => ['地球'],
+                        'description' => [['lml' => '地球', 'html' => "<p>地球</p>\n"]],
                     ],
                     [
                         'text' => ['カロン'],
                     ],
                 ],
+                [],
             ],
             [
                 'たいよう//太陽
@@ -57,17 +62,17 @@ class CatchfeelingParserTest extends \PHPUnit_Framework_TestCase
                 [
                     [
                         'text' => ['たいよう'],
-                        'description' => ['太陽'],
-                        '@title' => ['天体'],
+                        'description' => [['lml' => '太陽', 'html' => "<p>太陽</p>\n"]],
                     ],
                     [
                         'text' => ['ちきゅう'],
-                        'description' => ['地球'],
+                        'description' => [['lml' => '地球', 'html' => "<p>地球</p>\n"]],
                     ],
                     [
                         'text' => ['カロン'],
                     ],
                 ],
+                ['@title' => '天体'],
             ],
             [
                 'たいよう//太陽
@@ -79,17 +84,17 @@ class CatchfeelingParserTest extends \PHPUnit_Framework_TestCase
                 [
                     [
                         'text' => ['たいよう'],
-                        'description' => ['太陽'],
-                        '@title' => ['星 [dummy].cfq'],
+                        'description' => [['lml' => '太陽', 'html' => "<p>太陽</p>\n"]],
                     ],
                     [
                         'text' => ['ちきゅう'],
-                        'description' => ['地球'],
+                        'description' => [['lml' => '地球', 'html' => "<p>地球</p>\n"]],
                     ],
                     [
                         'text' => ['カロン'],
                     ],
                 ],
+                ['@title' => '星 [dummy].cfq'],
             ],
             [
                 'ｶﾟ
@@ -117,6 +122,7 @@ class CatchfeelingParserTest extends \PHPUnit_Framework_TestCase
                         'text' => ['コ'],
                     ],
                 ],
+                [],
             ],
         ];
     }

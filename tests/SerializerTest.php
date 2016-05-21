@@ -1,14 +1,13 @@
 <?php
-namespace esperecyan\dictionary_php\serializer;
+namespace esperecyan\dictionary_php;
 
-use esperecyan\dictionary_php\Dictionary;
-
-class GenericDictionarySerializerTest extends \PHPUnit_Framework_TestCase implements \Psr\Log\LoggerInterface
+class SerializerTest extends \PHPUnit_Framework_TestCase implements \Psr\Log\LoggerInterface
 {
-    use \esperecyan\dictionary_php\LogLevelLoggerTrait;
-    use \esperecyan\dictionary_php\PreprocessingTrait;
+    use LogLevelLoggerTrait;
+    use PreprocessingTrait;
     
     /**
+     * @param string $to
      * @param string[][][] $fieldsAsMultiDimensionalArrays
      * @param string[] $files
      * @param string[] $expectedFile
@@ -16,6 +15,7 @@ class GenericDictionarySerializerTest extends \PHPUnit_Framework_TestCase implem
      * @dataProvider dictionaryProvider
      */
     public function testSerialize(
+        string $to,
         array $fieldsAsMultiDimensionalArrays,
         array $files,
         array $expectedFile,
@@ -37,7 +37,7 @@ class GenericDictionarySerializerTest extends \PHPUnit_Framework_TestCase implem
         
         $expectedFile['bytes'] = $this->stripIndentsAndToCRLF($expectedFile['bytes']);
         
-        $serializer = new GenericDictionarySerializer();
+        $serializer = new Serializer($to);
         $serializer->setLogger($this);
         $file = $serializer->serialize($dictionary);
         if ($files) {
@@ -64,6 +64,7 @@ class GenericDictionarySerializerTest extends \PHPUnit_Framework_TestCase implem
     {
         return [
             [
+                '汎用辞書',
                 [
                     [
                         'text' => ['太陽'],
@@ -116,6 +117,7 @@ class GenericDictionarySerializerTest extends \PHPUnit_Framework_TestCase implem
                 [],
             ],
             [
+                '汎用辞書',
                 [
                     [
                         'text' => ['ピン'],
@@ -161,10 +163,32 @@ class GenericDictionarySerializerTest extends \PHPUnit_Framework_TestCase implem
     }
     
     /**
-     * @expectedException \BadMethodCallException
+     * @param string $input
+     * @param string $from
+     * @expectedException \esperecyan\dictionary_php\exception\SyntaxException
+     * @dataProvider invalidDictionaryProvider
      */
-    public function testBadMethodCallException()
+    public function testSyntaxException(string $input, string $from)
     {
-        (new GenericDictionarySerializer())->serialize(new Dictionary());
+        (new Parser($from))->parse($this->generateTempFileObject($this->stripIndents($input)));
+    }
+    
+    public function invalidDictionaryProvider(): array
+    {
+        return [
+            [
+                '<?xml version="1.0" ?>
+                 <svg xmlns="http://www.w3.org/2000/svg">
+                    <rect width="100" height="100" />
+                </svg>
+                <!-- text/plainでない -->',
+                'キャッチフィーリング',
+            ],
+            [
+                'ふごうかほうしき
+                ',
+                'キャッチフィーリング',
+            ],
+        ];
     }
 }

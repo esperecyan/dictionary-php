@@ -18,7 +18,7 @@ trait PreprocessingTrait
      */
     protected function stripIndentsAndToCRLF(string $input): string
     {
-        return preg_replace('/\\n +/u', "\r\n", $input);
+        return preg_replace('/\\n */u', "\r\n", $input);
     }
     
     /**

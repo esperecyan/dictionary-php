@@ -104,11 +104,11 @@ class GenericDictionarySerializer extends AbstractSerializer
     }
     
     /**
-     * content-typeヘッダを出力して、辞書を書き出します。
      * @param Dictionary $dictionary
      * @throws SyntaxException ZIPファイルについて、CSVファイルの追加により、許容される容量を超過したとき。
+     * @return string[]
      */
-    public function response(Dictionary $dictionary)
+    public function serialize(Dictionary $dictionary): array
     {
         $csv = (new \esperecyan\dictionary_php\Parser())->getBinary($this->getAsCSVFile($dictionary));
         $archiveFileInfo = $dictionary->getArchive();
@@ -124,14 +124,17 @@ class GenericDictionarySerializer extends AbstractSerializer
                 );
             }
             
-            header('content-type: application/zip');
-            $this->setFilenameParameter($dictionary, 'zip');
-            $archiveFileInfo->openFile()->fpassthru();
+            return [
+                'bytes' => (new \esperecyan\dictionary_php\Parser)->getBinary($archiveFileInfo),
+                'type' => 'application/zip',
+                'name' => $this->getFilename($dictionary, 'zip'),
+            ];
         } else {
-            header('content-type: text/csv; charset=UTF-8; header=present');
-            $this->setFilenameParameter($dictionary, 'csv');
-            $this->setOutputEncoding();
-            echo $csv;
+            return [
+                'bytes' => $csv,
+                'type' => 'text/csv; charset=UTF-8; header=present',
+                'name' => $this->getFilename($dictionary, 'csv'),
+            ];
         }
     }
 }

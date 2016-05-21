@@ -115,11 +115,20 @@ Composer のインストール方法については、[Composer のグローバ�
 ##### `bool $header = null`
 変換元のファイルが `汎用辞書` の場合、ヘッダ行が存在すれば `true`、存在しなければ `false`、不明なら `null` を指定します。
 
-### [class esperecyan\dictionary_php\serializer\GenericDictionarySerializer()](./src/serializer/GenericDictionarySerializer.php)
+### [class esperecyan\dictionary_php\Serializer(string $to = '汎用辞書')](./src/serializer/Serializer.php)
 直列化器。
 
-#### [void esperecyan\dictionary_php\serializer\GenericDictionarySerializer#response(Dictionary $dictionary)](./src/serializer/GenericDictionarySerializer.php#L106-136)
-content-type応答ヘッダをともなって辞書を出力します。
+#### `string $to = '汎用辞書'`
+変換先の辞書形式。`汎用辞書` を指定する。
+
+#### [string\[\] esperecyan\dictionary_php\Serializer#serialize(Dictionary $dictionary)]
+次のような構造の連想配列で直列化したデータを返します。
+
+- \[bytes] => 直列化したデータのバイナリ文字列
+- \[type] => [MIME型] \(charsetパラメータなどをともなう)
+- \[name] => ファイル名
+
+[MIME型]: https://mimesniff.spec.whatwg.org/#mime-type
 
 ### [class esperecyan\dictionary_php\Dictionary](./src/Dictionary.php)
 辞書データ。
@@ -164,7 +173,7 @@ content-type応答ヘッダをともなって辞書を出力します。
 	- \[html] => HTML (文字列)
 - \[@regard] => 文字列
 
-#### [FilesystemIterator|null esperecyan\dictionary_php\Dictionary#getFiles()](./src/Dictionary.php#L107-122)
+#### [FilesystemIterator esperecyan\dictionary_php\Dictionary#getFiles()](./src/Dictionary.php#L107-122)
 辞書に同梱されるファイルを返します。
 
 ### Parser#parse() における例外 [esperecyan\dictionary_php\SyntaxException](./src/SyntaxException.php)

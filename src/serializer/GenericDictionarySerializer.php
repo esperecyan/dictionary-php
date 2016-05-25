@@ -30,8 +30,8 @@ class GenericDictionarySerializer extends AbstractSerializer
     protected function getFieldNames(Dictionary $dictionary): array
     {
         // 各フィールド名について、全レコード中の最大数をそれぞれ取得
-        foreach ($dictionary->getWords() as $word) {
-            foreach ($word->getFieldsAsMultiDimensionalArray() as $fieldName => $fields) {
+        foreach ($dictionary->getJsonable() as $word) {
+            foreach ($word as $fieldName => $fields) {
                 $fieldLengths[$fieldName] = max(count($fields), $fieldLengths[$fieldName] ?? 0);
             }
         }
@@ -39,6 +39,8 @@ class GenericDictionarySerializer extends AbstractSerializer
         if (empty($fieldLengths)) {
             throw new \BadMethodCallException('空の辞書です。');
         }
+        
+        $fieldLengths += array_fill_keys(array_keys($dictionary->getMetadata()), 1);
         
         uksort($fieldLengths, function (string $a, string $b): int {
             return $this->getColumnPosition($a) <=> $this->getColumnPosition($b);
@@ -69,19 +71,23 @@ class GenericDictionarySerializer extends AbstractSerializer
     }
 
     /**
-     * WordをCSVのレコードに変換します。
-     * @param \esperecyan\dictionary_php\internal\Word $word
+     * 一つのお題を表す配列を、CSVのレコードに変換します。
+     * @param (string|string[]|float|URLSearchParams)[][] $word
      * @param string[] $fieldNames
+     * @param (string|string[])[] $metadata
      * @return string[]
      */
-    protected function convertWordToRecord(\esperecyan\dictionary_php\internal\Word $word, array $fieldNames): array
+    protected function convertWordToRecord(array $word, array $fieldNames, array $metadata): array
     {
         $output = [];
-        $fieldsAsMultiDimensionalArray = $word->getFieldsAsMultiDimensionalArray();
         foreach ($fieldNames as $fieldName) {
-            $output[] = isset($fieldsAsMultiDimensionalArray[$fieldName][0])
-                ? array_shift($fieldsAsMultiDimensionalArray[$fieldName])
-                : '';
+            $field = isset($word[$fieldName][0])
+                ? array_shift($word[$fieldName])
+                : (isset($metadata[$fieldName]) ? $metadata[$fieldName] : '');
+            if (is_array($field)) {
+                $field = $field['lml'];
+            }
+            $output[] = $field;
         }
         return $output;
     }
@@ -96,8 +102,11 @@ class GenericDictionarySerializer extends AbstractSerializer
         $fieldNames = $this->getFieldNames($dictionary);
         $csv = new \SplTempFileObject();
         $this->putCSVRecord($csv, $fieldNames);
-        foreach ($dictionary->getWords() as $word) {
-            $this->putCSVRecord($csv, $this->convertWordToRecord($word, $fieldNames));
+        foreach ($dictionary->getJsonable() as $i => $word) {
+            $this->putCSVRecord(
+                $csv,
+                $this->convertWordToRecord($word, $fieldNames, $i === 0 ? $dictionary->getMetadata() : [])
+            );
         }
         $csv->rewind();
         return $csv;
@@ -111,11 +120,14 @@ class GenericDictionarySerializer extends AbstractSerializer
     public function serialize(Dictionary $dictionary): array
     {
         $csv = (new \esperecyan\dictionary_php\Parser())->getBinary($this->getAsCSVFile($dictionary));
-        $archiveFileInfo = $dictionary->getArchive();
-        if ($archiveFileInfo) {
-            $archive = new \ZipArchive();
-            $archive->open($archiveFileInfo->getRealPath());
+        $files = $dictionary->getFiles();
+        if ($files) {
+            $archive = $this->generateArchive();
+            foreach ($files as $file) {
+                $archive->addFile($file, $file->getFilename());
+            }
             $archive->addFromString('dictionary.csv', $csv);
+            $archiveFileInfo = new \SplFileInfo($archive->filename);
             $archive->close();
             
             if ($archiveFileInfo->getSize() > GenericDictionaryParser::MAX_COMPRESSED_ARCHIVE_SIZE) {

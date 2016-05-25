@@ -3,6 +3,8 @@ namespace esperecyan\dictionary_php;
 
 trait PreprocessingTrait
 {
+    use internal\ArchiveGenerator;
+    
     /**
      * @param string $input
      * @return string
@@ -19,26 +21,6 @@ trait PreprocessingTrait
     protected function stripIndentsAndToCRLF(string $input): string
     {
         return preg_replace('/\\n */u', "\r\n", $input);
-    }
-    
-    /**
-     * @param string $binary
-     * @return \ZipArchive
-     */
-    protected function generateArchive(string $binary = ''): \ZipArchive
-    {
-        $path = tempnam(sys_get_temp_dir(), 'php');
-        if ($binary !== '') {
-            file_put_contents($path, $binary);
-        }
-        register_shutdown_function(function () use ($path) {
-            if (file_exists($path)) {
-                unlink($path);
-            }
-        });
-        $archive = new \ZipArchive();
-        $archive->open($path);
-        return $archive;
     }
     
     /**

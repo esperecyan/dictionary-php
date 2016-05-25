@@ -7,6 +7,7 @@ use esperecyan\dictionary_php\validator\FileLocationValidator;
 abstract class AbstractSerializer implements \Psr\Log\LoggerAwareInterface
 {
     use \Psr\Log\LoggerAwareTrait;
+    use \esperecyan\dictionary_php\internal\ArchiveGenerator;
     
     /** @var string 辞書のタイトルが存在しなかった場合の拡張子を除くファイル名。 */
     const DEFAULT_FILENAME = 'dictionary';

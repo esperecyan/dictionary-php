@@ -185,7 +185,7 @@ class GenericDictionaryParser extends AbstractParser implements
      */
     protected function generateTempFile(\SplTempFileObject $file = null): string
     {
-        $path = tempnam(sys_get_temp_dir());
+        $path = tempnam(sys_get_temp_dir(), 'php');
         if ($file) {
             file_put_contents($path, (new \esperecyan\dictionary_php\Parser())->getBinary($file));
         }

@@ -1,10 +1,8 @@
 <?php
 namespace esperecyan\dictionary_php\validator;
 
-abstract class AbstractFieldValidator implements \Psr\Log\LoggerAwareInterface
+abstract class AbstractFieldValidator extends \esperecyan\dictionary_php\log\AbstractLoggerAware
 {
-    use \Psr\Log\LoggerAwareTrait;
-    
     /**
      * 入力を矯正して返します。
      * @param string $input

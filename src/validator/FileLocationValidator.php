@@ -32,6 +32,8 @@ class FileLocationValidator extends AbstractFieldValidator
      */
     public function __construct(string $fieldName = null, array $filenames = [])
     {
+        parent::__construct();
+        
         if (!is_null($fieldName)) {
             if (isset(self::EXTENSIONS[$fieldName])) {
                 $this->fieldName = $fieldName;
@@ -208,9 +210,7 @@ class FileLocationValidator extends AbstractFieldValidator
                 $output = self::DEFAULT_WEB_SERVICE_IDENTIFIER . "/$filename";
             }
             
-            if ($this->logger) {
-                $this->logger->error(sprintf(_('「%s」はファイル所在の規則に合致しません。'), $input));
-            }
+            $this->logger->error(sprintf(_('「%s」はファイル所在の規則に合致しません。'), $input));
         }
         
         return $output;

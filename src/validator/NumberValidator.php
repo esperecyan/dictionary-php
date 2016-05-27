@@ -23,6 +23,8 @@ class NumberValidator extends AbstractFieldValidator
      */
     public function __construct(bool $realNumber = false)
     {
+        parent::__construct();
+        
         $this->realNumber = $realNumber;
     }
 
@@ -41,11 +43,10 @@ class NumberValidator extends AbstractFieldValidator
         if ($this->validate($input)) {
             $output = $input;
         } else {
-            if ($this->logger) {
-                $this->logger->error(sprintf($this->realNumber
-                    ? _('「%s」は実数の規則に合致しません。')
-                    : _('「%s」は整数の規則に合致しません。'), $input));
-            }
+            $this->logger->error(sprintf(
+                $this->realNumber ? _('「%s」は実数の規則に合致しません。') : _('「%s」は整数の規則に合致しません。'),
+                $input
+            ));
             
             if (stripos($input, 'E') !== false) {
                 $input = (float)$input;

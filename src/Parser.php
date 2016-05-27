@@ -3,10 +3,8 @@ namespace esperecyan\dictionary_php;
 
 use esperecyan\dictionary_php\exception\SyntaxException;
 
-class Parser implements \Psr\Log\LoggerAwareInterface
+class Parser extends log\AbstractLoggerAware
 {
-    use \Psr\Log\LoggerAwareTrait;
-    
     /** @var int SplTempFileObject::read で一度に読み込むバイト数。 */
     const READ_LENGTH = 2 ** 20;
     
@@ -26,6 +24,8 @@ class Parser implements \Psr\Log\LoggerAwareInterface
      */
     public function __construct(string $from = null, string $filename = null, string $title = null)
     {
+        parent::__construct();
+
         $this->filename = $filename;
         $this->title = $title;
         
@@ -119,7 +119,7 @@ class Parser implements \Psr\Log\LoggerAwareInterface
             }
         }
         
-        if ($parser instanceof \Psr\Log\LoggerAwareInterface && $this->logger) {
+        if ($parser instanceof \Psr\Log\LoggerAwareInterface) {
             $parser->setLogger($this->logger);
         }
         

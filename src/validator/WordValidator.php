@@ -9,10 +9,8 @@ use esperecyan\dictionary_php\exception\SyntaxException;
 /**
  * 辞書における1つのお題 (レコード、行) のバリデートを行います。
  */
-class WordValidator implements \Psr\Log\LoggerAwareInterface
+class WordValidator extends \esperecyan\dictionary_php\log\AbstractLoggerAware
 {
-    use \Psr\Log\LoggerAwareTrait;
-    
     /** @var string[] ファイル所在の検証に使用するファイル名のリスト。 */
     protected $filenames = [];
     
@@ -21,6 +19,8 @@ class WordValidator implements \Psr\Log\LoggerAwareInterface
      */
     public function __construct(array $filenames = [])
     {
+        parent::__construct();
+        
         $this->filenames = $filenames;
     }
     
@@ -90,9 +90,7 @@ class WordValidator implements \Psr\Log\LoggerAwareInterface
         if (isset($word['answer'][0])
             && $answerValidator->isRegExp($word['answer'][0])) {
             // 1個目のanswerフィールドが正規表現文字列だった場合
-            if ($this->logger) {
-                $this->logger->error(_('1個目のanswerフィールドは、正規表現文字列であってはなりません。'));
-            }
+            $this->logger->error(_('1個目のanswerフィールドは、正規表現文字列であってはなりません。'));
             foreach ($word['answer'] as $index => $answer) {
                 if (!$answerValidator->isRegExp($answer)) {
                     $noRegExpIndex = $index;
@@ -139,9 +137,7 @@ class WordValidator implements \Psr\Log\LoggerAwareInterface
             case 'audio':
             case 'video':
                 $validator = new FileLocationValidator($fieldName, $this->filenames);
-                if ($this->logger) {
-                    $validator->setLogger($this->logger);
-                }
+                $validator->setLogger($this->logger);
                 $output = $validator->correct($field);
                 break;
 
@@ -149,9 +145,7 @@ class WordValidator implements \Psr\Log\LoggerAwareInterface
             case 'audio-source':
             case 'video-source':
                 $validator = new LightweightMarkupValidator(true);
-                if ($this->logger) {
-                    $validator->setLogger($this->logger);
-                }
+                $validator->setLogger($this->logger);
                 $output = $validator->correct($field);
                 if ($output !== '') {
                     $output = [
@@ -164,18 +158,14 @@ class WordValidator implements \Psr\Log\LoggerAwareInterface
             case 'answer':
             case 'option':
                 $validator = new AnswerValidator();
-                if ($this->logger) {
-                    $validator->setLogger($this->logger);
-                }
+                $validator->setLogger($this->logger);
                 $output = $validator->correct($field);
                 break;
 
             case 'description':
             case '@summary':
                 $validator = new LightweightMarkupValidator(false, $this->filenames);
-                if ($this->logger) {
-                    $validator->setLogger($this->logger);
-                }
+                $validator->setLogger($this->logger);
                 $output = $validator->correct($field);
                 if ($output !== '') {
                     $output = [
@@ -187,16 +177,12 @@ class WordValidator implements \Psr\Log\LoggerAwareInterface
 
             case 'weight':
                 $validator = new NumberValidator(true);
-                if ($this->logger) {
-                    $validator->setLogger($this->logger);
-                }
+                $validator->setLogger($this->logger);
                 $number = $validator->correct($field);
                 if (bccomp($number, '0', NumberValidator::SCALE) === 1) {
                     $output = $number;
                 } else {
-                    if ($this->logger) {
-                        $this->logger->error(sprintf(_('「%s」は0より大きい実数として扱えません。'), $field));
-                    }
+                    $this->logger->error(sprintf(_('「%s」は0より大きい実数として扱えません。'), $field));
                     $output = '';
                 }
                 if ($output !== '') {
@@ -206,9 +192,7 @@ class WordValidator implements \Psr\Log\LoggerAwareInterface
 
             case 'specifics':
                 $validator = new SpecificsValidator();
-                if ($this->logger) {
-                    $validator->setLogger($this->logger);
-                }
+                $validator->setLogger($this->logger);
                 $output = $validator->correct($field);
                 if ($output !== '') {
                     $output = new URLSearchParams($output);
@@ -220,9 +204,7 @@ class WordValidator implements \Psr\Log\LoggerAwareInterface
                     && (new AnswerValidator())->validateRegexp("/$field/")) {
                     $output = $field;
                 } else {
-                    if ($this->logger) {
-                        $this->logger->error(sprintf(_('「%s」は妥当な正規表現文字クラスではありません。'), $field));
-                    }
+                    $this->logger->error(sprintf(_('「%s」は妥当な正規表現文字クラスではありません。'), $field));
                     $output = '';
                 }
                 break;

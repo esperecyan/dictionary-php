@@ -90,24 +90,19 @@ class AnswerValidator extends AbstractFieldValidator
     public function correct(string $input): string
     {
         if ($this->validate($input)) {
-            if ($this->logger && $this->isRegExp($input)) {
+            if ($this->isRegExp($input)) {
                 $this->logger->notice(_('正規表現は使わないようにするべきです。'));
             }
             $output = $input;
         } elseif ($this->isRegExp($input)) {
-            if ($this->logger) {
-                $this->logger->error(sprintf(_('「%s」は正規表現文字列の規則に合致しません。'), $input));
-            }
+            $this->logger->error(sprintf(_('「%s」は正規表現文字列の規則に合致しません。'), $input));
             $output = '';
         } else {
-            if ($this->logger) {
-                $this->logger->error(sprintf(_('「%s」は解答文字列の規則に合致しません。'), $input));
-            }
+            $this->logger->error(sprintf(_('「%s」は解答文字列の規則に合致しません。'), $input));
             $output = $this->convertToValidCharacters($input);
         }
         
-        if ($this->logger && $output !== ''
-            && !$this->isRegExp($input) && !$this->isHiraganaOrReplaceableKatakana($output)) {
+        if ($output !== '' && !$this->isRegExp($input) && !$this->isHiraganaOrReplaceableKatakana($output)) {
             $this->logger->notice(_('日本語話者向けの辞書であれば、解答はひらがなかカタカナにすべきです: ') . $output);
         }
         

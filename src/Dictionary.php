@@ -7,12 +7,8 @@ use esperecyan\dictionary_php\exception\SyntaxException;
 /**
  * 1つの辞書を表します。
  */
-class Dictionary implements \Psr\Log\LoggerAwareInterface
+class Dictionary extends log\AbstractLoggerAware
 {
-    use \Psr\Log\LoggerAwareTrait {
-        setLogger as traitSetLogger;
-    }
-    
     /** @var (string|string[]|float|URLSearchParams)[][][] お題の一覧。 */
     protected $words = [];
     
@@ -30,6 +26,8 @@ class Dictionary implements \Psr\Log\LoggerAwareInterface
      */
     public function __construct(\FilesystemIterator $files = null)
     {
+        parent::__construct();
+        
         $this->files = $files;
         if ($this->files) {
             $files->setFlags(\FilesystemIterator::KEY_AS_FILENAME
@@ -42,8 +40,10 @@ class Dictionary implements \Psr\Log\LoggerAwareInterface
     
     public function setLogger(\Psr\Log\LoggerInterface $logger)
     {
-        $this->traitSetLogger($logger);
-        $this->validator->setLogger($this->logger);
+        parent::setLogger($logger);
+        if ($this->validator) {
+            $this->validator->setLogger($this->logger);
+        }
     }
     
     /**

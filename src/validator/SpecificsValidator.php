@@ -57,16 +57,12 @@ class SpecificsValidator extends AbstractFieldValidator
                         case 'speed':
                         case 'volume':
                             $validator = new NumberValidator(true);
-                            if ($this->logger) {
-                                $validator->setLogger($this->logger);
-                            }
+                            $validator->setLogger($this->logger);
                             $number = $validator->correct($value);
                             if ($number !== '' && bccomp($number, '0', NumberValidator::SCALE) === 1) {
                                 $value = $number;
                             } else {
-                                if ($this->logger) {
-                                    $this->logger->error(sprintf(_('「%s」は0より大きい実数として扱えません。'), $value));
-                                }
+                                $this->logger->error(sprintf(_('「%s」は0より大きい実数として扱えません。'), $value));
                                 $value = null;
                             }
                             break;
@@ -74,16 +70,12 @@ class SpecificsValidator extends AbstractFieldValidator
                         // 0以上の実数
                         case 'start':
                             $validator = new NumberValidator(true);
-                            if ($this->logger) {
-                                $validator->setLogger($this->logger);
-                            }
+                            $validator->setLogger($this->logger);
                             $number = $validator->correct($value);
                             if ($number !== '' && bccomp($number, '0', NumberValidator::SCALE) >= 0) {
                                 $value = $number;
                             } else {
-                                if ($this->logger) {
-                                    $this->logger->error(sprintf(_('「%s」は0以上の実数として扱えません。'), $value));
-                                }
+                                $this->logger->error(sprintf(_('「%s」は0以上の実数として扱えません。'), $value));
                                 $value = null;
                             }
                             break;
@@ -93,16 +85,12 @@ class SpecificsValidator extends AbstractFieldValidator
                         case 'score':
                         case 'last-score':
                             $validator = new NumberValidator();
-                            if ($this->logger) {
-                                $validator->setLogger($this->logger);
-                            }
+                            $validator->setLogger($this->logger);
                             $number = $validator->correct($value);
                             if ($number !== '' && bccomp($number, '0') === 1) {
                                 $value = $number;
                             } else {
-                                if ($this->logger) {
-                                    $this->logger->error(sprintf(_('「%s」は1以上の整数として扱えません。'), $value));
-                                }
+                                $this->logger->error(sprintf(_('「%s」は1以上の整数として扱えません。'), $value));
                                 $value = null;
                             }
                             break;
@@ -110,16 +98,12 @@ class SpecificsValidator extends AbstractFieldValidator
                         // 整数
                         case 'bonus':
                             $validator = new NumberValidator();
-                            if ($this->logger) {
-                                $validator->setLogger($this->logger);
-                            }
+                            $validator->setLogger($this->logger);
                             $number = $validator->correct($value);
                             if ($number !== '') {
                                 $value = $number;
                             } else {
-                                if ($this->logger) {
-                                    $this->logger->error(sprintf(_('「%s」は整数として扱えません。'), $value));
-                                }
+                                $this->logger->error(sprintf(_('「%s」は整数として扱えません。'), $value));
                                 $value = null;
                             }
                             break;
@@ -131,9 +115,7 @@ class SpecificsValidator extends AbstractFieldValidator
             }
             $output = $this->serialize($nameValues);
         } else {
-            if ($this->logger) {
-                $this->logger->error(_('解析した結果空文字列になりました。'));
-            }
+            $this->logger->error(_('解析した結果空文字列になりました。'));
         }
         
         return $output ?? '';

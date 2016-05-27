@@ -1,10 +1,8 @@
 <?php
 namespace esperecyan\dictionary_php;
 
-class Serializer implements \Psr\Log\LoggerAwareInterface
+class Serializer extends log\AbstractLoggerAware
 {
-    use \Psr\Log\LoggerAwareTrait;
-    
     /** @var string */
     protected $to;
     
@@ -13,6 +11,8 @@ class Serializer implements \Psr\Log\LoggerAwareInterface
      */
     public function __construct(string $to = '汎用辞書')
     {
+        parent::__construct();
+        
         $this->to = in_array($to, []) ? $to : '汎用辞書';
     }
     
@@ -30,9 +30,7 @@ class Serializer implements \Psr\Log\LoggerAwareInterface
                 break;
         }
         
-        if ($this->logger) {
-            $serializer->setLogger($this->logger);
-        }
+        $serializer->setLogger($this->logger);
         
         return $serializer->serialize($dictionary);
     }

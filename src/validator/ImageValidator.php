@@ -33,6 +33,8 @@ class ImageValidator extends AbstractFieldValidator
      */
     public function __construct(string $type, string $filename)
     {
+        parent::__construct();
+        
         if (in_array($type, ['image/png', 'image/jpeg', 'image/svg+xml'])) {
             $this->type = $type;
         } else {
@@ -48,9 +50,7 @@ class ImageValidator extends AbstractFieldValidator
     protected function convertExifToJFIF(\Imagick $imagick)
     {
         if ($imagick->getImageProperties('exif:*')) {
-            if ($this->logger) {
-                $this->logger->error(sprintf(_('「%s」はExif形式です。'), $this->filename));
-            }
+            $this->logger->error(sprintf(_('「%s」はExif形式です。'), $this->filename));
             switch ($imagick->getImageOrientation()) {
                 case \Imagick::ORIENTATION_TOPRIGHT:
                     $imagick->flopImage();
@@ -87,26 +87,24 @@ class ImageValidator extends AbstractFieldValidator
      */
     protected function checkSize($imagick)
     {
-        if ($this->logger) {
-            $width = $imagick->getImageWidth();
-            if ($width > self::MAX_RECOMMENDED_IMAGE_WIDTH) {
-                $this->logger->notice(sprintf(
-                    _('画像の幅は %1s 以下にすべきです。「%2s」の幅は %3s です。'),
-                    self::MAX_RECOMMENDED_IMAGE_WIDTH . 'px',
-                    $this->filename,
-                    $width . 'px'
-                ));
-            }
+        $width = $imagick->getImageWidth();
+        if ($width > self::MAX_RECOMMENDED_IMAGE_WIDTH) {
+            $this->logger->notice(sprintf(
+                _('画像の幅は %1s 以下にすべきです。「%2s」の幅は %3s です。'),
+                self::MAX_RECOMMENDED_IMAGE_WIDTH . 'px',
+                $this->filename,
+                $width . 'px'
+            ));
+        }
 
-            $height = $imagick->getImageHeight();
-            if ($height > self::MAX_RECOMMENDED_IMAGE_HEIGHT) {
-                $this->logger->notice(sprintf(
-                    _('画像の高さは %1s 以下にすべきです。「%2s」の高さは %3s です。'),
-                    self::MAX_RECOMMENDED_IMAGE_HEIGHT . 'px',
-                    $this->filename,
-                    $height . 'px'
-                ));
-            }
+        $height = $imagick->getImageHeight();
+        if ($height > self::MAX_RECOMMENDED_IMAGE_HEIGHT) {
+            $this->logger->notice(sprintf(
+                _('画像の高さは %1s 以下にすべきです。「%2s」の高さは %3s です。'),
+                self::MAX_RECOMMENDED_IMAGE_HEIGHT . 'px',
+                $this->filename,
+                $height . 'px'
+            ));
         }
     }
     
@@ -144,9 +142,7 @@ class ImageValidator extends AbstractFieldValidator
         if ($this->type === 'image/svg+xml') {
             try {
                 $validator = new SVGValidator();
-                if ($this->logger) {
-                    $validator->setLogger($this->logger);
-                }
+                $validator->setLogger($this->logger);
                 $input = $validator->correct($input);
             } catch (SyntaxException $e) {
                 throw new SyntaxException($this->generateErrorMessage(), 0, $e);

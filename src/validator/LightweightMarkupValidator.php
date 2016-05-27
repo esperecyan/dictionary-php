@@ -81,6 +81,8 @@ class LightweightMarkupValidator extends AbstractFieldValidator implements \Psr\
      */
     public function __construct(bool $source = false, $filenames = [])
     {
+        parent::__construct();
+        
         $this->source = $source;
         $this->filenames = $filenames;
     }
@@ -185,17 +187,15 @@ class LightweightMarkupValidator extends AbstractFieldValidator implements \Psr\
         
         $filtered = $filter->filter($this->convertToHTML($input));
         if ($this->errorMessages) {
-            if ($this->logger) {
-                $this->logger->error(sprintf(
-                    _('「%s」に次のエラーが出ています:'),
-                    mb_strlen($input) > self::FIELD_ELLIPSIS_LENGTH
-                        ? mb_substr($input, 0, self::FIELD_ELLIPSIS_LENGTH) . '…'
-                        : $input
-                ) . array_reduce($this->errorMessages, function ($errors, $error) {
-                    return $errors .= "\n• $error";
-                }, ''));
-                $this->errorMessages = [];
-            }
+            $this->logger->error(sprintf(
+                _('「%s」に次のエラーが出ています:'),
+                mb_strlen($input) > self::FIELD_ELLIPSIS_LENGTH
+                    ? mb_substr($input, 0, self::FIELD_ELLIPSIS_LENGTH) . '…'
+                    : $input
+            ) . array_reduce($this->errorMessages, function ($errors, $error) {
+                return $errors .= "\n• $error";
+            }, ''));
+            $this->errorMessages = [];
             
             // CommonMarkに変換
             $output = $this->convertFromHTML($filtered);

@@ -45,9 +45,7 @@ class SVGValidator extends AbstractFieldValidator
             if ($node === $root) {
                 throw new SyntaxException(_('ルート要素がSVG名前空間に属していません。'));
             }
-            if ($this->logger) {
-                $this->logger->error(sprintf(_('SVG中にノード %s を含めることはできません。'), $node->nodeName));
-            }
+            $this->logger->error(sprintf(_('SVG中にノード %s を含めることはできません。'), $node->nodeName));
             if ($node->nodeType === XML_ATTRIBUTE_NODE) {
                 $node->ownerElement->removeAttributeNode($node);
             } elseif ($node->parentNode) {

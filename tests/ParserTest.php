@@ -66,7 +66,7 @@ class ParserTest extends \PHPUnit_Framework_TestCase implements \Psr\Log\LoggerI
             $input instanceof \Closure ? new \SplFileInfo($input()) : $this->generateTempFileObject($input)
         );
         
-        $this->assertEquals($jsonable, $dictionary->getJsonable());
+        $this->assertEquals($jsonable, $dictionary->getWords());
         $this->assertEquals($metadata, $dictionary->getMetadata());
         $this->assertEquals($logLevels, $this->logLevels);
     }

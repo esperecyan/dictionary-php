@@ -42,7 +42,7 @@ class GenericDictionaryParserTest extends \PHPUnit_Framework_TestCase implements
                 $field = $this->stripIndents($field);
             }
         })->bindTo($this));
-        $this->assertEquals($jsonable, $dictionary->getJsonable());
+        $this->assertEquals($jsonable, $dictionary->getWords());
         array_walk_recursive($metadata, (function (string &$field) {
             if (is_string($field)) {
                 $field = $this->stripIndents($field);

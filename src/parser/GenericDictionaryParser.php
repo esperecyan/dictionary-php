@@ -520,7 +520,7 @@ class GenericDictionaryParser extends AbstractParser implements
         $dictionary->setLogger($this);
         $this->parseCSVFile($dictionary, $csv, $header);
         
-        if (!$dictionary->getJsonable()) {
+        if (!$dictionary->getWords()) {
             throw new SyntaxException(_('CSVファイルが空です。'));
         }
         

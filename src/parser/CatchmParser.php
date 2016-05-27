@@ -76,7 +76,7 @@ class CatchmParser extends AbstractParser
             $this->parseLine($dictionary, $line);
         }
         
-        $this->wholeText .= implode('', array_column(array_column($dictionary->getJsonable(), 'text'), 0));
+        $this->wholeText .= implode('', array_column(array_column($dictionary->getWords(), 'text'), 0));
         if ($this->wholeText === '') {
             throw new SyntaxException(_('空の辞書です。'));
         }

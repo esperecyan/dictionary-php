@@ -67,7 +67,7 @@ class CatchfeelingParser extends AbstractParser
             $this->parseLine($dictionary, $line);
         }
         
-        $this->wholeText .= implode('', array_column(array_column($dictionary->getJsonable(), 'text'), 0));
+        $this->wholeText .= implode('', array_column(array_column($dictionary->getWords(), 'text'), 0));
         if ($this->wholeText === '') {
             throw new SyntaxException(_('制御文字や空白文字のみで構成された辞書は変換できません。'));
         }

@@ -29,7 +29,7 @@ class InteligenceoParserTest extends \PHPUnit_Framework_TestCase
         $temp->fwrite(preg_replace('/\\n */u', "\r\n", $input));
         $dictionary = $parser->parse($temp, $filename, $title);
         
-        $this->assertEquals($jsonable, $dictionary->getJsonable());
+        $this->assertEquals($jsonable, $dictionary->getWords());
         $this->assertEquals($metadata, $dictionary->getMetadata());
     }
     

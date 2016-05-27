@@ -133,7 +133,7 @@ Composer のインストール方法については、[Composer のグローバ�
 ### [class esperecyan\dictionary_php\Dictionary](./src/Dictionary.php)
 辞書データ。
 
-#### [(string|string\[\]|float|URLSearchParams)\[\]\[\]\[\] esperecyan\dictionary_php\Dictionary#getJsonable()](./src/Dictionary.php#L40-77)
+#### [(string|string\[\]|float|URLSearchParams)\[\]\[\]\[\] esperecyan\dictionary_php\Dictionary#getWords()](./src/Dictionary.php#L40-77)
 次のような構造の多次元配列で表されたお題の一覧を返します。
 
 - \[0] => 

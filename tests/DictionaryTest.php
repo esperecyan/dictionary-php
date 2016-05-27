@@ -29,7 +29,7 @@ class DictionaryTest extends \PHPUnit_Framework_TestCase implements \Psr\Log\Log
             $dictionary->addWord($multiDimensionalArray);
         }
         
-        $this->assertEquals($output, $dictionary->getJsonable());
+        $this->assertEquals($output, $dictionary->getWords());
         $this->assertEquals($logLevels, $this->logLevels);
     }
 

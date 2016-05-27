@@ -30,7 +30,7 @@ class GenericDictionarySerializer extends AbstractSerializer
     protected function getFieldNames(Dictionary $dictionary): array
     {
         // 各フィールド名について、全レコード中の最大数をそれぞれ取得
-        foreach ($dictionary->getJsonable() as $word) {
+        foreach ($dictionary->getWords() as $word) {
             foreach ($word as $fieldName => $fields) {
                 $fieldLengths[$fieldName] = max(count($fields), $fieldLengths[$fieldName] ?? 0);
             }
@@ -102,7 +102,7 @@ class GenericDictionarySerializer extends AbstractSerializer
         $fieldNames = $this->getFieldNames($dictionary);
         $csv = new \SplTempFileObject();
         $this->putCSVRecord($csv, $fieldNames);
-        foreach ($dictionary->getJsonable() as $i => $word) {
+        foreach ($dictionary->getWords() as $i => $word) {
             $this->putCSVRecord(
                 $csv,
                 $this->convertWordToRecord($word, $fieldNames, $i === 0 ? $dictionary->getMetadata() : [])

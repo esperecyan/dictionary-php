@@ -48,10 +48,10 @@ class Dictionary implements \Psr\Log\LoggerAwareInterface
     
     /**
      * お題の一覧を取得します。
-     * @see https://github.com/esperecyan/dictionary-php#stringstringfloaturlsearchparams-esperecyandictionary_phpdictionarygetjsonable
+     * @see https://github.com/esperecyan/dictionary-php#stringstringfloaturlsearchparams-esperecyandictionary_phpdictionarygetwords
      * @return (string|string[]|float|URLSearchParams)[][][]
      */
-    public function getJsonable(): array
+    public function getWords(): array
     {
         return $this->words;
     }

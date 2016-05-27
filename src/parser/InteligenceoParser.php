@@ -132,7 +132,7 @@ class InteligenceoParser extends AbstractParser
             }
 
             $dictionary->addWord($fieldsAsMultiDimensionalArray);
-            $words = $dictionary->getJsonable();
+            $words = $dictionary->getWords();
             $this->wholeText .= implode('', $words[count($words) - 1]['answer']);
         }
     }
@@ -464,7 +464,7 @@ class InteligenceoParser extends AbstractParser
             $dictioanry->addWord($fieldsAsMultiDimensionalArray);
             if ($answerType === 0) {
                 // 記述形式
-                $words = $dictioanry->getJsonable();
+                $words = $dictioanry->getWords();
                 $word = $words[count($words) - 1];
                 if (isset($word['answer'])) {
                     foreach ($word['answer'] as $answer) {
@@ -594,7 +594,7 @@ class InteligenceoParser extends AbstractParser
         }
         $this->parseLine($dictionary);
         
-        if (!$dictionary->getJsonable()) {
+        if (!$dictionary->getWords()) {
             throw new SyntaxException(_('正常に変換可能な行が見つかりませんでした。'));
         }
         

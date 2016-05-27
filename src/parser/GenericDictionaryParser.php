@@ -305,7 +305,7 @@ class GenericDictionaryParser extends AbstractParser implements
      * PHPがWindowsでコンパイルされていれば真を返します。
      * @return bool
      */
-    protected function isWindows():bool
+    protected function isWindows(): bool
     {
         return strpos(PHP_OS, 'WIN') === 0;
     }
@@ -317,7 +317,7 @@ class GenericDictionaryParser extends AbstractParser implements
      * @param bool|null $header
      * @throws SyntaxException CSVファイルが壊れている場合。
      */
-    protected function parseCSVFile(Dictionary $dictionary, \SplFileInfo $csv, $header = null)
+    protected function parseCSVFile(Dictionary $dictionary, \SplFileInfo $csv, bool $header = null)
     {
         if (!($csv instanceof \SplFileObject)) {
             $csv = $csv->openFile();

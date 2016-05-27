@@ -63,6 +63,9 @@ class GenericDictionaryParser extends AbstractParser implements
     /** @var int generateTempDirectory() で作成するランダムなディレクトリ名の長さ。  */
     const TEMP_DIRECTORY_NAME_LENGTH = 32;
     
+    /** @var string generateTempFile()、generateTempDirectory() で作成するファイル名、ディレクトリ名の接頭辞。  */
+    const TEMP_FILE_OR_DIRECTORY_PREFIX = 'php';
+    
     /**
      * mbstring拡張モジュールにおいて推奨される符号化方式の検出順序。
      * @var string
@@ -200,7 +203,7 @@ class GenericDictionaryParser extends AbstractParser implements
      */
     protected function generateTempFile(\SplFileInfo $file = null): string
     {
-        $path = tempnam(sys_get_temp_dir(), 'php');
+        $path = tempnam(sys_get_temp_dir(), self::TEMP_FILE_OR_DIRECTORY_PREFIX);
         if ($file) {
             file_put_contents($path, (new Parser())->getBinary($file));
         }
@@ -218,7 +221,8 @@ class GenericDictionaryParser extends AbstractParser implements
      */
     public function generateTempDirectory(): string
     {
-        $path = sys_get_temp_dir() . '/' . bin2hex(random_bytes(self::TEMP_DIRECTORY_NAME_LENGTH));
+        $path = sys_get_temp_dir() . '/'
+            . self::TEMP_FILE_OR_DIRECTORY_PREFIX . bin2hex(random_bytes(self::TEMP_DIRECTORY_NAME_LENGTH));
         
         mkdir($path);
         

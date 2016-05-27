@@ -2,39 +2,48 @@
 namespace esperecyan\dictionary_php;
 
 use esperecyan\url\URLSearchParams;
-use esperecyan\html_filter\Filter as HTMLFilter;
-use League\CommonMark\CommonMarkConverter;
-use esperecyan\dictionary_php\{exception\SyntaxException, internal\Word};
+use esperecyan\dictionary_php\exception\SyntaxException;
 
 /**
  * 1つの辞書を表します。
  */
 class Dictionary implements \Psr\Log\LoggerAwareInterface
 {
-    use \Psr\Log\LoggerAwareTrait;
+    use \Psr\Log\LoggerAwareTrait {
+        setLogger as traitSetLogger;
+    }
     
-    /** @var int generateTempDirectory() で作成するランダムなディレクトリ名の長さ。  */
-    const TEMP_DIRECTORY_NAME_LENGTH = 32;
-    
-    /** @var Word[] お題の一覧。 */
+    /** @var (string|string[]|float|URLSearchParams)[][][] お題の一覧。 */
     protected $words = [];
     
-    /** @var \SplFileInfo|null 画像・音声・動画ファイルのアーカイブ。 */
-    protected $archive = null;
-    
-    /** @var string[] 画像・音声・動画ファイル名の一覧。 */
-    protected $filenames = [];
+    /** @var (string|string[])[] メタフィールドの一覧。 */
+    protected $metadata = [];
     
     /** @var \FilesystemIterator|null 画像・音声・動画ファイルのアーカイブを展開したファイルの一覧。 */
     protected $files = null;
     
+    /** @var validator\WordValidator */
+    protected $validator = null;
+    
     /**
-     * @param \SplFileInfo|null $archive
+     * @param \FilesystemIterator|null $files
      */
-    public function __construct(\SplFileInfo $archive = null)
+    public function __construct(\FilesystemIterator $files = null)
     {
-        $this->archive = $archive;
-        $this->filenames = $this->getFilenamesFromArchive();
+        $this->files = $files;
+        if ($this->files) {
+            $files->setFlags(\FilesystemIterator::KEY_AS_FILENAME
+                | \FilesystemIterator::CURRENT_AS_FILEINFO
+                | \FilesystemIterator::SKIP_DOTS);
+            $filenames = array_keys(iterator_to_array($files));
+        }
+        $this->validator = new validator\WordValidator($filenames ?? []);
+    }
+    
+    public function setLogger(\Psr\Log\LoggerInterface $logger)
+    {
+        $this->traitSetLogger($logger);
+        $this->validator->setLogger($this->logger);
     }
     
     /**
@@ -44,37 +53,19 @@ class Dictionary implements \Psr\Log\LoggerAwareInterface
      */
     public function getJsonable(): array
     {
-        $words = [];
-        foreach ($this->words as $word) {
-            $fieldsAsMultiDimensionalArray = [];
-            foreach ($word->getFieldsAsMultiDimensionalArray() as $fieldName => $fields) {
-                if ($fieldName[0] === '@') {
-                    continue;
-                }
-                foreach ($fields as &$field) {
-                    switch ($fieldName) {
-                        case 'image-source':
-                        case 'audio-source':
-                        case 'video-source':
-                        case 'description':
-                            $field = [
-                                'lml' => $field,
-                                'html' => (new HTMLFilter())->filter((new CommonMarkConverter())->convertToHtml($field)),
-                            ];
-                            break;
-                        case 'weight':
-                            $field = (float)$field;
-                            break;
-                        case 'specifics':
-                            $field = new URLSearchParams($field);
-                            break;
-                    }
-                }
-                $fieldsAsMultiDimensionalArray[$fieldName] = $fields;
-            }
-            $words[] = $fieldsAsMultiDimensionalArray;
-        }
-        return $words;
+        return $this->words;
+    }
+    
+    /**
+     * メタフィールドを設定します。
+     * @param (string|string[])[]
+     */
+    public function setMetadata(array $metadata)
+    {
+        $this->metadata = $this->validator->parseMetadata(array_filter($metadata, function ($field): bool {
+            // 文字列型以外の (明らかに構文解析済みである) フィールドは構文解析器にかけない
+            return is_string($field);
+        })) + $metadata;
     }
     
     /**
@@ -84,26 +75,7 @@ class Dictionary implements \Psr\Log\LoggerAwareInterface
      */
     public function getMetadata(): array
     {
-        $metadata = [];
-        if (isset($this->words[0])) {
-            foreach ($this->words[0]->getFieldsAsMultiDimensionalArray() as $fieldName => $fields) {
-                if ($fieldName[0] !== '@') {
-                    continue;
-                }
-                switch ($fieldName) {
-                    case '@summary':
-                        $field = [
-                            'lml' => $fields[0],
-                            'html' => (new HTMLFilter())->filter((new CommonMarkConverter())->convertToHtml($fields[0])),
-                        ];
-                        break;
-                    default:
-                        $field = $fields[0];
-                }
-                $metadata[$fieldName] = $field;
-            }
-        }
-        return $metadata;
+        return $this->metadata;
     }
     
     /**
@@ -112,145 +84,16 @@ class Dictionary implements \Psr\Log\LoggerAwareInterface
      */
     public function getFiles()
     {
-        if (!$this->files && $this->archive) {
-            $tempDirectoryPath = $this->generateTempDirectory();
-            $archive = new \ZipArchive();
-            $archive->open($this->archive->getRealPath());
-            $archive->extractTo($tempDirectoryPath);
-            $archive->close();
-            $this->files = new \FilesystemIterator($tempDirectoryPath);
-        }
         return $this->files;
     }
     
     /**
-     * スクリプト終了時に自動的に削除されるディレクトリを作成し、そのパスを返します。
-     * @return string
-     */
-    protected function generateTempDirectory(): string
-    {
-        $path = sys_get_temp_dir() . '/' . bin2hex(random_bytes(self::TEMP_DIRECTORY_NAME_LENGTH));
-        
-        mkdir($path);
-        
-        register_shutdown_function(function () use ($path) {
-            if (!file_exists($path)) {
-                return;
-            }
-
-            foreach (new \RecursiveIteratorIterator(
-                new \RecursiveDirectoryIterator($path, \FilesystemIterator::SKIP_DOTS),
-                \RecursiveIteratorIterator::CHILD_FIRST
-            ) as $file) {
-                if ($file->isDir()) {
-                    rmdir($file->getPathname());
-                } else {
-                    unlink($file->getPathname());
-                }
-            }
-            rmdir($path);
-        });
-        
-        return $path;
-    }
-    
-    /**
-     * 辞書に結び付けられたアーカイブからファイル名の一覧を取得します。
-     * @return string[]
-     */
-    protected function getFilenamesFromArchive():array
-    {
-        if ($this->archive) {
-            $archive = new \ZipArchive();
-            $archive->open($this->archive->getRealPath());
-            for ($i = 0, $l = $archive->numFiles; $i < $l; $i++) {
-                $name = $archive->getNameIndex($i);
-                if (is_string($name)) {
-                    $filenames[] = $name;
-                }
-            }
-            $archive->close();
-        }
-        return $filenames ?? [];
-    }
-
-    /**
-     * 辞書に結び付けられた画像・音声・動画ファイルのアーカイブを返します。
-     * @return \SplFileInfo|null
-     */
-    public function getArchive()
-    {
-        return $this->archive;
-    }
-    
-    /**
-     * 1つ目のお題レコードに対して、メタフィールドを設定します。
-     * @param string[][] $metaFieldsAsMultiDimensionalArray 同名のフィールドがすでにある場合、既存の同名フィールドはすべて削除されます。メタフィールドか否かの確認は行いません。
-     * @throws \BadMethodCallException お題が1つも追加されていない場合。
-     */
-    public function setMetaFields(array $metaFieldsAsMultiDimensionalArray)
-    {
-        if ($this->words) {
-            $word = new Word($this->filenames);
-            $word->setFieldsAsMultiDimensionalArray(
-                array_merge($this->words[0]->getFieldsAsMultiDimensionalArray(), $metaFieldsAsMultiDimensionalArray)
-            );
-            array_splice($this->words, 0, 1, [$word]);
-        } else {
-            throw new \BadMethodCallException();
-        }
-    }
-    
-    /**
-     * お題を追加します。
-     * @param Word $word 2レコード目以降にメタフィールドが含まれるか否かのチェックは行いません。
-     */
-    public function addWord(Word $word)
-    {
-        $this->words[] = $word;
-    }
-    
-    /**
      * キーにフィールド名、値に同名フィールド値の配列を持つ配列から、お題を追加します。
-     * @param array $fieldsAsMultiDimensionalArray
-     * @return Word
+     * @param string[][] $word メタフィールドが含まれるか否かのチェックは行いません。
      */
-    public function addWordAsMultiDimensionalArray(array $fieldsAsMultiDimensionalArray): Word
+    public function addWord(array $word)
     {
-        $word = new Word($this->filenames);
-        if ($this->logger) {
-            $word->setLogger($this->logger);
-        }
-        $word->setFieldsAsMultiDimensionalArray(array_filter($fieldsAsMultiDimensionalArray, function ($fieldName) {
-            $valid = true;
-            if ($this->isMetaField($fieldName) && $this->words) {
-                // メタフィールド、かつ2レコード目以降なら
-                if ($this->logger) {
-                    $this->logger->error(sprintf(_('メタフィールド%sの内容は、最初のレコードにのみ記述可能です。'), $fieldName));
-                }
-                $valid = false;
-            }
-            return $valid;
-        }, ARRAY_FILTER_USE_KEY));
-        $this->addWord($word);
-        return $word;
-    }
-    
-    /**
-     * メタフィールドであれば真を返します。
-     * @param string $fieldName
-     * @throws SyntaxException 空文字列であったとき。
-     * @return bool
-     */
-    protected function isMetaField(string $fieldName): bool
-    {
-        if ($fieldName === '') {
-            throw new SyntaxException(_('フィールド名は空文字列であってはなりません。'));
-        }
-        if (preg_match('/[\\p{C}\\p{Z}]/u', $fieldName) === 1 && $this->logger) {
-            $this->logger->notice(_('フィールド名に制御文字、または空白文字が含まれています。'));
-        }
-        return $fieldName[0] === '@';
+        $this->words[] = $this->validator->parse($word);
     }
     
     /**
@@ -259,21 +102,6 @@ class Dictionary implements \Psr\Log\LoggerAwareInterface
      */
     public function getTitle(): string
     {
-        if (isset($this->words[0])) {
-            $fieldsAsMultiDimensionalArray = $this->words[0]->getFieldsAsMultiDimensionalArray();
-            if (isset($fieldsAsMultiDimensionalArray['@title'][0])) {
-                $title = $fieldsAsMultiDimensionalArray['@title'][0];
-            }
-        }
-        return $title ?? '';
-    }
-    
-    /**
-     * お題の一覧を取得します。
-     * @return Word[]
-     */
-    public function getWords(): array
-    {
-        return $this->words;
+        return $this->metadata['@title'] ?? '';
     }
 }

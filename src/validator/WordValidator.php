@@ -1,20 +1,19 @@
 <?php
-namespace esperecyan\dictionary_php\internal;
+namespace esperecyan\dictionary_php\validator;
 
-use esperecyan\dictionary_php\validator;
+use esperecyan\url\URLSearchParams;
+use esperecyan\html_filter\Filter as HTMLFilter;
+use League\CommonMark\CommonMarkConverter;
 use esperecyan\dictionary_php\exception\SyntaxException;
 
 /**
- * ある辞書における1つのお題 (レコード、行) を表します。
+ * 辞書における1つのお題 (レコード、行) のバリデートを行います。
  */
-class Word implements \Psr\Log\LoggerAwareInterface
+class WordValidator implements \Psr\Log\LoggerAwareInterface
 {
     use \Psr\Log\LoggerAwareTrait;
     
-    /** @var string[][] */
-    protected $fieldsAsMultiDimensionalArray = [];
-    
-    /** @var string[] */
+    /** @var string[] ファイル所在の検証に使用するファイル名のリスト。 */
     protected $filenames = [];
     
     /**
@@ -26,58 +25,75 @@ class Word implements \Psr\Log\LoggerAwareInterface
     }
     
     /**
-     * キーにフィールド名、値に同名フィールド値の配列を持つ配列から、各フィールドを設定します。
+     * キーにフィールド名、値にフィールド値を持つ配列から、辞書のメタフィールドを生成します。
+     * @param string[] $metaFields フィールド名はバリデート済み、かつフィールド値が空文字列であってはなりません。
+     * @return (string|string[])[]
+     */
+    public function parseMetadata(array $metaFields): array
+    {
+        $metadata = [];
+        
+        foreach ($metaFields as $fieldName => $field) {
+            $validatedField = $this->parseField($fieldName, $field);
+            if (!is_null($validatedField)) {
+                $metadata[$fieldName] = $validatedField;
+            }
+        }
+        
+        return $metadata;
+    }
+    
+    /**
+     * キーにフィールド名、値に同名フィールド値の配列を持つ配列から、1つのお題を表す配列を生成します。
      * @param string[][] $fieldsAsMultiDimensionalArray フィールド名はバリデート済み、かつフィールド値が空文字列であってはなりません。
-     * @throws \BadMethodCallException すでに設定済みの場合。
      * @throws SyntaxException 妥当なtextフィールドが存在しない場合。
      *      typeフィールドにselectionが指定されているとき、answerフィールド、optionフィールドが規則に合致しない場合。
+     * @return (string|string[]|float|URLSearchParams)[][]
      */
-    public function setFieldsAsMultiDimensionalArray(array $fieldsAsMultiDimensionalArray)
+    public function parse(array $fieldsAsMultiDimensionalArray): array
     {
-        if ($this->fieldsAsMultiDimensionalArray) {
-            throw new \BadMethodCallException();
-        }
+        $word = [];
         
         foreach ($fieldsAsMultiDimensionalArray as $fieldName => $fields) {
             foreach ($fields as $field) {
-                $validatedField = $this->correctField($fieldName, $field);
-                if ($validatedField !== '') {
-                    $this->fieldsAsMultiDimensionalArray[$fieldName][] = $validatedField;
+                $validatedField = $this->parseField($fieldName, $field);
+                if (!is_null($validatedField)) {
+                    $word[$fieldName][] = $validatedField;
                 }
             }
         }
         
-        if (!isset($this->fieldsAsMultiDimensionalArray['text'][0])) {
+        if (!isset($word['text'][0])) {
             // textフィールドが存在しない場合
             throw new SyntaxException(_('textフィールドは必須です。'));
         }
         
-        if (isset($this->fieldsAsMultiDimensionalArray['type'][0])
-            && $this->fieldsAsMultiDimensionalArray['type'][0] === 'selection') {
+        if (isset($word['type'][0])
+            && $word['type'][0] === 'selection') {
             // typeフィールドにselectionが指定されている場合
-            if (!isset($this->fieldsAsMultiDimensionalArray['option'][0])) {
+            if (!isset($word['option'][0])) {
                 throw new SyntaxException(
                     _('typeフィールドに「selection」が指定されている場合、optionフィールドは必須です。')
                 );
             }
-            if (isset($this->fieldsAsMultiDimensionalArray['answer'])) {
+            if (isset($word['answer'])) {
                 // 選択問題なら
-                foreach ($this->fieldsAsMultiDimensionalArray['answer'] as $answer) {
-                    if (!in_array($answer, $this->fieldsAsMultiDimensionalArray['option'])) {
+                foreach ($word['answer'] as $answer) {
+                    if (!in_array($answer, $word['option'])) {
                         throw new SyntaxException(sprintf(_('「%s」はoptionフィールドのいずれの値にも一致しません。'), $answer));
                     }
                 }
             }
         }
         
-        $answerValidator = new validator\AnswerValidator();
-        if (isset($this->fieldsAsMultiDimensionalArray['answer'][0])
-            && $answerValidator->isRegExp($this->fieldsAsMultiDimensionalArray['answer'][0])) {
+        $answerValidator = new AnswerValidator();
+        if (isset($word['answer'][0])
+            && $answerValidator->isRegExp($word['answer'][0])) {
             // 1個目のanswerフィールドが正規表現文字列だった場合
             if ($this->logger) {
                 $this->logger->error(_('1個目のanswerフィールドは、正規表現文字列であってはなりません。'));
             }
-            foreach ($this->fieldsAsMultiDimensionalArray['answer'] as $index => $answer) {
+            foreach ($word['answer'] as $index => $answer) {
                 if (!$answerValidator->isRegExp($answer)) {
                     $noRegExpIndex = $index;
                     break;
@@ -85,55 +101,44 @@ class Word implements \Psr\Log\LoggerAwareInterface
             }
             if (isset($noRegExpIndex)) {
                 array_unshift(
-                    $this->fieldsAsMultiDimensionalArray['answer'],
-                    array_splice($this->fieldsAsMultiDimensionalArray['answer'], $noRegExpIndex)[0]
+                    $word['answer'],
+                    array_splice($word['answer'], $noRegExpIndex)[0]
                 );
             } else {
-                unset($this->fieldsAsMultiDimensionalArray['answer']);
+                unset($word['answer']);
             }
         }
         
-        if (!isset($this->fieldsAsMultiDimensionalArray['answer'][0])
-            && ($this->fieldsAsMultiDimensionalArray['type'][0] ?? null) !== 'selection') {
+        if (!isset($word['answer'][0])
+            && ($word['type'][0] ?? null) !== 'selection') {
             // answerフィールドが存在せず、typeフィールドがselectionでない場合
-            $text = $this->correctField('answer', $this->fieldsAsMultiDimensionalArray['text'][0]);
-            if ($text === '') {
+            $text = $this->parseField('answer', $word['text'][0]);
+            if (is_null($text)) {
                 throw new SyntaxException(sprintf(
                     _('「%s」は解答文字列の規則に合致しません。'),
-                    $this->fieldsAsMultiDimensionalArray['text'][0]
+                    $word['text'][0]
                 ));
             } else {
-                $this->fieldsAsMultiDimensionalArray['text'][0] = $text;
+                $word['text'][0] = $text;
             }
         }
-    }
-    
-    /**
-     * 各フィールドを取得します。
-     * @throws \BadMethodCallException フィールドが未設定の場合。
-     * @return string[][]
-     */
-    public function getFieldsAsMultiDimensionalArray(): array
-    {
-        if (!$this->fieldsAsMultiDimensionalArray) {
-            throw new \BadMethodCallException();
-        }
-        return $this->fieldsAsMultiDimensionalArray;
+        
+        return $word;
     }
 
     /**
-     * フィールド単体に対するバリデートを行います。
+     * フィールド単体の構文解析を行います。
      * @param string $fieldName フィールド名。未知のフィールド名が指定された場合はそのまま返します。
      * @param string $field フィールド値。
-     * @return string 矯正したフィールド値を返します。矯正の結果フィールドの削除が生じるときは空文字列を返します。
+     * @return string|string[]|float|URLSearchParams|null 矯正したフィールド値を返します。矯正の結果フィールドの削除が生じるときは null を返します。
      */
-    protected function correctField(string $fieldName, string $field): string
+    protected function parseField(string $fieldName, string $field)
     {
         switch ($fieldName) {
             case 'image':
             case 'audio':
             case 'video':
-                $validator = new validator\FileLocationValidator($fieldName, $this->filenames);
+                $validator = new FileLocationValidator($fieldName, $this->filenames);
                 if ($this->logger) {
                     $validator->setLogger($this->logger);
                 }
@@ -143,16 +148,22 @@ class Word implements \Psr\Log\LoggerAwareInterface
             case 'image-source':
             case 'audio-source':
             case 'video-source':
-                $validator = new validator\LightweightMarkupValidator(true);
+                $validator = new LightweightMarkupValidator(true);
                 if ($this->logger) {
                     $validator->setLogger($this->logger);
                 }
                 $output = $validator->correct($field);
+                if ($output !== '') {
+                    $output = [
+                        'lml' => $output,
+                        'html' => (new HTMLFilter())->filter((new CommonMarkConverter())->convertToHtml($output)),
+                    ];
+                }
                 break;
 
             case 'answer':
             case 'option':
-                $validator = new validator\AnswerValidator();
+                $validator = new AnswerValidator();
                 if ($this->logger) {
                     $validator->setLogger($this->logger);
                 }
@@ -161,20 +172,26 @@ class Word implements \Psr\Log\LoggerAwareInterface
 
             case 'description':
             case '@summary':
-                $validator = new validator\LightweightMarkupValidator(false, $this->filenames);
+                $validator = new LightweightMarkupValidator(false, $this->filenames);
                 if ($this->logger) {
                     $validator->setLogger($this->logger);
                 }
                 $output = $validator->correct($field);
+                if ($output !== '') {
+                    $output = [
+                        'lml' => $output,
+                        'html' => (new HTMLFilter())->filter((new CommonMarkConverter())->convertToHtml($output)),
+                    ];
+                }
                 break;
 
             case 'weight':
-                $validator = new validator\NumberValidator(true);
+                $validator = new NumberValidator(true);
                 if ($this->logger) {
                     $validator->setLogger($this->logger);
                 }
                 $number = $validator->correct($field);
-                if (bccomp($number, '0', validator\NumberValidator::SCALE) === 1) {
+                if (bccomp($number, '0', NumberValidator::SCALE) === 1) {
                     $output = $number;
                 } else {
                     if ($this->logger) {
@@ -182,19 +199,25 @@ class Word implements \Psr\Log\LoggerAwareInterface
                     }
                     $output = '';
                 }
+                if ($output !== '') {
+                    $output = (float)$output;
+                }
                 break;
 
             case 'specifics':
-                $validator = new validator\SpecificsValidator();
+                $validator = new SpecificsValidator();
                 if ($this->logger) {
                     $validator->setLogger($this->logger);
                 }
                 $output = $validator->correct($field);
+                if ($output !== '') {
+                    $output = new URLSearchParams($output);
+                }
                 break;
 
             case '@regard':
                 if (preg_match('/^\\[.{3,}]$/u', $field) === 1
-                    && (new validator\AnswerValidator())->validateRegexp("/$field/")) {
+                    && (new AnswerValidator())->validateRegexp("/$field/")) {
                     $output = $field;
                 } else {
                     if ($this->logger) {
@@ -208,6 +231,6 @@ class Word implements \Psr\Log\LoggerAwareInterface
                 $output = $field;
         }
         
-        return $output;
+        return $output === '' ? null : $output;
     }
 }

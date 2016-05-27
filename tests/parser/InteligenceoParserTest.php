@@ -1,6 +1,8 @@
 <?php
 namespace esperecyan\dictionary_php\parser;
 
+use esperecyan\url\URLSearchParams;
+
 class InteligenceoParserTest extends \PHPUnit_Framework_TestCase
 {
     use \esperecyan\dictionary_php\LogLevelLoggerTrait;
@@ -72,7 +74,10 @@ class InteligenceoParserTest extends \PHPUnit_Framework_TestCase
                         'option' => ['リンゴ', 'ゴリラ', 'ラクダ', 'ダチョウ'],
                         'answer' => ['リンゴ'],
                         'type' => ['selection'],
-                        'description' => [['lml' => '選択肢を表示しなければ問題が成立しない場合。', 'html' => "<p>選択肢を表示しなければ問題が成立しない場合。</p>\n"]],
+                        'description' => [[
+                            'lml' => '選択肢を表示しなければ問題が成立しない場合。',
+                            'html' => "<p>選択肢を表示しなければ問題が成立しない場合。</p>\n",
+                        ]],
                     ],
                     [
                         'text' => ['「リンゴ」か「パン」'],
@@ -86,7 +91,7 @@ class InteligenceoParserTest extends \PHPUnit_Framework_TestCase
                         'question' => ['同じ種類のものを選びましょう'],
                         'option' => ['リンゴ', 'ゴリラ', 'ラッパ', 'パン'],
                         'answer' => ['リンゴ', 'パン'],
-                        'specifics' => ['require-all-right='],
+                        'specifics' => [new URLSearchParams('require-all-right=')],
                         'type' => ['selection'],
                     ],
                     [

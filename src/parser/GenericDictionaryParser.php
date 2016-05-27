@@ -1,7 +1,7 @@
 <?php
 namespace esperecyan\dictionary_php\parser;
 
-use esperecyan\dictionary_php\{Dictionary, internal\Word, exception\SyntaxException};
+use esperecyan\dictionary_php\{Dictionary, Parser, exception\SyntaxException};
 use ScriptFUSION\Byte\ByteFormatter;
 use esperecyan\dictionary_php\fileinfo\Finfo;
 
@@ -60,6 +60,9 @@ class GenericDictionaryParser extends AbstractParser implements
      */
     const MAX_RECOMMENDED_VIDEO_SIZE = 2 ** 20;
     
+    /** @var int generateTempDirectory() で作成するランダムなディレクトリ名の長さ。  */
+    const TEMP_DIRECTORY_NAME_LENGTH = 32;
+    
     /**
      * mbstring拡張モジュールにおいて推奨される符号化方式の検出順序。
      * @var string
@@ -111,10 +114,10 @@ class GenericDictionaryParser extends AbstractParser implements
      * @param Dictionary $dictionary
      * @param string[] $fieldNames
      * @param string[] $fields
+     * @param bool $first ヘッダ行を除く最初のレコードであれば真。
      * @throws SyntaxException
-     * @return Word
      */
-    protected function addRecord(Dictionary $dictionary, array $fieldNames, array $fields): Word
+    protected function addRecord(Dictionary $dictionary, array $fieldNames, array $fields, bool $first)
     {
         if (!in_array('text', $fieldNames)) {
             throw new SyntaxException(
@@ -130,7 +133,15 @@ class GenericDictionaryParser extends AbstractParser implements
         
         foreach ($fields as $i => $field) {
             if ($field !== '') {
-                $fieldsAsMultiDimensionalArray[$fieldNames[$i]][] = $field;
+                if ($fieldNames[$i][0] === '@') {
+                    if ($first) {
+                        $metaFields[$fieldNames[$i]] = $field;
+                    } else {
+                        $this->logger->error(sprintf(_('メタフィールド%sの内容は、最初のレコードにのみ記述可能です。'), $fieldNames[$i]));
+                    }
+                } else {
+                    $fieldsAsMultiDimensionalArray[$fieldNames[$i]][] = $field;
+                }
             }
         }
         
@@ -140,7 +151,10 @@ class GenericDictionaryParser extends AbstractParser implements
             );
         }
         
-        return $dictionary->addWordAsMultiDimensionalArray($fieldsAsMultiDimensionalArray);
+        $dictionary->addWord($fieldsAsMultiDimensionalArray);
+        if (isset($metaFields)) {
+            $dictionary->setMetadata($metaFields);
+        }
     }
     
     /**
@@ -155,12 +169,13 @@ class GenericDictionaryParser extends AbstractParser implements
     
     /**
      * 符号化方式をUTF-8に矯正します。
-     * @param string $binary
+     * @param \SplFileObject $file
      * @throws SyntaxException 符号化方式の検出に失敗した場合。
-     * @return \SplTempFileObject
      */
-    protected function correctEncoding(string $binary): \SplTempFileObject
+    protected function correctEncoding(\SplFileObject $file)
     {
+        $binary = (new Parser())->getBinary($file);
+        
         if (mb_check_encoding($binary, 'UTF-8')) {
             $fromEncoding = 'UTF-8';
         } else {
@@ -172,7 +187,7 @@ class GenericDictionaryParser extends AbstractParser implements
             $this->error(_('CSVファイルの符号化方式 (文字コード) は UTF-8 でなければなりません。'));
         }
         
-        $file = new \SplTempFileObject();
+        $file->ftruncate(0);
         $file->fwrite(mb_convert_encoding($binary, 'UTF-8', $fromEncoding));
         $file->rewind();
         return $file;
@@ -180,20 +195,51 @@ class GenericDictionaryParser extends AbstractParser implements
     
     /**
      * スクリプト終了時に自動的に削除されるファイルを作成し、そのパスを返します。
-     * @param \SplTempFileObject|null $file ファイルに書き込む文字列を格納したSplTempFileObject。
+     * @param \SplTempFileObject|null $file ファイルに書き込む文字列を格納したSplFileInfo。
      * @return string
      */
-    protected function generateTempFile(\SplTempFileObject $file = null): string
+    protected function generateTempFile(\SplFileInfo $file = null): string
     {
         $path = tempnam(sys_get_temp_dir(), 'php');
         if ($file) {
-            file_put_contents($path, (new \esperecyan\dictionary_php\Parser())->getBinary($file));
+            file_put_contents($path, (new Parser())->getBinary($file));
         }
         register_shutdown_function(function () use ($path) {
             if (file_exists($path)) {
                 unlink($path);
             }
         });
+        return $path;
+    }
+    
+    /**
+     * スクリプト終了時に自動的に削除されるディレクトリを作成し、そのパスを返します。
+     * @return string
+     */
+    public function generateTempDirectory(): string
+    {
+        $path = sys_get_temp_dir() . '/' . bin2hex(random_bytes(self::TEMP_DIRECTORY_NAME_LENGTH));
+        
+        mkdir($path);
+        
+        register_shutdown_function(function () use ($path) {
+            if (!file_exists($path)) {
+                return;
+            }
+
+            foreach (new \RecursiveIteratorIterator(
+                new \RecursiveDirectoryIterator($path, \FilesystemIterator::SKIP_DOTS),
+                \RecursiveIteratorIterator::CHILD_FIRST
+            ) as $file) {
+                if ($file->isDir()) {
+                    rmdir($file->getPathname());
+                } else {
+                    unlink($file->getPathname());
+                }
+            }
+            rmdir($path);
+        });
+        
         return $path;
     }
     
@@ -275,9 +321,10 @@ class GenericDictionaryParser extends AbstractParser implements
     {
         if (!($csv instanceof \SplFileObject)) {
             $csv = $csv->openFile();
-        } else {
-            $csv->rewind();
         }
+        
+        $this->correctEncoding($csv);
+        
         $csv->setFlags(\SplFileObject::READ_AHEAD | \SplFileObject::SKIP_EMPTY | \SplFileObject::READ_CSV);
         
         if ($this->isWindows()) {
@@ -286,6 +333,7 @@ class GenericDictionaryParser extends AbstractParser implements
         }
         
         try {
+            $first = true;
             foreach ($csv as $i => $fields) {
                 if (is_null($fields[0])) {
                     throw new SyntaxException(_('汎用辞書はCSVファイルかZIPファイルでなければなりません。')
@@ -314,8 +362,10 @@ class GenericDictionaryParser extends AbstractParser implements
                 $this->addRecord(
                     $dictionary,
                     $fieldNames ?? array_merge(['text'], array_fill(0, count($fields), 'answer')),
-                    $fields
+                    $fields,
+                    $first
                 );
+                $first = false;
             }
         } catch (\Throwable $e) {
             if (isset($previousLocale)) {
@@ -333,9 +383,9 @@ class GenericDictionaryParser extends AbstractParser implements
      * @param SplFileInfo $file
      * @throws SyntaxException
      * @throws \LogicException 権限エラーなどでZIPファイルを開けなかった場合、または書き込めなかった場合。
-     * @return \SplTempFileObject CSVファイル。
+     * @return \SplFileObject CSVファイル。
      */
-    protected function parseArchive(\SplFileInfo $file): \SplTempFileObject
+    protected function parseArchive(\SplFileInfo $file): \SplFileInfo
     {
         $filenameValidator = new \esperecyan\dictionary_php\validator\FileLocationValidator();
         $archive = new \ZipArchive();
@@ -352,70 +402,62 @@ class GenericDictionaryParser extends AbstractParser implements
                     throw new \LogicException("ZIPファイルの解析に失敗しました。エラーコード: $result");
             }
         }
-
-        $binary = $archive->getFromName('dictionary.csv');
-        $archive->deleteName('dictionary.csv');
-        if (!$binary) {
-            throw new SyntaxException(_('「dictionary.csv」が見つかりません。'));
-        }
+        
+        $tempDirectoryPath = $this->generateTempDirectory();
+        $archive->extractTo($tempDirectoryPath);
+        $archive->close();
+        $files = new \FilesystemIterator($tempDirectoryPath, \FilesystemIterator::KEY_AS_FILENAME);
 
         $finfo = new Finfo(FILEINFO_MIME_TYPE);
-        if (!in_array($finfo->buffer($binary), ['text/plain', 'text/csv'])) {
-            throw new SyntaxException(_('「dictionary.csv」は通常のテキストファイルとして認識できません。'));
-        }
 
-        $csvFile = $this->correctEncoding($binary);
-
-        for ($i = 0, $l = $archive->numFiles; $i < $l; $i++) {
-            $name = $archive->getNameIndex($i);
-            if (!is_string($name)) {
+        foreach ($files as $filename => $file) {
+            if ($filename === 'dictionary.csv') {
+                if (!in_array($finfo->file($file), ['text/plain', 'text/csv'])) {
+                    throw new SyntaxException(_('「dictionary.csv」は通常のテキストファイルとして認識できません。'));
+                }
+                $csvFile = $file;
                 continue;
             }
-            if (!$filenameValidator->validateArchivedFilename($name)) {
-                throw new SyntaxException(sprintf(_('「%s」は妥当なファイル名ではありません。'), $name));
+            
+            if (!$filenameValidator->validateArchivedFilename($filename)) {
+                throw new SyntaxException(sprintf(_('「%s」は妥当なファイル名ではありません。'), $filename));
             }
 
-            $binary = $archive->getFromIndex($i);
-            $type = $finfo->buffer($binary);
+            $type = $finfo->file($file);
 
             if (empty(self::VALID_EXTENSIONS[$type])) {
-                throw new SyntaxException(sprintf(_('「%s」は妥当な画像、音声、動画ファイルではありません。'), $name));
+                throw new SyntaxException(sprintf(_('「%s」は妥当な画像、音声、動画ファイルではありません。'), $filename));
             }
 
-            $extension = explode('.', $name, 2)[1];
-            if ($type === 'video/mp4' && $extension === 'm4a') {
+            if ($type === 'video/mp4' && $file->getExtension() === 'm4a') {
                 $type = 'audio/mp4';
             } elseif (!in_array(
-                $extension,
+                $file->getExtension(),
                 $type === 'video/mp4'
                     ? array_merge(self::VALID_EXTENSIONS['audio/mp4'], self::VALID_EXTENSIONS['video/mp4'])
                     : self::VALID_EXTENSIONS[$type]
             )) {
-                throw new SyntaxException(sprintf(_('「%s」の拡張子は次のいずれかにしなければなりません:'), $name)
+                throw new SyntaxException(sprintf(_('「%s」の拡張子は次のいずれかにしなければなりません:'), $filename)
                     . ' ' . implode(', ', self::VALID_EXTENSIONS[$type]));
             }
 
             $topLevelType = explode('/', $type)[0];
 
-            $this->checkFileSize(strlen(bin2hex($binary)) / 2, $topLevelType, $name);
+            $this->checkFileSize($file->getSize(), $topLevelType, $filename);
 
             if ($topLevelType === 'image') {
-                $validator = new \esperecyan\dictionary_php\validator\ImageValidator($type, $name);
+                $validator = new \esperecyan\dictionary_php\validator\ImageValidator($type, $filename);
                 $validator->setLogger($this);
-                $archive->addFromString($name, $validator->correct($binary));
+                $file = $file->openFile();
+                $binary = (new Parser())->getBinary($file);
+                $file->ftruncate(0);
+                $file->fwrite($validator->correct($binary));
             }
-
-            set_time_limit(ini_get('max_execution_time'));
         }
-        
-        set_error_handler(function (int $severity, string $message) {
-            if (strpos('ZipArchive::close(): Renaming temporary file failed: ', $message) === 0) {
-                throw new \LogicException('アーカイブファイルへの書き込みに失敗しました。');
-            } else {
-                return false;
-            }
-        }, E_WARNING);
-        $archive->close();
+
+        if (empty($csvFile)) {
+            throw new SyntaxException(_('「dictionary.csv」が見つかりません。'));
+        }
         
         return $csvFile;
     }
@@ -435,7 +477,7 @@ class GenericDictionaryParser extends AbstractParser implements
         bool $header = null
     ): Dictionary {
         if ($file instanceof \SplTempFileObject) {
-            $binary = (new \esperecyan\dictionary_php\Parser())->getBinary($file);
+            $binary = (new Parser())->getBinary($file);
         }
         
         $byteFormatter = new ByteFormatter();
@@ -459,7 +501,10 @@ class GenericDictionaryParser extends AbstractParser implements
         switch ($type) {
             case 'application/zip':
                 $header = true;
-                $csv = $this->parseArchive($file);
+                $csvFile = $this->parseArchive($file);
+                $csv = new \SplFileInfo($this->generateTempFile($csvFile));
+                $files = new \FilesystemIterator($csvFile->getPath());
+                unlink($csvFile);
                 break;
             
             case 'text/csv':
@@ -471,26 +516,25 @@ class GenericDictionaryParser extends AbstractParser implements
                 throw new SyntaxException(_('汎用辞書はCSVファイルかZIPファイルでなければなりません。'));
         }
         
-        $dictionary = new Dictionary($type === 'application/zip' ? $file : null);
+        $dictionary = new Dictionary($files ?? null);
         $dictionary->setLogger($this);
         $this->parseCSVFile($dictionary, $csv, $header);
         
-        if (!$dictionary->getWords()) {
+        if (!$dictionary->getJsonable()) {
             throw new SyntaxException(_('CSVファイルが空です。'));
         }
         
-        if (empty($dictionary->getWords()[0]->getFieldsAsMultiDimensionalArray()['@title'][0])) {
+        $metadata = $dictionary->getMetadata();
+        if (!isset($metadata['@title'])) {
             if (!is_null($title)) {
-                $metaFields['@title'][] = $title;
+                $metadata['@title'] = $title;
             } elseif (!is_null($filename)) {
                 $titleFromFilename = $this->getTitleFromFilename($filename);
                 if ($titleFromFilename !== '') {
-                    $metaFields['@title'][] = $titleFromFilename;
+                    $metadata['@title'] = $titleFromFilename;
                 }
             }
-            if (isset($metaFields)) {
-                $dictionary->setMetaFields($metaFields);
-            }
+            $dictionary->setMetadata($metadata);
         }
         
         return $dictionary;

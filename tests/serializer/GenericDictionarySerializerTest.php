@@ -10,6 +10,7 @@ class GenericDictionarySerializerTest extends \PHPUnit_Framework_TestCase implem
     
     /**
      * @param string[][][] $fieldsAsMultiDimensionalArrays
+     * @param string[] $metadata
      * @param string[] $files
      * @param string[] $expectedFile
      * @param string[] $logLevels
@@ -17,23 +18,23 @@ class GenericDictionarySerializerTest extends \PHPUnit_Framework_TestCase implem
      */
     public function testSerialize(
         array $fieldsAsMultiDimensionalArrays,
+        array $metadata,
         array $files,
         array $expectedFile,
         array $logLevels
     ) {
         if ($files) {
-            $archive = $this->generateArchive();
+            $tempDirectory = (new \esperecyan\dictionary_php\parser\GenericDictionaryParser())->generateTempDirectory();
             foreach ($files as $filename => $file) {
-                $archive->addFromString($filename, $file);
+                file_put_contents("$tempDirectory/$filename", $file);
             }
-            $fileInfo = new \SplFileInfo($archive->filename);
-            $archive->close();
         }
         
-        $dictionary = new Dictionary($fileInfo ?? null);
+        $dictionary = new Dictionary(isset($tempDirectory) ? new \FilesystemIterator($tempDirectory) : null);
         foreach ($fieldsAsMultiDimensionalArrays as $fieldsAsMultiDimensionalArray) {
-            $dictionary->addWordAsMultiDimensionalArray($fieldsAsMultiDimensionalArray);
+            $dictionary->addWord($fieldsAsMultiDimensionalArray);
         }
+        $dictionary->setMetadata($metadata);
         
         $expectedFile['bytes'] = $this->stripIndentsAndToCRLF($expectedFile['bytes']);
         
@@ -70,8 +71,6 @@ class GenericDictionarySerializerTest extends \PHPUnit_Framework_TestCase implem
                         'image' => ['local/sun.png'],
                         'answer' => ['たいよう', 'おひさま'],
                         'description' => ['恒星。'],
-                        '@title' => ['恒星/惑星/衛星'],
-                        '@summary' => ['恒星、惑星、衛星などのリスト。'],
                     ],
                     [
                         'text' => ['地球'],
@@ -94,6 +93,10 @@ class GenericDictionarySerializerTest extends \PHPUnit_Framework_TestCase implem
                             引用元: [カロン (衛星) - Wikipedia](https://ja.wikipedia.org/wiki/%E3%82%AB%E3%83%AD%E3%83%B3_(%E8%A1%9B%E6%98%9F))'
                         )],
                     ],
+                ],
+                [
+                    '@title' => '恒星/惑星/衛星',
+                    '@summary' => '恒星、惑星、衛星などのリスト。',
                 ],
                 [],
                 [
@@ -130,6 +133,7 @@ class GenericDictionarySerializerTest extends \PHPUnit_Framework_TestCase implem
                         'image' => ['svg.svg'],
                     ],
                 ],
+                [],
                 (function (): array {
                     $image = imagecreatetruecolor(1000, 1000);
                     ob_start();

@@ -1,6 +1,7 @@
 <?php
 namespace esperecyan\dictionary_php;
 
+use esperecyan\url\URLSearchParams;
 use Psr\Log\LogLevel;
 
 class ParserTest extends \PHPUnit_Framework_TestCase implements \Psr\Log\LoggerInterface
@@ -45,7 +46,8 @@ class ParserTest extends \PHPUnit_Framework_TestCase implements \Psr\Log\LoggerI
      * @param string|null $from
      * @param string|null $filename
      * @param string|null $title
-     * @param string[][][] $output
+     * @param (string|string[]|float|URLSearchParams)[][][] $jsonable
+     * @param (string|string[])[] $metadata
      * @param string[] $logLevels
      * @dataProvider fileProvider
      */
@@ -54,7 +56,8 @@ class ParserTest extends \PHPUnit_Framework_TestCase implements \Psr\Log\LoggerI
         string $from = null,
         string $filename = null,
         string $title = null,
-        array $output = null,
+        array $jsonable = [],
+        array $metadata = [],
         array $logLevels = []
     ) {
         $parser = new Parser($from, $filename, $title);
@@ -63,9 +66,8 @@ class ParserTest extends \PHPUnit_Framework_TestCase implements \Psr\Log\LoggerI
             $input instanceof \Closure ? new \SplFileInfo($input()) : $this->generateTempFileObject($input)
         );
         
-        $this->assertEquals($output, array_map(function (internal\Word $word): array {
-            return $word->getFieldsAsMultiDimensionalArray();
-        }, $dictionary->getWords()));
+        $this->assertEquals($jsonable, $dictionary->getJsonable());
+        $this->assertEquals($metadata, $dictionary->getMetadata());
         $this->assertEquals($logLevels, $this->logLevels);
     }
     
@@ -83,16 +85,18 @@ class ParserTest extends \PHPUnit_Framework_TestCase implements \Psr\Log\LoggerI
                 [
                     [
                         'text' => ['たいよう'],
-                        'description' => ['太陽'],
-                        '@title' => ['天体'],
+                        'description' => [['lml' => '太陽', 'html' => "<p>太陽</p>\n"]],
                     ],
                     [
                         'text' => ['ちきゅう'],
-                        'description' => ['地球'],
+                        'description' => [['lml' => '地球', 'html' => "<p>地球</p>\n"]],
                     ],
                     [
                         'text' => ['カロン'],
                     ],
+                ],
+                [
+                    '@title' => '天体',
                 ],
             ],
             [
@@ -106,16 +110,18 @@ class ParserTest extends \PHPUnit_Framework_TestCase implements \Psr\Log\LoggerI
                 [
                     [
                         'text' => ['たいよう'],
-                        'description' => ['太陽'],
-                        '@title' => ['天体'],
+                        'description' => [['lml' => '太陽', 'html' => "<p>太陽</p>\n"]],
                     ],
                     [
                         'text' => ['ちきゅう'],
-                        'description' => ['地球'],
+                        'description' => [['lml' => '地球', 'html' => "<p>地球</p>\n"]],
                     ],
                     [
                         'text' => ['カロン'],
                     ],
+                ],
+                [
+                    '@title' => '天体',
                 ],
             ],
             [
@@ -137,28 +143,30 @@ class ParserTest extends \PHPUnit_Framework_TestCase implements \Psr\Log\LoggerI
                 [
                     [
                         'text' => ['あ'],
-                        'description' => ['安'],
-                        '@title' => ['天体 [dummy]'],
+                        'description' => [['lml' => '安', 'html' => "<p>安</p>\n"]],
                     ],
                     [
                         'text' => ['い'],
-                        'description' => ['以'],
+                        'description' => [['lml' => '以', 'html' => "<p>以</p>\n"]],
                     ],
                     [
                         'text' => ['う'],
-                        'description' => ['宇'],
+                        'description' => [['lml' => '宇', 'html' => "<p>宇</p>\n"]],
                     ],
                     [
                         'text' => [']非コメント'],
                     ],
                     [
                         'text' => ['え'],
-                        'description' => ['衣'],
+                        'description' => [['lml' => '衣', 'html' => "<p>衣</p>\n"]],
                     ],
                     [
                         'text' => ['お'],
-                        'description' => ['於'],
+                        'description' => [['lml' => '於', 'html' => "<p>於</p>\n"]],
                     ],
+                ],
+                [
+                    '@title' => '天体 [dummy]',
                 ],
             ],
             [
@@ -193,7 +201,6 @@ class ParserTest extends \PHPUnit_Framework_TestCase implements \Psr\Log\LoggerI
                         'option' => ['地球', 'カロン', '太陽'],
                         'answer' => ['太陽'],
                         'type' => ['selection'],
-                        '@title' => ['選択・並べ替え問題'],
                     ],
                     [
                         'text' => ['リンゴ'],
@@ -201,7 +208,10 @@ class ParserTest extends \PHPUnit_Framework_TestCase implements \Psr\Log\LoggerI
                         'option' => ['リンゴ', 'ゴリラ', 'ラクダ', 'ダチョウ'],
                         'answer' => ['リンゴ'],
                         'type' => ['selection'],
-                        'description' => ['選択肢を表示しなければ問題が成立しない場合。'],
+                        'description' => [[
+                            'lml' => '選択肢を表示しなければ問題が成立しない場合。',
+                            'html' => "<p>選択肢を表示しなければ問題が成立しない場合。</p>\n",
+                        ]],
                     ],
                     [
                         'text' => ['「リンゴ」か「パン」'],
@@ -215,7 +225,7 @@ class ParserTest extends \PHPUnit_Framework_TestCase implements \Psr\Log\LoggerI
                         'question' => ['同じ種類のものを選びましょう'],
                         'option' => ['リンゴ', 'ゴリラ', 'ラッパ', 'パン'],
                         'answer' => ['リンゴ', 'パン'],
-                        'specifics' => ['require-all-right='],
+                        'specifics' => [new URLSearchParams('require-all-right=')],
                         'type' => ['selection'],
                     ],
                     [
@@ -224,6 +234,9 @@ class ParserTest extends \PHPUnit_Framework_TestCase implements \Psr\Log\LoggerI
                         'option' => ['リンゴ', 'ゴリラ', 'ラッパ', 'パン'],
                         'type' => ['selection'],
                     ],
+                ],
+                [
+                    '@title' => '選択・並べ替え問題',
                 ],
             ],
             [
@@ -238,22 +251,27 @@ class ParserTest extends \PHPUnit_Framework_TestCase implements \Psr\Log\LoggerI
                     [
                         'text' => ['フシギダネ'],
                         'answer' => ['ふしぎだね'],
-                        'description' => ['No.001'],
-                        'weight' => ['1'],
-                        '@title' => ['ポケモン'],
+                        'description' => [['lml' => 'No.001', 'html' => "<p>No.001</p>\n"]],
+                        'weight' => [1.0],
                     ],
                     [
                         'text' => ['フシギソウ'],
                         'answer' => ['ふしぎそう'],
-                        'description' => ['No.002'],
-                        'weight' => ['1'],
+                        'description' => [['lml' => 'No.002', 'html' => "<p>No.002</p>\n"]],
+                        'weight' => [1.0],
                     ],
                     [
                         'text' => ['フシギバナ'],
                         'answer' => ['ふしぎばな'],
-                        'description' => ['<span>[リンク](https://example.jp/)</span>'],
-                        'weight' => ['0.000833'],
+                        'description' => [[
+                            'lml' => '<span>[リンク](https://example.jp/)</span>',
+                            'html' => '<p><span><a href="https://example.jp/">リンク</a></span></p>' . "\n",
+                        ]],
+                        'weight' => [0.000833],
                     ],
+                ],
+                [
+                    '@title' => 'ポケモン',
                 ],
             ],
             [
@@ -278,31 +296,44 @@ class ParserTest extends \PHPUnit_Framework_TestCase implements \Psr\Log\LoggerI
                         'text' => ['太陽'],
                         'image' => ['local/sun.png'],
                         'answer' => ['たいよう', 'おひさま'],
-                        'description' => ['恒星。'],
-                        '@title' => ['天体'],
-                        '@summary' => ['恒星、惑星、衛星などのリスト。'],
+                        'description' => [['lml' => '恒星。', 'html' => "<p>恒星。</p>\n"]],
                     ],
                     [
                         'text' => ['地球'],
                         'image' => ['local/earth.png'],
                         'answer' => ['ちきゅう'],
-                        'description' => ['惑星。'],
+                        'description' => [['lml' => '惑星。', 'html' => "<p>惑星。</p>\n"]],
                     ],
                     [
                         'text' => ['カロン'],
                         'image' => ['local/charon.png'],
-                        'description' => [$this->stripIndents(
-                            '冥王星の衛星。
+                        'description' => [[
+                            'lml' => $this->stripIndents('冥王星の衛星。
 
-                            > カロンは1978年6月22日にアメリカの天文学者ジェームズ・クリスティーによって発見された。
-                            > その後、冥王星が冥府の王プルートーの名に因むことから、
-                            > この衛星はギリシア神話の冥府の川・アケローンの渡し守カローンにちなんで「カロン」と命名された。
-                            > なおクリスティーは当初から一貫してCharonの「char」を
-                            > 妻シャーリーン（Charlene） のニックネーム「シャー（Char）」と同じように発音していたため、
-                            > これが英語圏で定着して「シャーロン」と呼ばれるようになった。
-                            引用元: [カロン (衛星) - Wikipedia](https://ja.wikipedia.org/wiki/%E3%82%AB%E3%83%AD%E3%83%B3_(%E8%A1%9B%E6%98%9F))'
-                        )],
+                                > カロンは1978年6月22日にアメリカの天文学者ジェームズ・クリスティーによって発見された。
+                                > その後、冥王星が冥府の王プルートーの名に因むことから、
+                                > この衛星はギリシア神話の冥府の川・アケローンの渡し守カローンにちなんで「カロン」と命名された。
+                                > なおクリスティーは当初から一貫してCharonの「char」を
+                                > 妻シャーリーン（Charlene） のニックネーム「シャー（Char）」と同じように発音していたため、
+                                > これが英語圏で定着して「シャーロン」と呼ばれるようになった。
+                                引用元: [カロン (衛星) - Wikipedia](https://ja.wikipedia.org/wiki/%E3%82%AB%E3%83%AD%E3%83%B3_(%E8%A1%9B%E6%98%9F))'),
+                            'html' => $this->stripIndents('<p>冥王星の衛星。</p>
+                                <blockquote>
+                                <p>カロンは1978年6月22日にアメリカの天文学者ジェームズ・クリスティーによって発見された。
+                                その後、冥王星が冥府の王プルートーの名に因むことから、
+                                この衛星はギリシア神話の冥府の川・アケローンの渡し守カローンにちなんで「カロン」と命名された。
+                                なおクリスティーは当初から一貫してCharonの「char」を
+                                妻シャーリーン（Charlene） のニックネーム「シャー（Char）」と同じように発音していたため、
+                                これが英語圏で定着して「シャーロン」と呼ばれるようになった。
+                                引用元: <a href="https://ja.wikipedia.org/wiki/%E3%82%AB%E3%83%AD%E3%83%B3_(%E8%A1%9B%E6%98%9F)">カロン (衛星) - Wikipedia</a></p>
+                                </blockquote>
+                                '),
+                        ]],
                     ],
+                ],
+                [
+                    '@title' => '天体',
+                    '@summary' => ['lml' => '恒星、惑星、衛星などのリスト。', 'html' => "<p>恒星、惑星、衛星などのリスト。</p>\n"],
                 ],
                 [LogLevel::ERROR, LogLevel::ERROR, LogLevel::ERROR],
             ],
@@ -375,6 +406,7 @@ class ParserTest extends \PHPUnit_Framework_TestCase implements \Psr\Log\LoggerI
                         'video' => ['local/webm-vb8.mp4'],
                     ],
                 ],
+                [],
                 [LogLevel::ERROR],
             ],
         ];

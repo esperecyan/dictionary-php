@@ -1,7 +1,7 @@
 <?php
 namespace esperecyan\dictionary_php\parser;
 
-use esperecyan\dictionary_php\{Dictionary, internal\Word, exception\SyntaxException};
+use esperecyan\dictionary_php\{Dictionary, exception\SyntaxException};
 use esperecyan\url\URLSearchParams;
 
 class InteligenceoParser extends AbstractParser
@@ -48,11 +48,12 @@ class InteligenceoParser extends AbstractParser
     
     /**
      * しりとり辞書の行を解析します。
+     * プレフィックス、サフィックスの組み合わせの結果がすべて空文字列になる時はnullを返します。
+     * @param Dictionary $dictionary
      * @param string $line
      * @throws SyntaxException 2つ目のフィールド数値の場合。読み方にひらがな以外が含まれている場合。読み方が設定されていない場合。
-     * @return Word|null プレフィックス、サフィックスの組み合わせの結果がすべて空文字列になる時はnullを返します。
      */
-    protected function parseShiritoriLine(string $line)
+    protected function parseShiritoriLine(Dictionary $dictionary, string $line)
     {
         $fields = explode(',', $line);
         
@@ -130,15 +131,10 @@ class InteligenceoParser extends AbstractParser
                 $fieldsAsMultiDimensionalArray['text'][0] = $fieldsAsMultiDimensionalArray['answer'][0];
             }
 
-            $word = new Word();
-            $word->setFieldsAsMultiDimensionalArray($fieldsAsMultiDimensionalArray);
-
-            $this->wholeText .= implode('', $fieldsAsMultiDimensionalArray['answer']);
-        } else {
-            $word = null;
+            $dictionary->addWord($fieldsAsMultiDimensionalArray);
+            $words = $dictionary->getJsonable();
+            $this->wholeText .= implode('', $words[count($words) - 1]['answer']);
         }
-        
-        return $word;
     }
     
     /** @var string|null */
@@ -159,10 +155,11 @@ class InteligenceoParser extends AbstractParser
     
     /**
      * Q&Aを解析します。
+     * @param Dictionary $dictioanry
      * @param string $question
-     * @return Word|null
+     * @param string $answer
      */
-    protected function parseQuizLines(string $question, string $answer)
+    protected function parseQuizLines(Dictionary $dictioanry, string $question, string $answer)
     {
         $specifics = new URLSearchParams();
 
@@ -236,7 +233,7 @@ class InteligenceoParser extends AbstractParser
                 // Wikipediaクイズ
             case 4:
                 // アンサイクロペディアクイズ
-                return null;
+                return;
         }
         
         // 問題文
@@ -406,7 +403,7 @@ class InteligenceoParser extends AbstractParser
                         array_unshift($fieldsAsMultiDimensionalArray['answer'], $noRegExpAnswerAndBonus['answer']);
                         array_unshift($bonuses, $noRegExpAnswerAndBonus['bonus']);
                     } else {
-                        return null;
+                        return;
                     }
                 }
 
@@ -463,28 +460,24 @@ class InteligenceoParser extends AbstractParser
             $fieldsAsMultiDimensionalArray['specifics'][] = $encoded;
         }
         
-        $word = new Word();
         try {
-            $word->setFieldsAsMultiDimensionalArray($fieldsAsMultiDimensionalArray);
-        } catch (SyntaxException $e) {
-            $word = null;
-        }
-
-        if ($word && $answerType === 0) {
-            // 記述形式
-            $fieldsAsMultiDimensionalArray = $word->getFieldsAsMultiDimensionalArray();
-            if (isset($fieldsAsMultiDimensionalArray['answer'])) {
-                foreach ($word->getFieldsAsMultiDimensionalArray()['answer'] as $answer) {
-                    $this->wholeText .= $answerValidator->isRegExp($answer)
-                        ? preg_replace('#^/|\\.\\*|/$#u', '', $answer)
-                        : $answer;
+            $dictioanry->addWord($fieldsAsMultiDimensionalArray);
+            if ($answerType === 0) {
+                // 記述形式
+                $words = $dictioanry->getJsonable();
+                $word = $words[count($words) - 1];
+                if (isset($word['answer'])) {
+                    foreach ($word['answer'] as $answer) {
+                        $this->wholeText .= $answerValidator->isRegExp($answer)
+                            ? preg_replace('#^/|\\.\\*|/$#u', '', $answer)
+                            : $answer;
+                    }
+                } else {
+                    $this->wholeText .= $word['text'][0];
                 }
-            } else {
-                $this->wholeText .= $fieldsAsMultiDimensionalArray['text'][0];
             }
+        } catch (SyntaxException $e) {
         }
-        
-        return $word;
     }
     
     /**
@@ -504,16 +497,15 @@ class InteligenceoParser extends AbstractParser
     
     /**
      * 問題行を解析します。
+     * @param Dictionary $dictionary
      * @param string $question
      * @throws SyntaxException すでに未解析の問題行が存在していた場合。
-     * @return Word|null
      */
-    protected function parseQuestionLine(string $question = null)
+    protected function parseQuestionLine(Dictionary $dictionary, string $question = null)
     {
-        $output = null;
         if ($this->answers) {
             // 未解析の解答が存在する場合
-            $output = $this->parseQuizLines($this->question, $this->answers);
+            $this->parseQuizLines($dictionary, $this->question, $this->answers);
             $this->question = null;
             $this->answers = null;
         } elseif ($this->question) {
@@ -521,7 +513,6 @@ class InteligenceoParser extends AbstractParser
             throw new SyntaxException($question ? _('「Q,」で始まる行が連続しています。') : _('辞書は「A,」で始まる行で終わらせなければなりません。'));
         }
         $this->question = $question;
-        return $output;
     }
     
     /**
@@ -542,15 +533,16 @@ class InteligenceoParser extends AbstractParser
     
     /**
      * 行を解析します。
+     * @param Dictionary $dictionary
      * @param string|null ファイル終端ならnull。
      * @throws SyntaxException クイズ辞書で、コメント、問題、解答のいずれでもない行があれば
      * @return Word|null
      */
-    protected function parseLine(string $line = null)
+    protected function parseLine(Dictionary $dictionary, string $line = null)
     {
         if (is_null($line)) {
             if ($this->type === 'Inteligenceω クイズ') {
-                $output = $this->parseQuestionLine();
+                $output = $this->parseQuestionLine($dictionary, null);
             }
         } elseif ($line[0] !== '%') {
             // 空行でなければ
@@ -561,10 +553,10 @@ class InteligenceoParser extends AbstractParser
             
             if ($this->type === 'Inteligenceω しりとり') {
                 // しりとり辞書なら
-                $output = $this->parseShiritoriLine($line);
+                $output = $this->parseShiritoriLine($dictionary, $line);
             } elseif (stripos($line, 'Q,') === 0) {
                 // 問題行なら
-                $output = $this->parseQuestionLine($line);
+                $output = $this->parseQuestionLine($dictionary, $line);
             } elseif (stripos($line, 'A,') === 0) {
                 // 解答行なら
                 $this->parseAnswerLine($line);
@@ -591,8 +583,6 @@ class InteligenceoParser extends AbstractParser
     {
         $dictionary = new Dictionary();
         
-        $noEmpty = false;
-        
         if (!($file instanceof \SplFileObject)) {
             $file = $file->openFile();
         } else {
@@ -600,32 +590,31 @@ class InteligenceoParser extends AbstractParser
         }
         $file->setFlags(\SplFileObject::DROP_NEW_LINE | \SplFileObject::READ_AHEAD | \SplFileObject::SKIP_EMPTY);
         foreach ($file as $line) {
-            $word = $this->parseLine($line);
-            if ($word) {
-                $dictionary->addWord($word);
-                $noEmpty = true;
-            }
+            $this->parseLine($dictionary, $line);
         }
-        $word = $this->parseLine();
-        if ($word) {
-            $dictionary->addWord($word);
-            $noEmpty = true;
-        }
+        $this->parseLine($dictionary);
         
-        if (!$noEmpty) {
+        if (!$dictionary->getJsonable()) {
             throw new SyntaxException(_('正常に変換可能な行が見つかりませんでした。'));
         }
         
-        $metaFields['@regard'][] = $this->generateRegard();
+        if ($this->wholeText !== '') {
+            $regard = $this->generateRegard();
+            if ($regard) {
+                $metaFields['@regard'] = $this->generateRegard();
+            }
+        }
         if (!is_null($title)) {
-            $metaFields['@title'][] = $title;
+            $metaFields['@title'] = $title;
         } elseif (!is_null($filename)) {
             $titleFromFilename = $this->getTitleFromFilename($filename);
             if ($titleFromFilename) {
-                $metaFields['@title'][] = $titleFromFilename;
+                $metaFields['@title'] = $titleFromFilename;
             }
         }
-        $dictionary->setMetaFields($metaFields);
+        if (isset($metaFields)) {
+            $dictionary->setMetadata($metaFields);
+        }
         
         return $dictionary;
     }

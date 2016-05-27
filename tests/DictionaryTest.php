@@ -1,7 +1,6 @@
 <?php
 namespace esperecyan\dictionary_php;
 
-use esperecyan\dictionary_php\internal\Word;
 use Psr\Log\LogLevel;
 
 class DictionaryTest extends \PHPUnit_Framework_TestCase implements \Psr\Log\LoggerInterface
@@ -11,75 +10,26 @@ class DictionaryTest extends \PHPUnit_Framework_TestCase implements \Psr\Log\Log
     
     public function testGetFiles()
     {
-        $archive = $this->generateArchive();
-        for ($i = 1; $i <= 4; $i++) {
-            $archive->addFromString("file$i.svg", '<?xml version="1.0" ?>
-                <svg xmlns="http://www.w3.org/2000/svg"><rect width="100" height="100" /></svg>');
-        }
-        $file = new \SplFileInfo($archive->filename);
-        $archive->close();
-        
-        foreach ((new Dictionary($file))->getFiles() as $i => $file) {
-            $this->assertRegExp(
-                '#^' . str_replace(DIRECTORY_SEPARATOR, '/', sys_get_temp_dir()) . '/[^/]+/file[1-4]\\.svg$#u',
-                str_replace(DIRECTORY_SEPARATOR, '/', $file->getPathname())
-            );
-        }
-    }
-    
-    public function testGetWords()
-    {
-        $words = [new Word(), new Word(), new Word(), new Word()];
-        $dictionary = new Dictionary();
-        (function ($words) {
-            $this->words = $words;
-        })->call($dictionary, $words);
-        $this->assertEquals($words, $dictionary->getWords());
-        
-        $this->assertEquals([], (new Dictionary())->getWords());
-    }
-    
-    public function testAddWord()
-    {
-        $multiDimensionalArrays = [
-            [
-                'text' => ['テスト'],
-            ],
-            [
-                'text' => ['テスト'],
-                '@title' => ['辞書名'],
-            ],
-        ];
-        
-        $dictionary = new Dictionary();
-        foreach ($multiDimensionalArrays as $multiDimensionalArray) {
-            $word = new Word($multiDimensionalArrays);
-            $word->setFieldsAsMultiDimensionalArray($multiDimensionalArray);
-            $dictionary->addWord($word);
-        }
-        
-        $this->assertEquals($multiDimensionalArrays, array_map(function (Word $word): array {
-            return $word->getFieldsAsMultiDimensionalArray();
-        }, $dictionary->getWords()));
+        $files = new \FilesystemIterator((new parser\GenericDictionaryParser())->generateTempDirectory());
+        $dictionary = new Dictionary($files);
+        $this->assertSame($files, $dictionary->getFiles());
     }
 
     /**
      * @param string[][][] $input
-     * @param string[][][] $output
+     * @param (string|string[]|float|URLSearchParams)[][][] $output
      * @param string[] $logLevels
      * @dataProvider multiDimensionalArraysProvider
      */
-    public function testAddWordAsMultiDimensionalArray(array $input, array $output, array $logLevels = [])
+    public function testAddWord(array $input, array $output, array $logLevels = [])
     {
         $dictionary = new Dictionary();
         $dictionary->setLogger($this);
         foreach ($input as $multiDimensionalArray) {
-            $dictionary->addWordAsMultiDimensionalArray($multiDimensionalArray);
+            $dictionary->addWord($multiDimensionalArray);
         }
         
-        $this->assertEquals($output, array_map(function (Word $word): array {
-            return $word->getFieldsAsMultiDimensionalArray();
-        }, $dictionary->getWords()));
+        $this->assertEquals($output, $dictionary->getJsonable());
         $this->assertEquals($logLevels, $this->logLevels);
     }
 
@@ -159,24 +109,29 @@ class DictionaryTest extends \PHPUnit_Framework_TestCase implements \Psr\Log\Log
                     ],
                     [
                         'text' => ['みかん'],
+                        '@title' => ['食べ物'],
                     ],
                 ],
-                [LogLevel::ERROR],
             ],
         ];
     }
 
     /**
      * @param string[][]|null $fieldsAsMultiDimensionalArray
+     * @param string[] $metaFields
      * @param string $title
      * @dataProvider titleProvider
      */
-    public function testGetTitle(array $fieldsAsMultiDimensionalArray = null, string $title = '')
-    {
+    public function testGetTitle(
+        array $fieldsAsMultiDimensionalArray = null,
+        array $metaFields = [],
+        string $title = ''
+    ) {
         $dictionary = new Dictionary();
         if ($fieldsAsMultiDimensionalArray) {
-            $dictionary->addWordAsMultiDimensionalArray($fieldsAsMultiDimensionalArray);
+            $dictionary->addWord($fieldsAsMultiDimensionalArray);
         }
+        $dictionary->setMetadata($metaFields);
         $this->assertSame($title, $dictionary->getTitle());
     }
     
@@ -185,95 +140,72 @@ class DictionaryTest extends \PHPUnit_Framework_TestCase implements \Psr\Log\Log
         return [
             [
                 null,
+                [],
                 '',
             ],
             [
                 [
                     'text' => ['テスト'],
                 ],
+                [],
                 '',
             ],
             [
                 [
                     'text' => ['テスト'],
                     '@title' => ['辞書名'],
+                ],
+                [],
+                '',
+            ],
+            [
+                [
+                    'text' => ['テスト'],
+                ],
+                [
+                    '@title' => '辞書名',
                 ],
                 '辞書名',
             ],
         ];
     }
     
-
     /**
-     * @param string[][] $input
-     * @param string[][] $metaFieldsAsMultiDimensionalArray
-     * @param string[][] $output
-     * @dataProvider metaFieldsProvider
+     * @param string[] $metadata
+     * @param (string|string[]|float|URLSearchParams)[][][] $jsonable
+     * @dataProvider metadataProvider
      */
-    public function testSetMetaFields(array $input, array $metaFieldsAsMultiDimensionalArray, array $output)
+    public function testSetMetadata(array $metadata, array $jsonable)
     {
         $dictionary = new Dictionary();
-        $dictionary->addWordAsMultiDimensionalArray($input);
-        $dictionary->setMetaFields($metaFieldsAsMultiDimensionalArray);
-        $this->assertEquals([$output], array_map(function (Word $word): array {
-            return $word->getFieldsAsMultiDimensionalArray();
-        }, $dictionary->getWords()));
+        $dictionary->setMetadata($metadata);
+        $this->assertEquals($jsonable, $dictionary->getMetadata());
     }
     
-    public function metaFieldsProvider(): array
+    public function metadataProvider(): array
     {
         return [
             [
                 [
-                    'text' => ['テスト'],
+                    '@title' => '辞書名',
                 ],
                 [
-                    '@title' => ['辞書名'],
-                ],
-                [
-                    'text' => ['テスト'],
-                    '@title' => ['辞書名'],
+                    '@title' => '辞書名',
                 ],
             ],
             [
                 [
-                    'text' => ['テスト'],
-                    '@title' => ['既存の辞書名'],
+                    '@title' => '辞書名',
+                    '@summary' => '説明',
                 ],
                 [
-                    '@title' => ['辞書名'],
-                    '@summary' => ['説明'],
-                ],
-                [
-                    'text' => ['テスト'],
-                    '@title' => ['辞書名'],
-                    '@summary' => ['説明'],
-                ],
-            ],
-            [
-                [
-                    'text' => ['テスト'],
-                    '@title' => ['既存の辞書名'],
-                ],
-                [
-                    '@summary' => ['説明'],
-                ],
-                [
-                    'text' => ['テスト'],
-                    '@title' => ['既存の辞書名'],
-                    '@summary' => ['説明'],
+                    '@title' => '辞書名',
+                    '@summary' => [
+                        'lml' => '説明',
+                        'html' => "<p>説明</p>\n",
+                    ],
                 ],
             ],
         ];
-    }
-    
-    /**
-     * @expectedException \BadMethodCallException
-     */
-    public function testBadSetMetaFieldsCallException()
-    {
-        (new Dictionary())->setMetaFields([
-            '@title' => ['辞書名'],
-        ]);
     }
 }

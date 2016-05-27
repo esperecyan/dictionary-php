@@ -1,46 +1,24 @@
 <?php
-namespace esperecyan\dictionary_php\internal;
+namespace esperecyan\dictionary_php\validator;
 
+use esperecyan\url\URLSearchParams;
 use Psr\Log\LogLevel;
 
-class WordTest extends \PHPUnit_Framework_TestCase implements \Psr\Log\LoggerInterface
+class WordValidatorTest extends \PHPUnit_Framework_TestCase implements \Psr\Log\LoggerInterface
 {
     use \esperecyan\dictionary_php\LogLevelLoggerTrait;
     
-    public function testGetFieldsAsMultiDimensionalArray()
-    {
-        $fieldsAsMultiDimensionalArray = [
-            'text' => ['テスト'],
-            'answer' => ['テスト', 'しけん', 'test'],
-        ];
-        
-        $word = new Word();
-        (function ($fieldsAsMultiDimensionalArray) {
-            $this->fieldsAsMultiDimensionalArray = $fieldsAsMultiDimensionalArray;
-        })->call($word, $fieldsAsMultiDimensionalArray);
-        $this->assertEquals($fieldsAsMultiDimensionalArray, $word->getFieldsAsMultiDimensionalArray());
-    }
-    
-    /**
-     * @expectedException \BadMethodCallException
-     */
-    public function testBadGetFieldsAsMultiDimensionalArrayCallException()
-    {
-        (new Word())->getFieldsAsMultiDimensionalArray();
-    }
-    
     /**
      * @param string[][] $input
-     * @param string[][] $output
+     * @param (string|string[]|float|URLSearchParams)[][] $output
      * @param string[] $logLevels
      * @dataProvider wordProvider
      */
-    public function testSetFieldsAsMultiDimensionalArray(array $input, array $output, array $logLevels = [])
+    public function testParse(array $input, array $output, array $logLevels = [])
     {
-        $word = new Word();
-        $word->setLogger($this);
-        $word->setFieldsAsMultiDimensionalArray($input);
-        $this->assertEquals($output, $word->getFieldsAsMultiDimensionalArray());
+        $wordValidator = new WordValidator();
+        $wordValidator->setLogger($this);
+        $this->assertEquals($output, $wordValidator->parse($input));
         $this->assertEquals($logLevels, $this->logLevels);
     }
 
@@ -365,7 +343,7 @@ class WordTest extends \PHPUnit_Framework_TestCase implements \Psr\Log\LoggerInt
                 ],
                 [
                     'text' => ['テスト'],
-                    'image-source' => ['テスト'],
+                    'image-source' => [['lml' => 'テスト', 'html' => "<p>テスト</p>\n"]],
                 ],
                 [LogLevel::ERROR],
             ],
@@ -376,7 +354,7 @@ class WordTest extends \PHPUnit_Framework_TestCase implements \Psr\Log\LoggerInt
                 ],
                 [
                     'text' => ['テスト'],
-                    'audio-source' => ['テスト'],
+                    'audio-source' => [['lml' => 'テスト', 'html' => "<p>テスト</p>\n"]],
                 ],
                 [LogLevel::ERROR],
             ],
@@ -387,7 +365,7 @@ class WordTest extends \PHPUnit_Framework_TestCase implements \Psr\Log\LoggerInt
                 ],
                 [
                     'text' => ['テスト'],
-                    'video-source' => ['テスト'],
+                    'video-source' => [['lml' => 'テスト', 'html' => "<p>テスト</p>\n"]],
                 ],
                 [LogLevel::ERROR],
             ],
@@ -398,7 +376,7 @@ class WordTest extends \PHPUnit_Framework_TestCase implements \Psr\Log\LoggerInt
                 ],
                 [
                     'text' => ['テスト'],
-                    'description' => ['<span>テスト</span>'],
+                    'description' => [['lml' => '<span>テスト</span>', 'html' => "<p><span>テスト</span></p>\n"]],
                 ],
                 [LogLevel::ERROR],
             ],
@@ -409,7 +387,7 @@ class WordTest extends \PHPUnit_Framework_TestCase implements \Psr\Log\LoggerInt
                 ],
                 [
                     'text' => ['テスト'],
-                    'weight' => ['0.5'],
+                    'weight' => [0.5],
                 ],
                 [LogLevel::ERROR],
             ],
@@ -420,7 +398,7 @@ class WordTest extends \PHPUnit_Framework_TestCase implements \Psr\Log\LoggerInt
                 ],
                 [
                     'text' => ['テスト'],
-                    'specifics' => ['length=0.5'],
+                    'specifics' => [new URLSearchParams('length=0.5')],
                 ],
                 [LogLevel::ERROR],
             ],
@@ -473,57 +451,77 @@ class WordTest extends \PHPUnit_Framework_TestCase implements \Psr\Log\LoggerInt
             ],
             [
                 [
-                    'text' => ['テスト'],
-                    '@title' => ['con.///\\\\'],
+                    'text' => ['おだい'],
+                    '@title' => ['メタデータ'],
                 ],
                 [
-                    'text' => ['テスト'],
-                    '@title' => ['con.///\\\\'],
+                    'text' => ['おだい'],
+                    '@title' => ['メタデータ'],
                 ],
-            ],
-            [
-                [
-                    'text' => ['テスト'],
-                    '@summary' => ['<span data-invalid="">テスト</span>'],
-                ],
-                [
-                    'text' => ['テスト'],
-                    '@summary' => ['<span>テスト</span>'],
-                ],
-                [LogLevel::ERROR],
-            ],
-            [
-                [
-                    'text' => ['test'],
-                    '@regard' => ['[a-z]'],
-                ],
-                [
-                    'text' => ['test'],
-                    '@regard' => ['[a-z]'],
-                ],
-                [LogLevel::NOTICE],
-            ],
-            [
-                [
-                    'text' => ['test'],
-                    '@regard' => ['a-z'],
-                ],
-                [
-                    'text' => ['test'],
-                ],
-                [LogLevel::ERROR, LogLevel::NOTICE],
             ],
         ];
     }
     
     /**
-     * @expectedException \BadMethodCallException
+     * @param string[] $input
+     * @param (string|string[])[] $output
+     * @param string[] $logLevels
+     * @dataProvider metadataProvider
      */
-    public function testBadSetFieldsAsMultiDimensionalArrayCallException()
+    public function testParseMetadata(array $input, array $output, array $logLevels = [])
     {
-        $word = new Word();
-        $word->setFieldsAsMultiDimensionalArray(['text' => ['テスト']]);
-        $word->setFieldsAsMultiDimensionalArray(['text' => ['テスト']]);
+        $wordValidator = new WordValidator();
+        $wordValidator->setLogger($this);
+        $this->assertEquals($output, $wordValidator->parseMetadata($input));
+        $this->assertEquals($logLevels, $this->logLevels);
+    }
+    
+    public function metadataProvider(): array
+    {
+        return [
+            [
+                [
+                    '@title' => 'con.///\\\\',
+                ],
+                [
+                    '@title' => 'con.///\\\\',
+                ],
+            ],
+            [
+                [
+                    '@summary' => '<span data-invalid="">テスト</span>',
+                ],
+                [
+                    '@summary' => ['lml' => '<span>テスト</span>', 'html' => "<p><span>テスト</span></p>\n"],
+                ],
+                [LogLevel::ERROR],
+            ],
+            [
+                [
+                    '@regard' => '[a-z]',
+                ],
+                [
+                    '@regard' => '[a-z]',
+                ],
+            ],
+            [
+                [
+                    '@regard' => 'a-z',
+                ],
+                [],
+                [LogLevel::ERROR],
+            ],
+            [
+                [
+                    'text' => 'おだい',
+                    '@title' => 'メタデータ',
+                ],
+                [
+                    'text' => 'おだい',
+                    '@title' => 'メタデータ',
+                ],
+            ],
+        ];
     }
     
     /**
@@ -533,7 +531,7 @@ class WordTest extends \PHPUnit_Framework_TestCase implements \Psr\Log\LoggerInt
      */
     public function testSyntaxException($input)
     {
-        (new Word())->setFieldsAsMultiDimensionalArray($input);
+        (new WordValidator())->parse($input);
         
     }
     

@@ -1,16 +1,16 @@
 <?php
 namespace esperecyan\dictionary_php\parser;
 
-use esperecyan\dictionary_php\{Dictionary, internal\Word, exception\SyntaxException};
+use esperecyan\dictionary_php\{Dictionary, exception\SyntaxException};
 
 class CatchfeelingParser extends AbstractParser
 {
     /**
      * 行を解析し、textフィールドとdescriptionフィールドに対応する文字列を取り出します。
+     * @param Dictionary $dictionary
      * @param string $line
-     * @return Word|null
      */
-    protected function parseLine(string $line)
+    protected function parseLine(Dictionary $dictionary, string $line)
     {
         // コメントの分離
         $textAndDescription = preg_split('#[\\t 　]*//#u', $line, 2);
@@ -32,19 +32,11 @@ class CatchfeelingParser extends AbstractParser
                 }
             }
 
-            $word = new Word();
             try {
-                $word->setFieldsAsMultiDimensionalArray($fieldsAsMultiDimensionalArray);
+                $dictionary->addWord($fieldsAsMultiDimensionalArray);
             } catch (SyntaxException $e) {
-                $word = null;
-            }
-            
-            if ($word) {
-                $this->wholeText .= $word->getFieldsAsMultiDimensionalArray()['text'][0];
             }
         }
-        
-        return $word;
     }
     
     /**
@@ -72,26 +64,29 @@ class CatchfeelingParser extends AbstractParser
         }
         $file->setFlags(\SplFileObject::DROP_NEW_LINE | \SplFileObject::READ_AHEAD | \SplFileObject::SKIP_EMPTY);
         foreach ($file as $line) {
-            $word = $this->parseLine($line);
-            if ($word) {
-                $dictionary->addWord($word);
-            }
+            $this->parseLine($dictionary, $line);
         }
         
+        $this->wholeText .= implode('', array_column(array_column($dictionary->getJsonable(), 'text'), 0));
         if ($this->wholeText === '') {
             throw new SyntaxException(_('制御文字や空白文字のみで構成された辞書は変換できません。'));
         }
         
-        $metaFields['@regard'] = [$this->generateRegard()];
+        $regard = $this->generateRegard();
+        if ($regard) {
+            $metaFields['@regard'] = $this->generateRegard();
+        }
         if (!is_null($title)) {
-            $metaFields['@title'] = [$title];
+            $metaFields['@title'] = $title;
         } elseif (!is_null($filename)) {
             $titleFromFilename = $this->getTitleFromFilename($filename);
             if ($titleFromFilename) {
-                $metaFields['@title'] = [$titleFromFilename];
+                $metaFields['@title'] = $titleFromFilename;
             }
         }
-        $dictionary->setMetaFields($metaFields);
+        if (isset($metaFields)) {
+            $dictionary->setMetadata($metaFields);
+        }
         
         return $dictionary;
     }

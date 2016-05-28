@@ -2,7 +2,9 @@
 <phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:noNamespaceSchemaLocation="http://schema.phpunit.de/5.1/phpunit.xsd"
 	bootstrap="./vendor/autoload.php"
-	strict="true" verbose="true">
+	beStrictAboutTestsThatDoNotTestAnything="true" beStrictAboutCoversAnnotation="true"
+	beStrictAboutOutputDuringTests="true" beStrictAboutChangesToGlobalState="true"
+	verbose="true">
 	<testsuites>
 		<testsuite name="dictionary-php">
 			<directory>tests</directory>

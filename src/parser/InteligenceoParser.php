@@ -190,7 +190,7 @@ class InteligenceoParser extends AbstractParser
                 if (isset($questionFields[4])) {
                     foreach (new URLSearchParams(str_replace(',', '&', $questionFields[4])) as $name => $value) {
                         if (!$this->isNumeric($value)) {
-                            throw new SyntaxException(sprintf(_('問題オプション %1s の値「%2s」は数値として認識できません。'), $name, $value));
+                            throw new SyntaxException(sprintf(_('問題オプション %1$s の値「%2$s」は数値として認識できません。'), $name, $value));
                         }
                         $int = $this->convertToInt($value);
                         switch ($name) {

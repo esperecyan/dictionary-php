@@ -133,7 +133,7 @@ class GenericDictionarySerializer extends AbstractSerializer
             if ($archiveFileInfo->getSize() > GenericDictionaryParser::MAX_COMPRESSED_ARCHIVE_SIZE) {
                 $byteFormatter = new \ScriptFUSION\Byte\ByteFormatter();
                 throw new SyntaxException(sprintf(
-                    _('出力される圧縮ファイルの容量が %1s を超えました: 現在 %2s'),
+                    _('出力される圧縮ファイルの容量が %1$s を超えました: 現在 %2$s'),
                     $byteFormatter->format(GenericDictionaryParser::MAX_COMPRESSED_ARCHIVE_SIZE),
                     $byteFormatter->format($archiveFileInfo->getSize())
                 ));

@@ -90,7 +90,7 @@ class ImageValidator extends AbstractFieldValidator
         $width = $imagick->getImageWidth();
         if ($width > self::MAX_RECOMMENDED_IMAGE_WIDTH) {
             $this->logger->notice(sprintf(
-                _('画像の幅は %1s 以下にすべきです。「%2s」の幅は %3s です。'),
+                _('画像の幅は %1$s 以下にすべきです。「%2$s」の幅は %3$s です。'),
                 self::MAX_RECOMMENDED_IMAGE_WIDTH . 'px',
                 $this->filename,
                 $width . 'px'
@@ -100,7 +100,7 @@ class ImageValidator extends AbstractFieldValidator
         $height = $imagick->getImageHeight();
         if ($height > self::MAX_RECOMMENDED_IMAGE_HEIGHT) {
             $this->logger->notice(sprintf(
-                _('画像の高さは %1s 以下にすべきです。「%2s」の高さは %3s です。'),
+                _('画像の高さは %1$s 以下にすべきです。「%2$s」の高さは %3$s です。'),
                 self::MAX_RECOMMENDED_IMAGE_HEIGHT . 'px',
                 $this->filename,
                 $height . 'px'
@@ -125,7 +125,7 @@ class ImageValidator extends AbstractFieldValidator
                 $readableType = _('SVGファイル');
                 break;
         }
-        return sprintf(_('「%1s」は妥当な%2sではありません。'), $this->filename, $readableType);
+        return sprintf(_('「%1$s」は妥当な%2$sではありません。'), $this->filename, $readableType);
     }
     
     /**

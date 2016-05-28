@@ -237,7 +237,7 @@ class GenericDictionaryParser extends AbstractParser
     {
         $byteFormatter = new ByteFormatter();
         
-        $message = sprintf(_('「%1s」の容量は %2s です。'), $filename, $byteFormatter->format($size));
+        $message = sprintf(_('「%1$s」の容量は %2$s です。'), $filename, $byteFormatter->format($size));
         
         switch ($topLevelType) {
             case 'image':
@@ -467,13 +467,13 @@ class GenericDictionaryParser extends AbstractParser
         $fileSize = isset($binary) ? strlen(bin2hex($binary)) / 2 : $file->getSize();
         if ($fileSize > self::MAX_COMPRESSED_ARCHIVE_SIZE) {
             throw new SyntaxException(sprintf(
-                _('ファイルサイズは %1s 以下にしてください: 現在 %2s'),
+                _('ファイルサイズは %1$s 以下にしてください: 現在 %2$s'),
                 $byteFormatter->format(self::MAX_COMPRESSED_ARCHIVE_SIZE),
                 $byteFormatter->format($fileSize)
             ));
         } elseif ($fileSize > self::MAX_RECOMMENDED_COMPRESSED_ARCHIVE_SIZE) {
             $this->notice(sprintf(
-                _('ファイルサイズは %1s 以下にすべきです: 現在 %2s'),
+                _('ファイルサイズは %1$s 以下にすべきです: 現在 %2$s'),
                 $byteFormatter->format(self::MAX_RECOMMENDED_COMPRESSED_ARCHIVE_SIZE),
                 $byteFormatter->format($fileSize)
             ));

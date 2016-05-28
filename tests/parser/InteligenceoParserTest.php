@@ -2,8 +2,9 @@
 namespace esperecyan\dictionary_php\parser;
 
 use esperecyan\url\URLSearchParams;
+use Psr\Log\LogLevel;
 
-class InteligenceoParserTest extends \PHPUnit_Framework_TestCase
+class InteligenceoParserTest extends \PHPUnit_Framework_TestCase implements \Psr\Log\LoggerInterface
 {
     use \esperecyan\dictionary_php\LogLevelLoggerTrait;
     
@@ -14,6 +15,7 @@ class InteligenceoParserTest extends \PHPUnit_Framework_TestCase
      * @param string|null $title
      * @param (string|string[]|float|URLSearchParams)[][][] $jsonable
      * @param (string|string[])[] $metadata
+     * @param string[] $logLevels
      * @dataProvider dictionaryProvider
      */
     public function testParse(
@@ -22,15 +24,18 @@ class InteligenceoParserTest extends \PHPUnit_Framework_TestCase
         string $filename = null,
         string $title = null,
         array $jsonable = null,
-        array $metadata = null
+        array $metadata = null,
+        array $logLevels = []
     ) {
         $parser = new InteligenceoParser($from);
+        $parser->setLogger($this);
         $temp = new \SplTempFileObject();
         $temp->fwrite(preg_replace('/\\n */u', "\r\n", $input));
         $dictionary = $parser->parse($temp, $filename, $title);
         
         $this->assertEquals($jsonable, $dictionary->getWords());
         $this->assertEquals($metadata, $dictionary->getMetadata());
+        $this->assertEquals($logLevels, $this->logLevels);
     }
     
     public function dictionaryProvider(): array
@@ -134,6 +139,34 @@ class InteligenceoParserTest extends \PHPUnit_Framework_TestCase
                     ],
                 ],
                 [],
+            ],
+            [
+                '% 選択問題
+                Q,2,,../images/sun.mp4
+                A,1,地球,カロン,太陽,\\seikai
+                
+                % Wikipediaクイズ
+                Q,3,問題文
+                A,0,解答
+
+                % アンサイクロペディアクイズ
+                Q,4,問題文
+                A,0,解答
+                ',
+                'Inteligenceω クイズ',
+                null,
+                null,
+                [
+                    [
+                        'text' => ['太陽'],
+                        'image' => ['local/sun.png'],
+                        'option' => ['地球', 'カロン', '太陽'],
+                        'answer' => ['太陽'],
+                        'type' => ['selection'],
+                    ],
+                ],
+                [],
+                [LogLevel::ERROR, LogLevel::ERROR],
             ],
             [
                 'フシギダネ,ふしぎだね,1,@No.001

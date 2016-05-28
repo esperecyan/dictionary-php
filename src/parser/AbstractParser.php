@@ -1,7 +1,7 @@
 <?php
 namespace esperecyan\dictionary_php\parser;
 
-abstract class AbstractParser
+abstract class AbstractParser extends \esperecyan\dictionary_php\log\AbstractLoggerAware
 {
     /** @var string 解答に使われるすべての文字列。 */
     protected $wholeText = '';
@@ -27,6 +27,23 @@ abstract class AbstractParser
         '"' => '”',
         '“' => '”',
     ];
+    
+    /**
+     * 汎用辞書に変換できないお題があったことを、「error」レベルで記録します。
+     * @param string $line
+     * @param \esperecyan\dictionary_php\exception\SyntaxException $exception
+     */
+    protected function logInconvertibleError(
+        string $line,
+        \esperecyan\dictionary_php\exception\SyntaxException $exception = null
+    ) {
+        $this->logger->error(
+            // TRANSLATORS: %s は例外メッセージ。空文字列の場合もある。
+            sprintf(_('以下の行は汎用辞書のお題に変換できません: %s'), $exception ? $exception->getMessage() : '')
+                . "\n> " . str_replace("\n", "\n> ", $line),
+            $exception ? ['exception' => $exception] : []
+        );
+    }
     
     /**
      * $wholeText から @regard メタフィールドの内容を生成します。

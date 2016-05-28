@@ -5,13 +5,8 @@ use esperecyan\dictionary_php\{Dictionary, Parser, exception\SyntaxException};
 use ScriptFUSION\Byte\ByteFormatter;
 use esperecyan\dictionary_php\fileinfo\Finfo;
 
-class GenericDictionaryParser extends AbstractParser implements
-    \Psr\Log\LoggerAwareInterface,
-    \Psr\Log\LoggerInterface
+class GenericDictionaryParser extends AbstractParser
 {
-    use \Psr\Log\LoggerAwareTrait;
-    use \Psr\Log\LoggerTrait;
-    
     /**
      * アーカイブ全体の圧縮後の最大容量。
      * @var int
@@ -82,22 +77,6 @@ class GenericDictionaryParser extends AbstractParser implements
         'audio/mpeg' => ['mp3'],
         'video/mp4' => ['mp4'],
     ];
-    
-    /** @var (string|array)[] */
-    protected $logs = [];
-
-    public function log($level, $message, array $context = [])
-    {
-        $this->logs[] = [
-            'level' => $level,
-            'message' => $message,
-            'context' => $context,
-        ];
-        
-        if ($this->logger) {
-            $this->logger->log($level, $message, $context);
-        }
-    }
 
     /**
      * 配列をCSVレコード風の文字列に変換して返します。
@@ -451,7 +430,7 @@ class GenericDictionaryParser extends AbstractParser implements
 
             if ($topLevelType === 'image') {
                 $validator = new \esperecyan\dictionary_php\validator\ImageValidator($type, $filename);
-                $validator->setLogger($this);
+                $validator->setLogger($this->logger);
                 $file = $file->openFile();
                 $binary = (new Parser())->getBinary($file);
                 $file->ftruncate(0);
@@ -521,7 +500,7 @@ class GenericDictionaryParser extends AbstractParser implements
         }
         
         $dictionary = new Dictionary($files ?? null);
-        $dictionary->setLogger($this);
+        $dictionary->setLogger($this->logger);
         $this->parseCSVFile($dictionary, $csv, $header);
         
         if (!$dictionary->getWords()) {

@@ -119,9 +119,7 @@ class Parser extends log\AbstractLoggerAware
             }
         }
         
-        if ($parser instanceof \Psr\Log\LoggerAwareInterface) {
-            $parser->setLogger($this->logger);
-        }
+        $parser->setLogger($this->logger);
         
         return $parser->parse($file, $this->filename, $this->title, $this->from, $header);
     }

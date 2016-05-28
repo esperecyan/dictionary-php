@@ -1,14 +1,19 @@
 <?php
 namespace esperecyan\dictionary_php\parser;
 
-class CatchmParserTest extends \PHPUnit_Framework_TestCase
+use Psr\Log\LogLevel;
+
+class CatchmParserTest extends \PHPUnit_Framework_TestCase implements \Psr\Log\LoggerInterface
 {
+    use \esperecyan\dictionary_php\LogLevelLoggerTrait;
+    
     /**
      * @param string $input
      * @param string|null $filename
      * @param string|null $title
      * @param (string|string[]|float|URLSearchParams)[][][] $jsonable
      * @param (string|string[])[] $metadata
+     * @param string[] $logLevels
      * @dataProvider dictionaryProvider
      */
     public function testParse(
@@ -16,15 +21,18 @@ class CatchmParserTest extends \PHPUnit_Framework_TestCase
         string $filename = null,
         string $title = null,
         array $jsonable = null,
-        array $metadata = null
+        array $metadata = null,
+        array $logLevels = []
     ) {
         $parser = new CatchmParser();
+        $parser->setLogger($this);
         $temp = new \SplTempFileObject();
         $temp->fwrite(preg_replace('/\\n */u', "\r\n", $input));
         $dictionary = $parser->parse($temp, $filename, $title);
         
         $this->assertEquals($jsonable, $dictionary->getWords());
         $this->assertEquals($metadata, $dictionary->getMetadata());
+        $this->assertEquals($logLevels, $this->logLevels);
     }
     
     public function dictionaryProvider(): array
@@ -94,6 +102,21 @@ class CatchmParserTest extends \PHPUnit_Framework_TestCase
                     ],
                 ],
                 ['@title' => '天体 [dummy]'],
+            ],
+            [
+                '゜
+                ゛
+                テスト
+                ',
+                null,
+                null,
+                [
+                    [
+                        'text' => ['テスト'],
+                    ],
+                ],
+                [],
+                [LogLevel::ERROR, LogLevel::ERROR],
             ],
         ];
     }

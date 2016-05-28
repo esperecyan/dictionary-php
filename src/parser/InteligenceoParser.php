@@ -161,6 +161,8 @@ class InteligenceoParser extends AbstractParser
      */
     protected function parseQuizLines(Dictionary $dictioanry, string $question, string $answer)
     {
+        $line = "$question\n$answer";
+        
         $specifics = new URLSearchParams();
 
         $questionFields = explode(',', $question, 5);
@@ -233,6 +235,7 @@ class InteligenceoParser extends AbstractParser
                 // Wikipediaクイズ
             case 4:
                 // アンサイクロペディアクイズ
+                $this->logInconvertibleError("$question\n$answer");
                 return;
         }
         
@@ -403,6 +406,7 @@ class InteligenceoParser extends AbstractParser
                         array_unshift($fieldsAsMultiDimensionalArray['answer'], $noRegExpAnswerAndBonus['answer']);
                         array_unshift($bonuses, $noRegExpAnswerAndBonus['bonus']);
                     } else {
+                        $this->logInconvertibleError($line);
                         return;
                     }
                 }
@@ -477,6 +481,7 @@ class InteligenceoParser extends AbstractParser
                 }
             }
         } catch (SyntaxException $e) {
+            $this->logInconvertibleError($line, $e);
         }
     }
     

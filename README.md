@@ -219,13 +219,14 @@ SyntaxException#getMessage() から、ユーザーに示すエラーメッセー
 ### ロギング
 [esperecyan\dictionary_php\Parser]は[PSR-3: Logger Interface]の[Psr\Log\LoggerAwareInterface]を実装しています。
 
-|`$from`     | ログレベル               | 説明・例                     |
-|------------|--------------------------|------------------------------|
-| `汎用辞書` | Psr\Log\LogLevel::ERROR  | 符号化方式がUTF-8でない。    |
-| `汎用辞書` | Psr\Log\LogLevel::NOTICE | 辞書全体の容量が大きい。     |
-| `汎用辞書` | Psr\Log\LogLevel::NOTICE | 画像ファイルの容量が大きい。 |
-| `汎用辞書` | Psr\Log\LogLevel::NOTICE | 音声ファイルの容量が大きい。 |
-| `汎用辞書` | Psr\Log\LogLevel::NOTICE | 動画ファイルの容量が大きい。 |
+|`$from`                | ログレベル               | 説明・例                                                |
+|-----------------------|--------------------------|---------------------------------------------------------|
+| 共通 (`汎用辞書`以外) | Psr\Log\LogLevel::ERROR  | 1つのお題が `汎用辞書` に直列化可能な形式ではなかった。 |
+| `汎用辞書`            | Psr\Log\LogLevel::ERROR  | 符号化方式がUTF-8でない。                               |
+| `汎用辞書`            | Psr\Log\LogLevel::NOTICE | 辞書全体の容量が大きい。                                |
+| `汎用辞書`            | Psr\Log\LogLevel::NOTICE | 画像ファイルの容量が大きい。                            |
+| `汎用辞書`            | Psr\Log\LogLevel::NOTICE | 音声ファイルの容量が大きい。                            |
+| `汎用辞書`            | Psr\Log\LogLevel::NOTICE | 動画ファイルの容量が大きい。                            |
 
 [esperecyan\dictionary_php\Parser]: ./src/Parser.php
 [PSR-3: Logger Interface]: http://guttally.net/psr/psr-3/ "この文書では，ロギングライブラリのための共通インタフェースについて記述します。"

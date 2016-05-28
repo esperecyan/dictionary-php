@@ -48,6 +48,7 @@ class CatchmParser extends AbstractParser
             try {
                 $dictionary->addWord($fieldsAsMultiDimensionalArray);
             } catch (SyntaxException $e) {
+                $this->logInconvertibleError($line, $e);
             }
         }
     }

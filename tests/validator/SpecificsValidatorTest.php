@@ -47,8 +47,8 @@ class SpecificsValidatorTest extends \PHPUnit_Framework_TestCase implements \Psr
                 [LogLevel::ERROR, LogLevel::ERROR],
             ],
             [
-                'no-pixelization=on&magnification=0.1&last-magnification=1&require-all-right=on&score=100&last-score=0',
-                'no-pixelization=&magnification=0.1&last-magnification=1&require-all-right=&score=100',
+                'pixelization=on&magnification=0.1&last-magnification=1&require-all-right=on&score=100&last-score=0',
+                'pixelization=&magnification=0.1&last-magnification=1&require-all-right=&score=100',
                 [LogLevel::ERROR],
             ],
             [

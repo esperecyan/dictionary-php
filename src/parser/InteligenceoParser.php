@@ -215,9 +215,9 @@ class InteligenceoParser extends AbstractParser
                                 break;
                             case 'mozaic':
                                 if ($int === 1) {
-                                    $specifics->set('no-pixelization', '');
+                                    $specifics->set('pixelization', '');
                                 } else {
-                                    $specifics->delete('no-pixelization');
+                                    $specifics->delete('pixelization');
                                 }
                                 break;
                             case 'score':

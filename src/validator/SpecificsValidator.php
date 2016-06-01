@@ -44,7 +44,7 @@ class SpecificsValidator extends AbstractFieldValidator
                 foreach ($values as &$value) {
                     switch ($name) {
                         // 空文字列
-                        case 'no-pixelization':
+                        case 'pixelization':
                         case 'require-all-right':
                         case 'no-random':
                             $value = '';

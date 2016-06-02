@@ -36,6 +36,10 @@ class NumberValidatorTest extends \PHPUnit_Framework_TestCase implements \Psr\Lo
             [true , '-5.6'  , '-5.6'],
             [true , '1.2e3' , '1200'],
             [true , 'test'  , '0'   ],
+            [true , '1.0E+15', '1000000000000000'],
+            [false, '1E+15' , '1000000000000000'],
+            [true , '1.0E-6', '0.000001'],
+            [true , '-1.0E-100', '0'],
         ];
     }
 }

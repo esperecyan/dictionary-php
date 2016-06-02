@@ -21,7 +21,6 @@
 		"psr/log": "^1.0.0",
 		"scriptfusion/byte-formatter": "^3.2.0",
 		"esperecyan/html-filter": "^1.0.1",
-		"ext-bcmath": "*",
 		"ext-gettext": "*",
 		"ext-imagick": "*",
 		"ext-intl": "*",

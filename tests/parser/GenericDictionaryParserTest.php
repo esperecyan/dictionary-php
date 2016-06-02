@@ -1,6 +1,7 @@
 <?php
 namespace esperecyan\dictionary_php\parser;
 
+use esperecyan\url\URLSearchParams;
 use Psr\Log\LogLevel;
 
 class GenericDictionaryParserTest extends \PHPUnit_Framework_TestCase implements \Psr\Log\LoggerInterface
@@ -239,14 +240,14 @@ class GenericDictionaryParserTest extends \PHPUnit_Framework_TestCase implements
                     $archive = $this->generateArchive();
                     
                     $archive->addFromString('dictionary.csv', $this->stripIndents(
-                        'text,image,audio,video
-                        ピン,png.png,,
-                        ジェイフィフ,jfif.jpg,,
-                        エスブイジー,svg.svg,,
-                        エーエーシー,,mpeg4-aac.m4a,
-                        エムピースリー,,mpeg1-audio-layer3.mp3,
-                        エイチニーロクヨン,,,mpeg4-h264.mp4
-                        ウェブエム,,,webm-vb8.webm
+                        'text,image,audio,video,specifics
+                        ピン,png.png,,,
+                        ジェイフィフ,jfif.jpg,,,
+                        エスブイジー,svg.svg,,,
+                        エーエーシー,,mpeg4-aac.m4a,,
+                        エムピースリー,,mpeg1-audio-layer3.mp3,,
+                        エイチニーロクヨン,,,mpeg4-h264.mp4,
+                        ウェブエム,,,webm-vb8.webm,score=1.0E%2B15
                         '
                     ));
                     
@@ -298,10 +299,11 @@ class GenericDictionaryParserTest extends \PHPUnit_Framework_TestCase implements
                     [
                         'text' => ['ウェブエム'],
                         'video' => ['local/webm-vb8.mp4'],
+                        'specifics' => [new URLSearchParams('score=1000000000000000')],
                     ],
                 ],
                 [],
-                [LogLevel::ERROR],
+                [LogLevel::ERROR, LogLevel::ERROR],
             ],
         ];
     }

@@ -179,7 +179,7 @@ class WordValidator extends \esperecyan\dictionary_php\log\AbstractLoggerAware
                 $validator = new NumberValidator(true);
                 $validator->setLogger($this->logger);
                 $number = $validator->correct($field);
-                if (bccomp($number, '0', NumberValidator::SCALE) === 1) {
+                if ($number > 0) {
                     $output = $number;
                 } else {
                     $this->logger->error(sprintf(_('「%s」は0より大きい実数として扱えません。'), $field));

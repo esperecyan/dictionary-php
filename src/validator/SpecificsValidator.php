@@ -52,7 +52,7 @@ class SpecificsValidator extends AbstractFieldValidator
                             $validator = new NumberValidator(true);
                             $validator->setLogger($this->logger);
                             $number = $validator->correct($value);
-                            if ($number !== '' && bccomp($number, '0', NumberValidator::SCALE) === 1) {
+                            if ($number !== '' && $number > 0) {
                                 $params->append($name, $number);
                             } else {
                                 $this->logger->error(sprintf(_('「%s」は0より大きい実数として扱えません。'), $value));
@@ -64,7 +64,7 @@ class SpecificsValidator extends AbstractFieldValidator
                             $validator = new NumberValidator(true);
                             $validator->setLogger($this->logger);
                             $number = $validator->correct($value);
-                            if ($number !== '' && bccomp($number, '0', NumberValidator::SCALE) >= 0) {
+                            if ($number !== '' && $number >= 0) {
                                 $params->append($name, $number);
                             } else {
                                 $this->logger->error(sprintf(_('「%s」は0以上の実数として扱えません。'), $value));
@@ -78,7 +78,7 @@ class SpecificsValidator extends AbstractFieldValidator
                             $validator = new NumberValidator();
                             $validator->setLogger($this->logger);
                             $number = $validator->correct($value);
-                            if ($number !== '' && bccomp($number, '0') === 1) {
+                            if ($number !== '' && $number >= 1) {
                                 $params->append($name, $number);
                             } else {
                                 $this->logger->error(sprintf(_('「%s」は1以上の整数として扱えません。'), $value));

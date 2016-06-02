@@ -12,9 +12,6 @@ class NumberValidator extends AbstractFieldValidator
     /** @var string 実数を表す正規表現。 */
     const REAL_NUMBER_REGEXP = '/^((0|-?[1-9][0-9]*)|-?(0|[1-9][0-9]*)\\.[0-9]*[1-9])$/u';
     
-    /** @var int 当クラスで対応する小数点以下の最大桁数。 */
-    const SCALE = 100;
-    
     /** @var bool */
     protected $realNumber;
     
@@ -48,13 +45,9 @@ class NumberValidator extends AbstractFieldValidator
                 $input
             ));
             
-            if (stripos($input, 'E') !== false) {
-                $input = (float)$input;
-            }
-            
             $output = $this->realNumber
-                ? rtrim(rtrim(bcadd($input, '0', self::SCALE), '0'), '.')
-                : bcadd($input, '0', 0);
+                ? rtrim(rtrim(sprintf('%F', $input), '0'), '.')
+                : sprintf('%d', stripos($input, 'E') !== false ? (float)$input : $input);
             
             if ($output === '-0') {
                 $output = '0';

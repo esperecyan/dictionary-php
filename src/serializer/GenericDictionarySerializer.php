@@ -1,8 +1,12 @@
 <?php
 namespace esperecyan\dictionary_php\serializer;
 
-use esperecyan\dictionary_php\{Dictionary, exception\SyntaxException};
-use esperecyan\dictionary_php\parser\GenericDictionaryParser;
+use esperecyan\dictionary_php\{
+    Dictionary,
+    parser\GenericDictionaryParser,
+    validator\NumberValidator,
+    exception\SyntaxException
+};
 
 class GenericDictionarySerializer extends AbstractSerializer
 {
@@ -74,6 +78,7 @@ class GenericDictionarySerializer extends AbstractSerializer
      */
     protected function convertWordToRecord(array $word, array $fieldNames, array $metadata): array
     {
+        $numberValidator = new NumberValidator();
         $output = [];
         foreach ($fieldNames as $fieldName) {
             $field = isset($word[$fieldName][0])
@@ -81,6 +86,8 @@ class GenericDictionarySerializer extends AbstractSerializer
                 : (isset($metadata[$fieldName]) ? $metadata[$fieldName] : '');
             if (is_array($field)) {
                 $field = $field['lml'];
+            } elseif (is_float($field)) {
+                $field = $numberValidator->serializeFloat($field);
             }
             $output[] = $field;
         }

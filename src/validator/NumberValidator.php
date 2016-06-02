@@ -35,6 +35,16 @@ class NumberValidator extends AbstractFieldValidator
         return preg_match($this->realNumber ? self::REAL_NUMBER_REGEXP : self::INTEGER_REGEXP, $input) === 1;
     }
     
+    /**
+     * 浮動小数点数を文字列に直列化します。
+     * @param string|float $float
+     * @return string
+     */
+    public function serializeFloat($float): string
+    {
+        return rtrim(rtrim(sprintf('%F', $float), '0'), '.');
+    }
+    
     public function correct(string $input): string
     {
         if ($this->validate($input)) {
@@ -46,7 +56,7 @@ class NumberValidator extends AbstractFieldValidator
             ));
             
             $output = $this->realNumber
-                ? rtrim(rtrim(sprintf('%F', $input), '0'), '.')
+                ? $this->serializeFloat($input)
                 : sprintf('%d', stripos($input, 'E') !== false ? (float)$input : $input);
             
             if ($output === '-0') {

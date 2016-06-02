@@ -6,6 +6,20 @@ class GenericDictionarySerializerTest extends \PHPUnit_Framework_TestCase implem
     use \esperecyan\dictionary_php\LogLevelLoggerTrait;
     use \esperecyan\dictionary_php\PreprocessingTrait;
     
+    /** @var string */
+    protected static $previousLocale;
+    
+    public static function setUpBeforeClass()
+    {
+        self::$previousLocale = setlocale(LC_NUMERIC, '0');
+        setlocale(LC_NUMERIC, 'es', 'es-ES', 'es_ES');
+    }
+    
+    public static function tearDownAfterClass()
+    {
+        setlocale(LC_NUMERIC, self::$previousLocale);
+    }
+    
     /**
      * @param string[][][] $fieldsAsMultiDimensionalArrays
      * @param string[] $metadata
@@ -110,14 +124,17 @@ class GenericDictionarySerializerTest extends \PHPUnit_Framework_TestCase implem
                     [
                         'text' => ['ピン'],
                         'image' => ['png.png'],
+                        'weight' => ['1.5'],
                     ],
                     [
                         'text' => ['ジェイフィフ'],
                         'image' => ['jfif.jpg'],
+                        'weight' => ['0.000001'],
                     ],
                     [
                         'text' => ['エスブイジー'],
                         'image' => ['svg.svg'],
+                        'weight' => ['1000000000000000'],
                     ],
                 ],
                 [],
@@ -138,10 +155,10 @@ class GenericDictionarySerializerTest extends \PHPUnit_Framework_TestCase implem
                     return $files;
                 })(),
                 [
-                    'bytes' => 'text,image
-                    ピン,png.png
-                    ジェイフィフ,jfif.jpg
-                    エスブイジー,svg.svg
+                    'bytes' => 'text,image,weight
+                    ピン,png.png,1.5
+                    ジェイフィフ,jfif.jpg,0.000001
+                    エスブイジー,svg.svg,1000000000000000
                     ',
                     'type' => 'application/zip',
                     'name' => 'dictionary.zip',

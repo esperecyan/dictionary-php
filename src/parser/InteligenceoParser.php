@@ -51,7 +51,8 @@ class InteligenceoParser extends AbstractParser
      * プレフィックス、サフィックスの組み合わせの結果がすべて空文字列になる時はnullを返します。
      * @param Dictionary $dictionary
      * @param string $line
-     * @throws SyntaxException 2つ目のフィールド数値の場合。読み方にひらがな以外が含まれている場合。読み方が設定されていない場合。
+     * @throws SyntaxException 2つ目のフィールド数値の場合。読み方が設定されていない場合。
+     *      読み方にしりとり辞書で使用可能なひらがな以外が含まれている、「ん」「ー」で始まる、「っー」「ゎー」「んー」「ーー」で終わる場合。
      */
     protected function parseShiritoriLine(Dictionary $dictionary, string $line)
     {
@@ -90,8 +91,8 @@ class InteligenceoParser extends AbstractParser
                 continue;
             }
             
-            if (preg_match('/^[ぁ-んー]*$/u', $field) !== 1) {
-                throw new SyntaxException(sprintf(_('「%s」には、ひらがな以外が含まれています。'), $field[1]));
+            if (preg_match('/^[ぁ-わをんー]*$/u', $field) !== 1) {
+                throw new SyntaxException(sprintf(_('「%s」には、しりとり辞書で使用可能なひらがな以外が含まれています。'), $field[1]));
             }
             
             $answerPattern[$mode][] = $field;
@@ -127,6 +128,16 @@ class InteligenceoParser extends AbstractParser
         $fieldsAsMultiDimensionalArray['answer'] = array_filter(array_unique($answersWithPrefixAndSuffix));
         
         if ($fieldsAsMultiDimensionalArray['answer']) {
+            foreach ($fieldsAsMultiDimensionalArray['answer'] as $answer) {
+                if (preg_match('/^([んー])|([っゎんー]ー)$/u', $answer, $matches) === 1) {
+                    if ($matches[1] !== '') {
+                        throw new SyntaxException(sprintf(_('読み方を「%s」で始めることはできません。'), $matches[1]));
+                    } else {
+                        throw new SyntaxException(sprintf(_('読み方を「%s」で終わらせることはできません。'), $matches[2]));
+                    }
+                }
+            }
+            
             if ($fieldsAsMultiDimensionalArray['text'][0] === '') {
                 $fieldsAsMultiDimensionalArray['text'][0] = $fieldsAsMultiDimensionalArray['answer'][0];
             }

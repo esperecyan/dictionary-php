@@ -182,7 +182,10 @@ class InteligenceoParserTest extends \PHPUnit_Framework_TestCase implements \Psr
             [
                 'フシギダネ,ふしぎだね,1,@No.001
                 フシギソウ,@dummy,ふしぎそう,@dummy2,1,@No.002
-                フシギバナ,ふしぎばな,0001,1.2e3,7E-10, -12 ,@<span style="background: gray;">[リンク](https://example.jp/)</span>',
+                フシギバナ,ふしぎばな,0001,1.2e3,7E-10, -12 ,@<span style="background: gray;">[リンク](https://example.jp/)</span>
+                @test,あっとまーく
+                3,すうじ
+                妥当な読み方,あんーん,をーん,ゎーん,ゎーーゎ,っーっ,っをー',
                 'Inteligenceω しりとり',
                 null,
                 null,
@@ -208,6 +211,18 @@ class InteligenceoParserTest extends \PHPUnit_Framework_TestCase implements \Psr
                         ]],
                         'weight' => [0.000833],
                     ],
+                    [
+                        'text' => ['@test'],
+                        'answer' => ['あっとまーく'],
+                    ],
+                    [
+                        'text' => ['3'],
+                        'answer' => ['すうじ'],
+                    ],
+                    [
+                        'text' => ['妥当な読み方'],
+                        'answer' => ['あんーん', 'をーん', 'ゎーん', 'ゎーーゎ', 'っーっ', 'っをー'],
+                    ]
                 ],
                 [],
             ],
@@ -252,6 +267,42 @@ class InteligenceoParserTest extends \PHPUnit_Framework_TestCase implements \Psr
             ],
             [
                 'テスト,1,てすと',
+                'Inteligenceω しりとり',
+            ],
+            [
+                '長音で始まる,ーあ',
+                'Inteligenceω しりとり',
+            ],
+            [
+                '撥音で始まる,んあ',
+                'Inteligenceω しりとり',
+            ],
+            [
+                '長音が末尾に連続する,あーー',
+                'Inteligenceω しりとり',
+            ],
+            [
+                '長音が末尾に連続する,[,あ,|,ー,],,ー',
+                'Inteligenceω しりとり',
+            ],
+            [
+                '末尾の長音の前に撥音,あんー',
+                'Inteligenceω しりとり',
+            ],
+            [
+                '末尾の長音の前に促音,っー',
+                'Inteligenceω しりとり',
+            ],
+            [
+                '末尾の長音の前に「ゎ」,ゎー',
+                'Inteligenceω しりとり',
+            ],
+            [
+                'ゐ,ゐ',
+                'Inteligenceω しりとり',
+            ],
+            [
+                'ゑ,ゑ',
                 'Inteligenceω しりとり',
             ],
             [

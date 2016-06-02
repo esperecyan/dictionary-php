@@ -65,7 +65,7 @@ abstract class AbstractParser extends \esperecyan\dictionary_php\log\AbstractLog
      */
     protected function unity(string $input): string
     {
-        return strtr(mb_convert_kana(strtolower($input), 'c'), self::EQUIVALENT);
+        return strtr(mb_convert_kana(strtolower($input), 'c', 'UTF-8'), self::EQUIVALENT);
     }
     
     /**

@@ -12,5 +12,6 @@
 	</testsuites>
 	<php>
 		<ini name="error_reporting" value="-1" />
+		<ini name="mbstring.substitute_character" value="?" />
 	</php>
 </phpunit>

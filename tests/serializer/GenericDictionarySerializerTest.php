@@ -1,8 +1,6 @@
 <?php
 namespace esperecyan\dictionary_php\serializer;
 
-use esperecyan\dictionary_php\Dictionary;
-
 class GenericDictionarySerializerTest extends \PHPUnit_Framework_TestCase implements \Psr\Log\LoggerInterface
 {
     use \esperecyan\dictionary_php\LogLevelLoggerTrait;
@@ -23,18 +21,7 @@ class GenericDictionarySerializerTest extends \PHPUnit_Framework_TestCase implem
         array $expectedFile,
         array $logLevels
     ) {
-        if ($files) {
-            $tempDirectory = (new \esperecyan\dictionary_php\parser\GenericDictionaryParser())->generateTempDirectory();
-            foreach ($files as $filename => $file) {
-                file_put_contents("$tempDirectory/$filename", $file);
-            }
-        }
-        
-        $dictionary = new Dictionary(isset($tempDirectory) ? new \FilesystemIterator($tempDirectory) : null);
-        foreach ($fieldsAsMultiDimensionalArrays as $fieldsAsMultiDimensionalArray) {
-            $dictionary->addWord($fieldsAsMultiDimensionalArray);
-        }
-        $dictionary->setMetadata($metadata);
+        $dictionary = $this->generateDictionary($fieldsAsMultiDimensionalArrays, $metadata, $files);
         
         $expectedFile['bytes'] = $this->stripIndentsAndToCRLF($expectedFile['bytes']);
         
@@ -162,13 +149,5 @@ class GenericDictionarySerializerTest extends \PHPUnit_Framework_TestCase implem
                 [],
             ],
         ];
-    }
-    
-    /**
-     * @expectedException \BadMethodCallException
-     */
-    public function testBadMethodCallException()
-    {
-        (new GenericDictionarySerializer())->serialize(new Dictionary());
     }
 }

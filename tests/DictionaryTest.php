@@ -115,60 +115,6 @@ class DictionaryTest extends \PHPUnit_Framework_TestCase implements \Psr\Log\Log
             ],
         ];
     }
-
-    /**
-     * @param string[][]|null $fieldsAsMultiDimensionalArray
-     * @param string[] $metaFields
-     * @param string $title
-     * @dataProvider titleProvider
-     */
-    public function testGetTitle(
-        array $fieldsAsMultiDimensionalArray = null,
-        array $metaFields = [],
-        string $title = ''
-    ) {
-        $dictionary = new Dictionary();
-        if ($fieldsAsMultiDimensionalArray) {
-            $dictionary->addWord($fieldsAsMultiDimensionalArray);
-        }
-        $dictionary->setMetadata($metaFields);
-        $this->assertSame($title, $dictionary->getTitle());
-    }
-    
-    public function titleProvider(): array
-    {
-        return [
-            [
-                null,
-                [],
-                '',
-            ],
-            [
-                [
-                    'text' => ['テスト'],
-                ],
-                [],
-                '',
-            ],
-            [
-                [
-                    'text' => ['テスト'],
-                    '@title' => ['辞書名'],
-                ],
-                [],
-                '',
-            ],
-            [
-                [
-                    'text' => ['テスト'],
-                ],
-                [
-                    '@title' => '辞書名',
-                ],
-                '辞書名',
-            ],
-        ];
-    }
     
     /**
      * @param string[] $metadata

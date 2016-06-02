@@ -83,7 +83,7 @@ class GenericDictionaryParser extends AbstractParser
      * @param string[] $fields
      * @return string
      */
-    protected function convertToCSVRecord($fields): string
+    public function convertToCSVRecord(array $fields): string
     {
         $csv = new \SplTempFileObject();
         $csv->fputcsv($fields);

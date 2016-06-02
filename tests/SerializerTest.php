@@ -1,6 +1,8 @@
 <?php
 namespace esperecyan\dictionary_php;
 
+use Psr\Log\LogLevel;
+
 class SerializerTest extends \PHPUnit_Framework_TestCase implements \Psr\Log\LoggerInterface
 {
     use LogLevelLoggerTrait;
@@ -23,25 +25,14 @@ class SerializerTest extends \PHPUnit_Framework_TestCase implements \Psr\Log\Log
         array $expectedFile,
         array $logLevels
     ) {
-        if ($files) {
-            $tempDirectory = (new \esperecyan\dictionary_php\parser\GenericDictionaryParser())->generateTempDirectory();
-            foreach ($files as $filename => $file) {
-                file_put_contents("$tempDirectory/$filename", $file);
-            }
-        }
-        
-        $dictionary = new Dictionary(isset($tempDirectory) ? new \FilesystemIterator($tempDirectory) : null);
-        foreach ($fieldsAsMultiDimensionalArrays as $fieldsAsMultiDimensionalArray) {
-            $dictionary->addWord($fieldsAsMultiDimensionalArray);
-        }
-        $dictionary->setMetadata($metadata);
+        $dictionary = $this->generateDictionary($fieldsAsMultiDimensionalArrays, $metadata, $files);
         
         $expectedFile['bytes'] = $this->stripIndentsAndToCRLF($expectedFile['bytes']);
         
         $serializer = new Serializer($to);
         $serializer->setLogger($this);
         $file = $serializer->serialize($dictionary);
-        if ($files) {
+        if ($to === '汎用辞書' && $files) {
             $archive = $this->generateArchive($file['bytes']);
             
             $finfo = new \esperecyan\dictionary_php\fileinfo\Finfo(FILEINFO_MIME_TYPE);
@@ -55,6 +46,9 @@ class SerializerTest extends \PHPUnit_Framework_TestCase implements \Psr\Log\Log
             $file['bytes'] = $archive->getFromName('dictionary.csv');
             $this->assertEquals($expectedFile, $file);
         } else {
+            if ($to !== '汎用辞書') {
+                $file['bytes'] = mb_convert_encoding($file['bytes'], 'UTF-8', 'Windows-31J');
+            }
             $this->assertEquals($expectedFile, $file);
         }
         
@@ -163,35 +157,239 @@ class SerializerTest extends \PHPUnit_Framework_TestCase implements \Psr\Log\Log
                 ],
                 [],
             ],
-        ];
-    }
-    
-    /**
-     * @param string $input
-     * @param string $from
-     * @expectedException \esperecyan\dictionary_php\exception\SyntaxException
-     * @dataProvider invalidDictionaryProvider
-     */
-    public function testSyntaxException(string $input, string $from)
-    {
-        (new Parser($from))->parse($this->generateTempFileObject($this->stripIndents($input)));
-    }
-    
-    public function invalidDictionaryProvider(): array
-    {
-        return [
             [
-                '<?xml version="1.0" ?>
-                 <svg xmlns="http://www.w3.org/2000/svg">
-                    <rect width="100" height="100" />
-                </svg>
-                <!-- text/plainでない -->',
                 'キャッチフィーリング',
+                [
+                    [
+                        'text' => ['𩸽'],
+                    ],
+                    [
+                        'text' => ['剝'],
+                        'answer' => ['剝', '剥'],
+                    ],
+                    [
+                        'text' => ['塡'],
+                        'answer' => ['塡', '填'],
+                    ],
+                    [
+                        'text' => ['ゔゕゖ〜'],
+                    ],
+                    [
+                        'text' => ['ヷヸヹヴァヴィヴヴェヴォㇰㇱㇲㇳㇴㇵㇶㇷㇸㇹㇻㇼㇽㇾㇿㇺ'],
+                    ],
+                    [
+                        'text' => ['te//st'],
+                    ],
+                    [
+                        'text' => ['/'],
+                    ],
+                    [
+                        'text' => ['te//st/'],
+                    ],
+                    [
+                        'text' => ['te//st/', 't/e/s/t'],
+                    ],
+                ],
+                [],
+                [],
+                [
+                    'bytes' =>
+                    "剥
+                    填
+                    ヴヵヶ～
+                    ヴぁヴぃヴぇヴぁヴぃヴヴぇヴぉくしすとぬはひふへほらりるれろむ
+                    te／／st
+                    /
+                    te／／st／
+                    t/e/s/t
+                    ",
+                    'type' => 'text/plain; charset=Shift_JIS',
+                    'name' => 'dictionary [語数 8].cfq',
+                ],
+                [LogLevel::ERROR],
             ],
             [
-                'ふごうかほうしき
-                ',
-                'キャッチフィーリング',
+                'きゃっちま',
+                [
+                    [
+                        'text' => ['𩸽'],
+                    ],
+                    [
+                        'text' => ['剝'],
+                        'answer' => ['剝', '剥'],
+                    ],
+                    [
+                        'text' => ['塡'],
+                        'answer' => ['塡', '填'],
+                    ],
+                    [
+                        'text' => ['ゔゕゖ〜'],
+                    ],
+                    [
+                        'text' => ['test'],
+                    ],
+                    [
+                        'text' => ['test2'],
+                        'answer' => ['/\\test', 'test,/;[']
+                    ],
+                ],
+                [
+                    '@title' => "テ\nス\nト",
+                ],
+                [],
+                [
+                    'bytes' =>
+                    '[テ
+                    // ス
+                    // ト]
+                    
+                    剥
+                    填
+                    ヴヵヶ～
+                    ｔｅｓｔ,test
+                    ／＼ｔｅｓｔ,／\\test,test，／；［// 【test2】
+                    ',
+                    'type' => 'text/plain; charset=Shift_JIS',
+                    'name' => 'テスト.dat',
+                ],
+                [LogLevel::ERROR],
+            ],
+            [
+                'Inteligenceω しりとり',
+                [
+                    [
+                        'text' => ['あ'],
+                        'answer' => ['あ', '/あ.*/', '/.*お.*/', '/.*=/'],
+                        'question' => ['部分一致'],
+                    ],
+                    [
+                        'text' => ['ひらがな'],
+                        'answer' => ['ゔゕゖ〜'],
+                        'description' => ['ゔゕゖ〜%=,\\n'],
+                    ],
+                    [
+                        'text' => ['ゐゑヰヱヷヸヹヴァヴィヴヴェヴォヵヶㇰㇱㇲㇳㇴㇵㇶㇷㇸㇹㇻㇼㇽㇾㇿㇺ'],
+                    ],
+                    [
+                        'text' => ["\u{1B000}\u{1B001}"],
+                    ],
+                    [
+                        'text' => ['末尾の長音'],
+                        'answer' => ['あんー', 'あんーーー', 'あんーーーっ', 'っー', 'っーーー', 'ゎー', 'ゎーーー', 'かーー', 'かーーー'],
+                    ],
+                    [
+                        'text' => ['𩸽 (ほっけ)'],
+                        'answer' => ['ほっけ'],
+                        'description' => ['𩸽 (ほっけ)'],
+                    ],
+                    [
+                        'text' => ['んじゃめな'],
+                        'description' => ['撥音が先頭にある。'],
+                    ],
+                    [
+                        'text' => ['ーびる'],
+                        'description' => ['長音が先頭にある。'],
+                    ],
+                ],
+                [],
+                [],
+                [
+                    'bytes' =>
+                    'あ,あ
+                    ひらがな,ぶかけー,@う゛ヵヶ～%=，\\n
+                    ゐゑヰヱワ゛ヰ゛ヱ゛ヴァヴィヴヴェヴォヵヶクシストヌハヒフヘホラリルレロム,いえいえばびべばびぶべぼかけくしすとぬはひふへほらりるれろむ
+                    エえ,ええ
+                    末尾の長音,あんん,あんーーん,あんーーーっ,っっ,っーーっ,ゎあ,ゎーあー,かあー,かーあー
+                    〓 (ほっけ),ほっけ,@〓 (ほっけ)
+                    ',
+                    'type' => 'text/plain; charset=Shift_JIS',
+                    'name' => 'dictionary.txt',
+                ],
+                [LogLevel::ERROR, LogLevel::ERROR],
+            ],
+            [
+                'Inteligenceω クイズ',
+                [
+                    [
+                        'text' => ['太陽'],
+                        'image' => ['local/sun.png'],
+                        'answer' => ['太陽', 'サン', 'たいよう', 'sun'],
+                        'specifics' => ['magnification=10&last-magnification=1&bonus=0&bonus=0&bonus=10&bonus=0'],
+                    ],
+                    [
+                        'text' => ['四季'],
+                        'audio' => ['local/four-seasons.mp4'],
+                        'answer' => ['しき', 'はる'],
+                        'specifics' => ['start=60&repeat=3&length=0.5005&speed=0.1005&valume=2'],
+                    ],
+                    [
+                        'text' => ['リンゴ'],
+                        'question' => ['仲間外れはどれでしょう'],
+                        'option' => ['リンゴ', 'ゴリラ', 'ラクダ', 'ダチョウ'],
+                        'answer' => ['リンゴ'],
+                        'type' => ['selection'],
+                        'description' => ['選択肢を表示しなければ問題が成立しない場合。'],
+                    ],
+                    [
+                        'text' => ['「リンゴ」か「パン」'],
+                        'question' => ["食べ物はどれでしょう\n(答えが複数ある場合はどれが1つだけ選択)"],
+                        'option' => ['リンゴ', 'ゴリラ', 'ラッパ', 'パン'],
+                        'answer' => ['リンゴ', 'パン'],
+                        'specifics' => ['bonus=&bonus=100&score=100&last-score=200&no-random='],
+                        'type' => ['selection'],
+                    ],
+                    [
+                        'text' => ['「リンゴ」と「パン」'],
+                        'question' => ['同じ種類のものを選びましょう'],
+                        'option' => ['リンゴ', 'ゴリラ', 'ラッパ', 'パン'],
+                        'answer' => ['リンゴ', 'パン'],
+                        'specifics' => ['require-all-right='],
+                        'type' => ['selection'],
+                    ],
+                    [
+                        'text' => ['リンゴ → ゴリラ → ラッパ → パン'],
+                        'question' => ['しりとりが成立するように並べ替えてください'],
+                        'option' => ['リンゴ', 'ゴリラ', 'ラッパ', 'パン'],
+                        'type' => ['selection'],
+                    ],
+                    [
+                        'text' => ['2'],
+                        'question' => ['1+1'],
+                    ],
+                    [
+                        'text' => ['𩸽'],
+                        'question' => ['ホッケはどれでしょう'],
+                        'option' => ['𩸽', '鰆', '鰤'],
+                    ],
+                ],
+                ['@title' => "選択\n並べ替え"],
+                [],
+                [
+                    'bytes' =>
+                    '% 【選択
+                    %   並べ替え】
+
+                    Q,2,,local/sun.png,zoom_start=10,zoom_end=1
+                    A,0,太陽,サン,たいよう,\\bonus=10,sun,\\explain=太陽
+                    Q,1,,local/four-seasons.mp4,start=60000,repeat=3,length=501,speed=10
+                    A,0,しき,はる,\\explain=四季
+                    Q,0,仲間外れはどれでしょう
+                    A,1,リンゴ,\\seikai,ゴリラ,ラクダ,ダチョウ,\\explain=リンゴ\\n\\n選択肢を表示しなければ問題が成立しない場合。
+                    Q,0,食べ物はどれでしょう\\n(答えが複数ある場合はどれが1つだけ選択),score=100,finalscore=200
+                    A,1,リンゴ,\\seikai,ゴリラ,ラッパ,パン,\\seikai,\\norandom,\\explain=「リンゴ」か「パン」
+                    Q,0,同じ種類のものを選びましょう
+                    A,3,リンゴ,\\seikai,ゴリラ,ラッパ,パン,\\seikai,\\explain=「リンゴ」と「パン」
+                    Q,0,しりとりが成立するように並べ替えてください
+                    A,2,リンゴ,1,ゴリラ,2,ラッパ,3,パン,4,\\explain=リンゴ → ゴリラ → ラッパ → パン
+                    Q,0,1+1
+                    A,0,2,\\explain=2
+                    Q,0,ホッケはどれでしょう
+                    A,1,〓,\\seikai,鰆,鰤,\\explain=〓
+                    ',
+                    'type' => 'text/plain; charset=Shift_JIS',
+                    'name' => '選択並べ替え.txt',
+                ],
+                [],
             ],
         ];
     }

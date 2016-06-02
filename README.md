@@ -115,11 +115,67 @@ Composer のインストール方法については、[Composer のグローバ�
 ##### `bool $header = null`
 変換元のファイルが `汎用辞書` の場合、ヘッダ行が存在すれば `true`、存在しなければ `false`、不明なら `null` を指定します。
 
+#### 例外 [esperecyan\dictionary_php\SyntaxException](./src/SyntaxException.php)
+SyntaxException#getMessage() から、ユーザーに示すエラーメッセージを取得できます。
+
+| `$from`                  | 説明・例                                                             |
+|--------------------------|----------------------------------------------------------------------|
+| 共通                     | ファイル形式、符号化方式が間違っている。                             |
+| 共通 (`汎用辞書`以外)    | `汎用辞書` に直列化可能なお題が一つも存在しなかった。                |
+| `汎用辞書`               | 辞書全体の容量が大き過ぎる。                                         |
+| `汎用辞書`               | 空のCSVファイルである。                                              |
+| `汎用辞書`               | ヘッダ行に `text` というフィールドが存在しない。                     |
+| `汎用辞書`               | ヘッダ行を超えるフィールド数の行が存在する。                         |
+| `汎用辞書`               | textフィールドが存在しない行がある。                                 |
+| `汎用辞書`               | 符号化方式の検出に失敗した。                                         |
+| `汎用辞書`               | 画像ファイルの容量が大き過ぎる。                                     |
+| `汎用辞書`               | 音声ファイルの容量が大き過ぎる。                                     |
+| `汎用辞書`               | 動画ファイルの容量が大き過ぎる。                                     |
+| `汎用辞書`               | アーカイブに `dictionary.csv` という名前のファイルが含まれていない。 |
+| `汎用辞書`               | アーカイブに含まれるファイルの名前が妥当でない。                     |
+| `汎用辞書`               | アーカイブに含まれるファイルの形式が間違っている。                   |
+| `汎用辞書`               | アーカイブに含まれるファイルの拡張子が正しくない。                   |
+| `キャッチフィーリング`   | 空行がある。                                                         |
+| `きゃっちま`             | コメントの前にスペースがある。                                       |
+| `Inteligenceω しりとり` | 表示名の直後に難易度 (数値) が存在する。                             |
+| `Inteligenceω しりとり` | 読み方にひらがな以外が含まれている。                                 |
+| `Inteligenceω しりとり` | 読み方が設定されていないお題がある。                                 |
+| `Inteligenceω クイズ`   | 出題の種類が数値になっていない。                                     |
+| `Inteligenceω クイズ`   | 解答の種類が数値になっていない。                                     |
+| `Inteligenceω クイズ`   | 画像クイズ、音声クイズでファイルが指定されていない。                 |
+| `Inteligenceω クイズ`   | 問題オプションの値が数値になっていない。                             |
+| `Inteligenceω クイズ`   | 選択問題で `\seikai` の前に選択肢が存在しない。                      |
+| `Inteligenceω クイズ`   | 解答オプション `\bonus` の値が数値になっていない。                   |
+| `Inteligenceω クイズ`   | 解答オプションの前に解答本体が存在しない。                           |
+| `Inteligenceω クイズ`   | 記述問題で、`||` `[[` の前に解答本体が存在しない。                   |
+| `Inteligenceω クイズ`   | 選択問題で `\seikai` が設定されていない。                            |
+| `Inteligenceω クイズ`   | 問題行に対応する解答行が存在しない。                                 |
+| `Inteligenceω クイズ`   | 解答行より前に問題行が存在する。                                     |
+| `Inteligenceω クイズ`   | コメント、問題、解答のいずれにも該当しない行が存在する。             |
+
+#### ロギング
+[esperecyan\dictionary_php\Parser]は[PSR-3: Logger Interface]の[Psr\Log\LoggerAwareInterface]を実装しています。
+
+|`$from`                | ログレベル               | 説明・例                                                |
+|-----------------------|--------------------------|---------------------------------------------------------|
+| 共通 (`汎用辞書`以外) | Psr\Log\LogLevel::ERROR  | 1つのお題が `汎用辞書` に直列化可能な形式ではなかった。 |
+| `汎用辞書`            | Psr\Log\LogLevel::ERROR  | 符号化方式がUTF-8でない。                               |
+| `汎用辞書`            | Psr\Log\LogLevel::NOTICE | 辞書全体の容量が大きい。                                |
+| `汎用辞書`            | Psr\Log\LogLevel::NOTICE | 画像ファイルの容量が大きい。                            |
+| `汎用辞書`            | Psr\Log\LogLevel::NOTICE | 音声ファイルの容量が大きい。                            |
+| `汎用辞書`            | Psr\Log\LogLevel::NOTICE | 動画ファイルの容量が大きい。                            |
+
+[esperecyan\dictionary_php\Parser]: ./src/Parser.php
+[PSR-3: Logger Interface]: http://guttally.net/psr/psr-3/ "この文書では，ロギングライブラリのための共通インタフェースについて記述します。"
+[Psr\Log\LoggerAwareInterface]: https://github.com/php-fig/log/blob/master/Psr/Log/LoggerAwareInterface.php
+
 ### [class esperecyan\dictionary_php\Serializer(string $to = '汎用辞書')](./src/serializer/Serializer.php)
 直列化器。
 
 #### `string $to = '汎用辞書'`
-変換先の辞書形式。`汎用辞書` を指定する。
+変換先の辞書形式。`キャッチフィーリング` `きゃっちま` `Inteligenceω クイズ` `Inteligenceω しりとり` `汎用辞書` のいずれか。
+
+指定されていないか間違った値が指定されていれば、`汎用辞書` になります。
 
 #### [string\[\] esperecyan\dictionary_php\Serializer#serialize(Dictionary $dictionary)]
 次のような構造の連想配列で直列化したデータを返します。
@@ -129,6 +185,17 @@ Composer のインストール方法については、[Composer のグローバ�
 - \[name] => ファイル名
 
 [MIME型]: https://mimesniff.spec.whatwg.org/#mime-type
+
+#### 例外
+| `$to`                 | 説明・例                                               |
+|-----------------------|--------------------------------------------------------|
+| 共通 (`汎用辞書`以外) | 該当の辞書形式に変換可能なお題が一つも存在しなかった。 |
+| `汎用辞書`            | 辞書全体の容量が大き過ぎる。                           |
+
+#### ロギング
+|`$to`                  | ログレベル               | 説明・例                                                |
+|-----------------------|--------------------------|---------------------------------------------------------|
+| 共通 (`汎用辞書`以外) | Psr\Log\LogLevel::ERROR  | 1つのお題が `汎用辞書` に直列化可能な形式ではなかった。 |
 
 ### [class esperecyan\dictionary_php\Dictionary](./src/Dictionary.php)
 辞書データ。
@@ -175,62 +242,6 @@ Composer のインストール方法については、[Composer のグローバ�
 
 #### [FilesystemIterator esperecyan\dictionary_php\Dictionary#getFiles()](./src/Dictionary.php#L107-122)
 辞書に同梱されるファイルを返します。
-
-### Parser#parse() における例外 [esperecyan\dictionary_php\SyntaxException](./src/SyntaxException.php)
-SyntaxException#getMessage() から、ユーザーに示すエラーメッセージを取得できます。
-
-| `$from`                  | 説明・例                                                             |
-|--------------------------|----------------------------------------------------------------------|
-| 共通                     | ファイル形式、符号化方式が間違っている。                             |
-| `汎用辞書`               | 辞書全体の容量が大き過ぎる。                                         |
-| `汎用辞書`               | 空のCSVファイルである。                                              |
-| `汎用辞書`               | ヘッダ行に `text` というフィールドが存在しない。                     |
-| `汎用辞書`               | ヘッダ行を超えるフィールド数の行が存在する。                         |
-| `汎用辞書`               | textフィールドが存在しない行がある。                                 |
-| `汎用辞書`               | 符号化方式の検出に失敗した。                                         |
-| `汎用辞書`               | 画像ファイルの容量が大き過ぎる。                                     |
-| `汎用辞書`               | 音声ファイルの容量が大き過ぎる。                                     |
-| `汎用辞書`               | 動画ファイルの容量が大き過ぎる。                                     |
-| `汎用辞書`               | アーカイブに `dictionary.csv` という名前のファイルが含まれていない。 |
-| `汎用辞書`               | アーカイブに含まれるファイルの名前が妥当でない。                     |
-| `汎用辞書`               | アーカイブに含まれるファイルの形式が間違っている。                   |
-| `汎用辞書`               | アーカイブに含まれるファイルの拡張子が正しくない。                   |
-| `キャッチフィーリング`   | 空行がある。                                                         |
-| `キャッチフィーリング`   | すべてのお題が制御文字や空白文字のみで構成されている。               |
-| `きゃっちま`             | コメントの前にスペースがある。                                       |
-| `きゃっちま`             | 空の辞書。                                                           |
-| `Inteligenceω しりとり` | 表示名の直後に難易度 (数値) が存在する。                             |
-| `Inteligenceω しりとり` | 読み方にひらがな以外が含まれている。                                 |
-| `Inteligenceω しりとり` | 読み方が設定されていないお題がある。                                 |
-| `Inteligenceω クイズ`   | 出題の種類が数値になっていない。                                     |
-| `Inteligenceω クイズ`   | 解答の種類が数値になっていない。                                     |
-| `Inteligenceω クイズ`   | 画像クイズ、音声クイズでファイルが指定されていない。                 |
-| `Inteligenceω クイズ`   | 問題オプションの値が数値になっていない。                             |
-| `Inteligenceω クイズ`   | 選択問題で `\seikai` の前に選択肢が存在しない。                      |
-| `Inteligenceω クイズ`   | 解答オプション `\bonus` の値が数値になっていない。                   |
-| `Inteligenceω クイズ`   | 解答オプションの前に解答本体が存在しない。                           |
-| `Inteligenceω クイズ`   | 記述問題で、`||` `[[` の前に解答本体が存在しない。                   |
-| `Inteligenceω クイズ`   | 選択問題で `\seikai` が設定されていない。                            |
-| `Inteligenceω クイズ`   | 問題行に対応する解答行が存在しない。                                 |
-| `Inteligenceω クイズ`   | 解答行より前に問題行が存在する。                                     |
-| `Inteligenceω クイズ`   | コメント、問題、解答のいずれにも該当しない行が存在する。             |
-| `Inteligenceω クイズ`   | 汎用辞書に変換可能な行が一つも存在しなかった。                       |
-
-### ロギング
-[esperecyan\dictionary_php\Parser]は[PSR-3: Logger Interface]の[Psr\Log\LoggerAwareInterface]を実装しています。
-
-|`$from`                | ログレベル               | 説明・例                                                |
-|-----------------------|--------------------------|---------------------------------------------------------|
-| 共通 (`汎用辞書`以外) | Psr\Log\LogLevel::ERROR  | 1つのお題が `汎用辞書` に直列化可能な形式ではなかった。 |
-| `汎用辞書`            | Psr\Log\LogLevel::ERROR  | 符号化方式がUTF-8でない。                               |
-| `汎用辞書`            | Psr\Log\LogLevel::NOTICE | 辞書全体の容量が大きい。                                |
-| `汎用辞書`            | Psr\Log\LogLevel::NOTICE | 画像ファイルの容量が大きい。                            |
-| `汎用辞書`            | Psr\Log\LogLevel::NOTICE | 音声ファイルの容量が大きい。                            |
-| `汎用辞書`            | Psr\Log\LogLevel::NOTICE | 動画ファイルの容量が大きい。                            |
-
-[esperecyan\dictionary_php\Parser]: ./src/Parser.php
-[PSR-3: Logger Interface]: http://guttally.net/psr/psr-3/ "この文書では，ロギングライブラリのための共通インタフェースについて記述します。"
-[Psr\Log\LoggerAwareInterface]: https://github.com/php-fig/log/blob/master/Psr/Log/LoggerAwareInterface.php
 
 Contribution
 ------------

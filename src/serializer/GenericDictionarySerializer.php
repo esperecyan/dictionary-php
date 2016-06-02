@@ -24,7 +24,6 @@ class GenericDictionarySerializer extends AbstractSerializer
     /**
      * ヘッダ行に用いるフィールド名の一覧を生成します。
      * @param Dictionary $dictionary
-     * @throws \BadMethodCallException 辞書にお題が1つもなかった場合。
      * @return string[]
      */
     protected function getFieldNames(Dictionary $dictionary): array
@@ -34,10 +33,6 @@ class GenericDictionarySerializer extends AbstractSerializer
             foreach ($word as $fieldName => $fields) {
                 $fieldLengths[$fieldName] = max(count($fields), $fieldLengths[$fieldName] ?? 0);
             }
-        }
-        
-        if (empty($fieldLengths)) {
-            throw new \BadMethodCallException('空の辞書です。');
         }
         
         $fieldLengths += array_fill_keys(array_keys($dictionary->getMetadata()), 1);

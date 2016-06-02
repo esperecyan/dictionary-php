@@ -1,6 +1,6 @@
 {
 	"name": "esperecyan/dictionary-api",
-	"description": "従来の辞書形式を「主に単語で答えるゲームにおける汎用的な辞書形式」に変換する API を提供します。",
+	"description": "従来の辞書形式と「主に単語で答えるゲームにおける汎用的な辞書形式」の構文解析、直列化を行う API を提供します。",
 	"homepage": "https://github.com/esperecyan/dictionary-php",
 	"license": "MPL-2.0",
 	"authors": [

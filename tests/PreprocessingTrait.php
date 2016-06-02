@@ -33,4 +33,31 @@ trait PreprocessingTrait
         $temp->fwrite($input);
         return $temp;
     }
+    
+    /**
+     * @param string[][][] $fieldsAsMultiDimensionalArrays
+     * @param string[] $metadata
+     * @param string[] $files
+     * @return Dictionary
+     */
+    protected function generateDictionary(
+        array $fieldsAsMultiDimensionalArrays,
+        array $metadata,
+        array $files
+    ): Dictionary {
+        if ($files) {
+            $tempDirectory = (new \esperecyan\dictionary_php\parser\GenericDictionaryParser())->generateTempDirectory();
+            foreach ($files as $filename => $file) {
+                file_put_contents("$tempDirectory/$filename", $file);
+            }
+        }
+        
+        $dictionary = new Dictionary(isset($tempDirectory) ? new \FilesystemIterator($tempDirectory) : null);
+        foreach ($fieldsAsMultiDimensionalArrays as $fieldsAsMultiDimensionalArray) {
+            $dictionary->addWord($fieldsAsMultiDimensionalArray);
+        }
+        $dictionary->setMetadata($metadata);
+        
+        return $dictionary;
+    }
 }

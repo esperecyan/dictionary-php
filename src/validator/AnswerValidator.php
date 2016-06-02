@@ -82,7 +82,7 @@ class AnswerValidator extends AbstractFieldValidator
      * @param string $input NFKC適用済みの文字列。
      * @return bool
      */
-    protected function isHiraganaOrReplaceableKatakana(string $input): bool
+    public function isHiraganaOrReplaceableKatakana(string $input): bool
     {
         return preg_match('/^[〜あ-ゖア-ヶー]+$/u', $input) === 1;
     }

@@ -143,6 +143,26 @@ class AnswerValidatorTest extends \PHPUnit_Framework_TestCase implements \Psr\Lo
                 '',
                 [LogLevel::ERROR],
             ],
+            [
+                'ヵ',
+                'ヵ',
+                [LogLevel::NOTICE],
+            ],
+            [
+                'ヶ',
+                'ヶ',
+                [LogLevel::NOTICE],
+            ],
+            [
+                'ゕ',
+                'ゕ',
+                [LogLevel::NOTICE],
+            ],
+            [
+                'ゖ',
+                'ゖ',
+                [LogLevel::NOTICE],
+            ],
         ];
     }
 }

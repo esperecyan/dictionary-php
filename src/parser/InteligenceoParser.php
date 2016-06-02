@@ -10,7 +10,7 @@ class InteligenceoParser extends AbstractParser
     const SECONDS_TO_MILISECONDS = 1000;
     
     /** @var int 比率を百分率に変換するときの乗数。 */
-    const DECIMAL_TO_PERCENT = 1000;
+    const DECIMAL_TO_PERCENT = 100;
     
     /** @var string|null 辞書の種類。 */
     protected $type = null;

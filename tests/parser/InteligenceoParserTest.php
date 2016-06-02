@@ -45,6 +45,8 @@ class InteligenceoParserTest extends \PHPUnit_Framework_TestCase implements \Psr
                 '% 選択問題
                 Q,2,,../images/sun.mp4
                 A,1,地球,カロン,太陽,\\seikai
+                Q,1,,../audios/four-seasons.mp4,speed=500
+                A,1,四季,\\seikai,魔王,ラデツキー行進曲
                 
                 Q,0,仲間外れはどれでしょう
                 A,1,リンゴ,\\seikai,ゴリラ,ラクダ,ダチョウ,\\explain=選択肢を表示しなければ問題が成立しない場合。
@@ -71,6 +73,14 @@ class InteligenceoParserTest extends \PHPUnit_Framework_TestCase implements \Psr
                         'image' => ['local/sun.png'],
                         'option' => ['地球', 'カロン', '太陽'],
                         'answer' => ['太陽'],
+                        'type' => ['selection'],
+                    ],
+                    [
+                        'text' => ['四季'],
+                        'audio' => ['local/four-seasons.mp4'],
+                        'option' => ['四季', '魔王', 'ラデツキー行進曲'],
+                        'answer' => ['四季'],
+                        'specifics' => [new URLSearchParams('speed=5')],
                         'type' => ['selection'],
                     ],
                     [

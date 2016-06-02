@@ -1,11 +1,19 @@
 <?php
 namespace esperecyan\dictionary_php\validator;
 
+use esperecyan\url\URLSearchParams;
+
 /**
  * specificsフィールドの矯正。
  */
 class SpecificsValidator extends AbstractFieldValidator
 {
+    /** @var string[] キーが依存元、名前が依存先。 */
+    const DEPENDENCES = [
+        'last-magnification' => 'magnification',
+        'last-score' => 'score',
+    ];
+    
     /**
      * フィールドを解析し、同名の値の配列を値に持つ連想配列として返します。
      * @param string $urlencoded
@@ -14,40 +22,25 @@ class SpecificsValidator extends AbstractFieldValidator
     protected function parse(string $urlencoded): array
     {
         $specifics = [];
-        foreach (new \esperecyan\url\URLSearchParams($urlencoded) as $name => $value) {
+        foreach (new URLSearchParams($urlencoded) as $name => $value) {
             $specifics[$name][] = $value;
         }
         return $specifics;
-    }
-    
-    /**
-     * 配列の連想配列を文字列へ直列化して返します。
-     * @param string $nameValues
-     * @return string
-     */
-    protected function serialize(array $nameValues): string
-    {
-        $params = new \esperecyan\url\URLSearchParams();
-        foreach ($nameValues as $name => $values) {
-            foreach ($values as $value) {
-                $params->append($name, $value);
-            }
-        }
-        return (string)$params;
     }
     
     public function correct(string $input): string
     {
         $nameValues = $this->parse($input);
         if ($nameValues) {
-            foreach ($nameValues as $name => &$values) {
-                foreach ($values as &$value) {
+            $params = new URLSearchParams();
+            foreach ($nameValues as $name => $values) {
+                foreach ($values as $value) {
                     switch ($name) {
                         // 空文字列
                         case 'pixelization':
                         case 'require-all-right':
                         case 'no-random':
-                            $value = '';
+                            $params->append($name, '');
                             break;
                         
                         // 0より大きい実数
@@ -60,10 +53,9 @@ class SpecificsValidator extends AbstractFieldValidator
                             $validator->setLogger($this->logger);
                             $number = $validator->correct($value);
                             if ($number !== '' && bccomp($number, '0', NumberValidator::SCALE) === 1) {
-                                $value = $number;
+                                $params->append($name, $number);
                             } else {
                                 $this->logger->error(sprintf(_('「%s」は0より大きい実数として扱えません。'), $value));
-                                $value = null;
                             }
                             break;
                         
@@ -73,10 +65,9 @@ class SpecificsValidator extends AbstractFieldValidator
                             $validator->setLogger($this->logger);
                             $number = $validator->correct($value);
                             if ($number !== '' && bccomp($number, '0', NumberValidator::SCALE) >= 0) {
-                                $value = $number;
+                                $params->append($name, $number);
                             } else {
                                 $this->logger->error(sprintf(_('「%s」は0以上の実数として扱えません。'), $value));
-                                $value = null;
                             }
                             break;
                         
@@ -88,10 +79,9 @@ class SpecificsValidator extends AbstractFieldValidator
                             $validator->setLogger($this->logger);
                             $number = $validator->correct($value);
                             if ($number !== '' && bccomp($number, '0') === 1) {
-                                $value = $number;
+                                $params->append($name, $number);
                             } else {
                                 $this->logger->error(sprintf(_('「%s」は1以上の整数として扱えません。'), $value));
-                                $value = null;
                             }
                             break;
                         
@@ -101,19 +91,27 @@ class SpecificsValidator extends AbstractFieldValidator
                             $validator->setLogger($this->logger);
                             $number = $validator->correct($value);
                             if ($number !== '') {
-                                $value = $number;
+                                $params->append($name, $number);
                             } else {
                                 $this->logger->error(sprintf(_('「%s」は整数として扱えません。'), $value));
-                                $value = null;
                             }
                             break;
+                        
+                        default:
+                            $params->append($name, $value);
                     }
                 }
-                $values = array_filter($values, function ($value) {
-                    return !is_null($value);
-                });
             }
-            $output = $this->serialize($nameValues);
+            
+            foreach (self::DEPENDENCES as $source => $destination) {
+                if ($params->has($source) && !$params->has($destination)) {
+                    $params->delete($source);
+                    // TRANRATORS: %1$s、%2$s はapplication/x-www-form-urlencoded形式の名前部分
+                    $this->logger->error(sprintf(_('「%1$s」を指定するときは、「%2$s」も指定しておく必要があります。'), $source, $destination));
+                }
+            }
+            
+            $output = (string)$params;
         } else {
             $this->logger->error(_('解析した結果空文字列になりました。'));
         }

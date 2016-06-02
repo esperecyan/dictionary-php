@@ -43,9 +43,9 @@ class InteligenceoParserTest extends \PHPUnit_Framework_TestCase implements \Psr
         return [
             [
                 '% 選択問題
-                Q,2,,../images/sun.mp4
+                Q,2,,../images/sun.mp4,zoom_end=10,mozaic=1,finalscore=100
                 A,1,地球,カロン,太陽,\\seikai
-                Q,1,,../audios/four-seasons.mp4,speed=500
+                Q,1,,../audios/four-seasons.mp4,speed=500,magnification=1,last-magnification=1,media_start=13500,repeat=-1,length=500
                 A,1,四季,\\seikai,魔王,ラデツキー行進曲
                 
                 Q,0,仲間外れはどれでしょう
@@ -73,6 +73,7 @@ class InteligenceoParserTest extends \PHPUnit_Framework_TestCase implements \Psr
                         'image' => ['local/sun.png'],
                         'option' => ['地球', 'カロン', '太陽'],
                         'answer' => ['太陽'],
+                        'specifics' => [new URLSearchParams('pixelization=')],
                         'type' => ['selection'],
                     ],
                     [
@@ -80,7 +81,7 @@ class InteligenceoParserTest extends \PHPUnit_Framework_TestCase implements \Psr
                         'audio' => ['local/four-seasons.mp4'],
                         'option' => ['四季', '魔王', 'ラデツキー行進曲'],
                         'answer' => ['四季'],
-                        'specifics' => [new URLSearchParams('speed=5')],
+                        'specifics' => [new URLSearchParams('speed=5&start=13.5&length=0.5')],
                         'type' => ['selection'],
                     ],
                     [

@@ -59,6 +59,11 @@ class SpecificsValidatorTest extends \PHPUnit_Framework_TestCase implements \Psr
                 'no-random&bonus=1000',
                 'no-random=&bonus=1000',
             ],
+            [
+                'last-magnification=2&last-score=10',
+                '',
+                [LogLevel::ERROR, LogLevel::ERROR],
+            ],
         ];
     }
 }

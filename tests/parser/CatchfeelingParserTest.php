@@ -136,6 +136,8 @@ class CatchfeelingParserTest extends \PHPUnit_Framework_TestCase implements \Psr
                 '゜
                 ゛
                 テスト
+                / /
+                ／てすと／
                 ',
                 null,
                 null,
@@ -143,9 +145,12 @@ class CatchfeelingParserTest extends \PHPUnit_Framework_TestCase implements \Psr
                     [
                         'text' => ['テスト'],
                     ],
+                    [
+                        'text' => ['てすと'],
+                    ],
                 ],
                 [],
-                [LogLevel::ERROR, LogLevel::ERROR],
+                [LogLevel::ERROR, LogLevel::ERROR, LogLevel::ERROR],
             ],
         ];
     }
@@ -165,7 +170,7 @@ class CatchfeelingParserTest extends \PHPUnit_Framework_TestCase implements \Psr
     public function invalidDictionaryProvider(): array
     {
         return [
-            ['   // 天体
+            ['  // 天体
             たいよう//太陽
             ちきゅう    // 地球
             カロン
@@ -181,7 +186,10 @@ class CatchfeelingParserTest extends \PHPUnit_Framework_TestCase implements \Psr
             カロン
             '],
             ['゜
-             ゛
+            ゛
+            '],
+            ['てすと
+            　
             '],
         ];
     }

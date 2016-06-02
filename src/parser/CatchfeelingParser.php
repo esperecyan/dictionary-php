@@ -1,7 +1,7 @@
 <?php
 namespace esperecyan\dictionary_php\parser;
 
-use esperecyan\dictionary_php\{Dictionary, exception\SyntaxException};
+use esperecyan\dictionary_php\{Dictionary, validator\AnswerValidator, exception\SyntaxException};
 
 class CatchfeelingParser extends AbstractParser
 {
@@ -15,14 +15,12 @@ class CatchfeelingParser extends AbstractParser
         // コメントの分離
         $textAndDescription = preg_split('#[\\t 　]*//#u', $line, 2);
         
-        $text = (new \esperecyan\dictionary_php\validator\AnswerValidator())->isRegExp($textAndDescription[0])
-            ? trim($textAndDescription[0], '/') // 正規表現文字列扱いを抑止
-            : $textAndDescription[0];
-        
-        if (str_replace(["\t", ' ', '　'], '', $text) === '') {
+        if (str_replace(["\t", ' ', '　'], '', $textAndDescription[0]) === '') {
             throw new SyntaxException(_('空行 (スペース、コメントのみの行) があります。'));
         } else {
-            $fieldsAsMultiDimensionalArray['text'] = [$text];
+            $fieldsAsMultiDimensionalArray['text'] = [(new AnswerValidator())->isRegExp($textAndDescription[0])
+                ? trim($textAndDescription[0], '/') // 正規表現文字列扱いを抑止
+                : $textAndDescription[0]];
             
             if (isset($textAndDescription[1])) {
                 // コメントが存在すれば

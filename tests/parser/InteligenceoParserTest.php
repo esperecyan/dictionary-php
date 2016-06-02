@@ -153,7 +153,7 @@ class InteligenceoParserTest extends \PHPUnit_Framework_TestCase implements \Psr
             ],
             [
                 '% 選択問題
-                Q,2,,../images/sun.mp4
+                Q,2,,../images/sun.mp4,score=1.0E+2
                 A,1,地球,カロン,太陽,\\seikai
                 
                 % Wikipediaクイズ
@@ -173,6 +173,7 @@ class InteligenceoParserTest extends \PHPUnit_Framework_TestCase implements \Psr
                         'image' => ['local/sun.png'],
                         'option' => ['地球', 'カロン', '太陽'],
                         'answer' => ['太陽'],
+                        'specifics' => [new URLSearchParams('score=100')],
                         'type' => ['selection'],
                     ],
                 ],
@@ -338,6 +339,11 @@ class InteligenceoParserTest extends \PHPUnit_Framework_TestCase implements \Psr
             [
                 'Q,0,テスト
                 A,0,正解A,\\bonus=非数値,正解B',
+                'Inteligenceω クイズ',
+            ],
+            [
+                'Q,2,テスト,local/test.mp4,score=%31%30%30
+                A,0,正解A,正解B',
                 'Inteligenceω クイズ',
             ],
             [

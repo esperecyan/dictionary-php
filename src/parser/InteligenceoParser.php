@@ -199,7 +199,10 @@ class InteligenceoParser extends AbstractParser
                 $fieldsAsMultiDimensionalArray[$questionType === 1 ? 'audio' : 'image'][] = $questionFields[3];
                 // 問題オプション
                 if (isset($questionFields[4])) {
-                    foreach (new URLSearchParams(str_replace(',', '&', $questionFields[4])) as $name => $value) {
+                    foreach (explode(',', $questionFields[4]) as $option) {
+                        $option = explode('=', $option, 2);
+                        $name = $option[0];
+                        $value = $option[1] ?? '';
                         if (!$this->isNumeric($value)) {
                             throw new SyntaxException(sprintf(_('問題オプション %1$s の値「%2$s」は数値として認識できません。'), $name, $value));
                         }

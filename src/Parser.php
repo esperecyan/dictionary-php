@@ -30,7 +30,7 @@ class Parser extends log\AbstractLoggerAware
         $this->title = $title;
         
         if (is_null($from)
-            || !in_array($from, ['キャッチフィーリング', 'きゃっちま', 'Inteligenceω クイズ', 'Inteligenceω しりとり', '汎用辞書'])) {
+            || !in_array($from, ['キャッチフィーリング', 'きゃっちま', 'Inteligenceω クイズ', 'Inteligenceω しりとり', 'ピクトセンス', '汎用辞書'])) {
             switch ($this->filename ? pathinfo($this->filename, PATHINFO_EXTENSION) : 'csv') {
                 case 'cfq':
                     $this->from = 'キャッチフィーリング';
@@ -92,16 +92,21 @@ class Parser extends log\AbstractLoggerAware
             if (!in_array($finfo->buffer($binary), ['text/csv', 'text/plain'])) {
                 throw new SyntaxException(sprintf(_('%sの辞書は通常のテキストファイルでなければなりません。'), $this->from));
             }
-            if (!mb_check_encoding($binary, 'Windows-31J')) {
-                throw new SyntaxException(sprintf(_('%sの辞書の符号化方式 (文字コード) は Shift_JIS でなければなりません。'), $this->from));
-            }
             
             if ($file instanceof \SplTempFileObject) {
                 $file->ftruncate(0);
             } else {
                 $file = new \SplTempFileObject();
             }
-            $file->fwrite(mb_convert_encoding($binary, 'UTF-8', 'Windows-31J'));
+            
+            if ($this->from === 'ピクトセンス') {
+                $file->fwrite((new parser\GenericDictionaryParser())->correctEncoding($binary));
+            } else {
+                if (!mb_check_encoding($binary, 'Windows-31J')) {
+                    throw new SyntaxException(sprintf(_('%sの辞書の符号化方式 (文字コード) は Shift_JIS でなければなりません。'), $this->from));
+                }
+                $file->fwrite(mb_convert_encoding($binary, 'UTF-8', 'Windows-31J'));
+            }
             $file->rewind();
             
             switch ($this->from) {
@@ -115,6 +120,9 @@ class Parser extends log\AbstractLoggerAware
                 case 'Inteligenceω しりとり':
                 case 'Inteligenceω':
                     $parser = new parser\InteligenceoParser($this->from);
+                    break;
+                case 'ピクトセンス':
+                    $parser = new parser\PictsenseParser();
                     break;
             }
         }

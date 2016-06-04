@@ -13,7 +13,9 @@ class Serializer extends log\AbstractLoggerAware
     {
         parent::__construct();
         
-        $this->to = in_array($to, ['キャッチフィーリング', 'きゃっちま', 'Inteligenceω クイズ',  'Inteligenceω しりとり']) ? $to : '汎用辞書';
+        $this->to = in_array($to, ['キャッチフィーリング', 'きゃっちま', 'Inteligenceω クイズ',  'Inteligenceω しりとり', 'ピクトセンス'])
+            ? $to
+            : '汎用辞書';
     }
     
     /**
@@ -34,6 +36,9 @@ class Serializer extends log\AbstractLoggerAware
             case 'Inteligenceω クイズ':
             case 'Inteligenceω しりとり':
                 $serializer = new serializer\InteligenceoSerializer($this->to);
+                break;
+            case 'ピクトセンス':
+                $serializer = new serializer\PictsenseSerializer();
                 break;
             case '汎用辞書':
                 $serializer = new serializer\GenericDictionarySerializer();

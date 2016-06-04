@@ -5,6 +5,31 @@ trait PreprocessingTrait
 {
     use internal\ArchiveGenerator;
     
+    /** @var string[] */
+    protected $hiraganaWords;
+    
+    /**
+     * 「ああ」「あい」のように組み合わせた2文字のひらがなによる配列を返します。
+     * @return string[] 要素の数は500以上。
+     */
+    protected function generateHiraganaWords(): array
+    {
+        if ($this->hiraganaWords) {
+            return $this->hiraganaWords;
+        }
+        
+        for ($i = \IntlChar::ord('ぁ'), $l = $i + sqrt(500); $i < $l; $i++) {
+            $firsts[] = \IntlChar::chr($i);
+        }
+        $seconds = $firsts;
+        foreach ($firsts as $first) {
+            foreach ($seconds as $second) {
+                $this->hiraganaWords[] = "$first$second";
+            }
+        }
+        return $this->hiraganaWords;
+    }
+    
     /**
      * @param string $input
      * @return string

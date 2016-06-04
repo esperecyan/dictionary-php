@@ -409,6 +409,25 @@ class ParserTest extends \PHPUnit_Framework_TestCase implements \Psr\Log\LoggerI
                 [],
                 [LogLevel::ERROR],
             ],
+            [
+                $this->stripIndents('たいよう
+                ちきゅう
+                かろん
+                けれす
+                はれーすいせい
+                '),
+                'ピクトセンス',
+                null,
+                null,
+                [
+                    ['text' => ['たいよう']],
+                    ['text' => ['ちきゅう']],
+                    ['text' => ['かろん']],
+                    ['text' => ['けれす']],
+                    ['text' => ['はれーすいせい']],
+                ],
+                [],
+            ],
         ];
     }
     

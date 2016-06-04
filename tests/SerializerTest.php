@@ -46,7 +46,7 @@ class SerializerTest extends \PHPUnit_Framework_TestCase implements \Psr\Log\Log
             $file['bytes'] = $archive->getFromName('dictionary.csv');
             $this->assertEquals($expectedFile, $file);
         } else {
-            if ($to !== '汎用辞書') {
+            if (strpos($expectedFile['type'], 'charset=Shift_JIS') !== false) {
                 $file['bytes'] = mb_convert_encoding($file['bytes'], 'UTF-8', 'Windows-31J');
             }
             $this->assertEquals($expectedFile, $file);
@@ -390,6 +390,64 @@ class SerializerTest extends \PHPUnit_Framework_TestCase implements \Psr\Log\Log
                     'name' => '選択並べ替え.txt',
                 ],
                 [],
+            ],
+            [
+                'ピクトセンス',
+                [
+                    [
+                        'text' => ['太陽'],
+                        'image' => ['local/sun.png'],
+                        'answer' => ['太陽', 'サン', 'たいよう', 'sun'],
+                        'specifics' => ['magnification=10&last-magnification=1&bonus=0&bonus=0&bonus=10&bonus=0'],
+                    ],
+                    [
+                        'text' => ['四季'],
+                        'audio' => ['local/four-seasons.mp4'],
+                        'answer' => ['しき', 'はる'],
+                        'specifics' => ['start=60&repeat=3&length=0.5005&speed=0.1005&valume=2'],
+                    ],
+                    [
+                        'text' => ['リンゴ'],
+                        'question' => ['仲間外れはどれでしょう'],
+                        'option' => ['リンゴ', 'ゴリラ', 'ラクダ', 'ダチョウ'],
+                        'answer' => ['リンゴ'],
+                        'type' => ['selection'],
+                        'description' => ['選択肢を表示しなければ問題が成立しない場合。'],
+                    ],
+                    [
+                        'text' => ['「リンゴ」か「パン」'],
+                        'question' => ["食べ物はどれでしょう\n(答えが複数ある場合はどれが1つだけ選択)"],
+                        'option' => ['リンゴ', 'ゴリラ', 'ラッパ', 'パン'],
+                        'answer' => ['リンゴ', 'パン'],
+                        'specifics' => ['bonus=&bonus=100&score=100&last-score=200&no-random='],
+                        'type' => ['selection'],
+                    ],
+                    [
+                        'text' => ['「リンゴ」と「パン」'],
+                        'question' => ['同じ種類のものを選びましょう'],
+                        'option' => ['リンゴ', 'ゴリラ', 'ラッパ', 'パン'],
+                        'answer' => ['リンゴ', 'パン'],
+                        'specifics' => ['require-all-right='],
+                        'type' => ['selection'],
+                    ],
+                    [
+                        'text' => ['リンゴ → ゴリラ → ラッパ → パン'],
+                        'question' => ['しりとりが成立するように並べ替えてください'],
+                        'option' => ['リンゴ', 'ゴリラ', 'ラッパ', 'パン'],
+                        'type' => ['selection'],
+                    ],
+                ],
+                ['@title' => "選択・並べ替え"],
+                [],
+                [
+                    'bytes' =>
+                    'さん
+                    しき
+                    ',
+                    'type' => 'text/csv; charset=UTF-8; header=absent',
+                    'name' => '選択・並べ替え.csv',
+                ],
+                [LogLevel::ERROR, LogLevel::ERROR, LogLevel::ERROR, LogLevel::ERROR, LogLevel::CRITICAL],
             ],
         ];
     }

@@ -144,20 +144,19 @@ class GenericDictionaryParser extends AbstractParser
      * @param string $filename
      * @return string
      */
-    protected function getTitleFromFilename(string $filename): string
+    public function getTitleFromFilename(string $filename): string
     {
         return explode('.', $filename, 2)[0];
     }
     
     /**
      * 符号化方式をUTF-8に矯正します。
-     * @param \SplFileObject $file
+     * @param string $binary
      * @throws SyntaxException 符号化方式の検出に失敗した場合。
+     * @return string
      */
-    protected function correctEncoding(\SplFileObject $file)
+    public function correctEncoding(string $binary): string
     {
-        $binary = (new Parser())->getBinary($file);
-        
         if (mb_check_encoding($binary, 'UTF-8')) {
             $fromEncoding = 'UTF-8';
         } else {
@@ -168,11 +167,7 @@ class GenericDictionaryParser extends AbstractParser
             }
             $this->error(_('CSVファイルの符号化方式 (文字コード) は UTF-8 でなければなりません。'));
         }
-        
-        $file->ftruncate(0);
-        $file->fwrite(mb_convert_encoding($binary, 'UTF-8', $fromEncoding));
-        $file->rewind();
-        return $file;
+        return mb_convert_encoding($binary, 'UTF-8', $fromEncoding);
     }
     
     /**
@@ -306,7 +301,9 @@ class GenericDictionaryParser extends AbstractParser
             $csv = $csv->openFile();
         }
         
-        $this->correctEncoding($csv);
+        $binary = $this->correctEncoding((new Parser())->getBinary($csv));
+        $csv->ftruncate(0);
+        $csv->fwrite($binary);
         
         $csv->setFlags(\SplFileObject::READ_AHEAD | \SplFileObject::SKIP_EMPTY | \SplFileObject::READ_CSV);
         

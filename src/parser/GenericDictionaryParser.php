@@ -247,7 +247,7 @@ class GenericDictionaryParser extends AbstractParser
                         $byteFormatter->format(self::MAX_IMAGE_SIZE)
                     ) . $message);
                 } elseif ($size > self::MAX_RECOMMENDED_IMAGE_SIZE) {
-                    $this->notice(sprintf(
+                    $this->logger->warning(sprintf(
                         _('画像ファイルの容量は %s 以下にすべきです。'),
                         $byteFormatter->format(self::MAX_RECOMMENDED_IMAGE_SIZE)
                     ) . $message);
@@ -261,7 +261,7 @@ class GenericDictionaryParser extends AbstractParser
                         $byteFormatter->format(self::MAX_AUDIO_SIZE)
                     ) . $message);
                 } elseif ($size > self::MAX_RECOMMENDED_AUDIO_SIZE) {
-                    $this->notice(sprintf(
+                    $this->logger->warning(sprintf(
                         _('音声ファイルの容量は %s 以下にすべきです。'),
                         $byteFormatter->format(self::MAX_RECOMMENDED_AUDIO_SIZE)
                     ) . $message);
@@ -275,7 +275,7 @@ class GenericDictionaryParser extends AbstractParser
                         $byteFormatter->format(self::MAX_VIDEO_SIZE)
                     ) . $message);
                 } elseif ($size > self::MAX_RECOMMENDED_VIDEO_SIZE) {
-                    $this->notice(sprintf(
+                    $this->logger->warning(sprintf(
                         _('動画ファイルの容量は %s 以下にすべきです。'),
                         $byteFormatter->format(self::MAX_RECOMMENDED_VIDEO_SIZE)
                     ) . $message);
@@ -472,7 +472,7 @@ class GenericDictionaryParser extends AbstractParser
                 $byteFormatter->format($fileSize)
             ));
         } elseif ($fileSize > self::MAX_RECOMMENDED_COMPRESSED_ARCHIVE_SIZE) {
-            $this->notice(sprintf(
+            $this->logger->warning(sprintf(
                 _('ファイルサイズは %1$s 以下にすべきです: 現在 %2$s'),
                 $byteFormatter->format(self::MAX_RECOMMENDED_COMPRESSED_ARCHIVE_SIZE),
                 $byteFormatter->format($fileSize)

@@ -89,7 +89,7 @@ class ImageValidator extends AbstractFieldValidator
     {
         $width = $imagick->getImageWidth();
         if ($width > self::MAX_RECOMMENDED_IMAGE_WIDTH) {
-            $this->logger->notice(sprintf(
+            $this->logger->warning(sprintf(
                 _('画像の幅は %1$s 以下にすべきです。「%2$s」の幅は %3$s です。'),
                 self::MAX_RECOMMENDED_IMAGE_WIDTH . 'px',
                 $this->filename,
@@ -99,7 +99,7 @@ class ImageValidator extends AbstractFieldValidator
 
         $height = $imagick->getImageHeight();
         if ($height > self::MAX_RECOMMENDED_IMAGE_HEIGHT) {
-            $this->logger->notice(sprintf(
+            $this->logger->warning(sprintf(
                 _('画像の高さは %1$s 以下にすべきです。「%2$s」の高さは %3$s です。'),
                 self::MAX_RECOMMENDED_IMAGE_HEIGHT . 'px',
                 $this->filename,

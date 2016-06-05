@@ -75,7 +75,7 @@ class ImageValidatorTest extends \PHPUnit_Framework_TestCase implements \Psr\Log
                     fwrite($fp, $output);
                     $this->assertArrayNotHasKey('UserComment', exif_read_data(stream_get_meta_data($fp)['uri']));
                 },
-                [LogLevel::ERROR, LogLevel::NOTICE, LogLevel::NOTICE],
+                [LogLevel::ERROR, LogLevel::WARNING, LogLevel::WARNING],
             ],
             [
                 'image/svg+xml',

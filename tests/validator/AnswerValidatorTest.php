@@ -92,22 +92,22 @@ class AnswerValidatorTest extends \PHPUnit_Framework_TestCase implements \Psr\Lo
             [
                 'る~こと',
                 'る~こと',
-                [LogLevel::NOTICE],
+                [LogLevel::WARNING],
             ],
             [
                 '?',
                 '?',
-                [LogLevel::NOTICE],
+                [LogLevel::WARNING],
             ],
             [
                 '？',
                 '?',
-                [LogLevel::ERROR, LogLevel::NOTICE],
+                [LogLevel::ERROR, LogLevel::WARNING],
             ],
             [
                 '𩸽',
                 '𩸽',
-                [LogLevel::NOTICE],
+                [LogLevel::WARNING],
             ],
             [
                 "か\u{3099}",
@@ -146,22 +146,22 @@ class AnswerValidatorTest extends \PHPUnit_Framework_TestCase implements \Psr\Lo
             [
                 'ヵ',
                 'ヵ',
-                [LogLevel::NOTICE],
+                [LogLevel::WARNING],
             ],
             [
                 'ヶ',
                 'ヶ',
-                [LogLevel::NOTICE],
+                [LogLevel::WARNING],
             ],
             [
                 'ゕ',
                 'ゕ',
-                [LogLevel::NOTICE],
+                [LogLevel::WARNING],
             ],
             [
                 'ゖ',
                 'ゖ',
-                [LogLevel::NOTICE],
+                [LogLevel::WARNING],
             ],
         ];
     }

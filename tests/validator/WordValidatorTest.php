@@ -79,7 +79,7 @@ class WordValidatorTest extends \PHPUnit_Framework_TestCase implements \Psr\Log\
                     'text' => ['る～こと'],
                     'answer' => ['る~こと'],
                 ],
-                [LogLevel::NOTICE],
+                [LogLevel::WARNING],
             ],
             [
                 [
@@ -90,7 +90,7 @@ class WordValidatorTest extends \PHPUnit_Framework_TestCase implements \Psr\Log\
                     'text' => ['? (疑問符)'],
                     'answer' => ['?'],
                 ],
-                [LogLevel::NOTICE],
+                [LogLevel::WARNING],
             ],
             [
                 [
@@ -101,7 +101,7 @@ class WordValidatorTest extends \PHPUnit_Framework_TestCase implements \Psr\Log\
                     'text' => ['? (疑問符)'],
                     'answer' => ['?'],
                 ],
-                [LogLevel::ERROR, LogLevel::NOTICE],
+                [LogLevel::ERROR, LogLevel::WARNING],
             ],
             [
                 [
@@ -112,7 +112,7 @@ class WordValidatorTest extends \PHPUnit_Framework_TestCase implements \Psr\Log\
                     'text' => ['𩸽 (ほっけ)'],
                     'answer' => ['𩸽'],
                 ],
-                [LogLevel::NOTICE],
+                [LogLevel::WARNING],
             ],
             [
                 [
@@ -202,7 +202,7 @@ class WordValidatorTest extends \PHPUnit_Framework_TestCase implements \Psr\Log\
                     'text' => ['party'],
                     'answer' => ['party', '/ぱーてぃー?/'],
                 ],
-                [LogLevel::NOTICE, LogLevel::NOTICE],
+                [LogLevel::WARNING, LogLevel::WARNING],
             ],
             [
                 [
@@ -213,7 +213,7 @@ class WordValidatorTest extends \PHPUnit_Framework_TestCase implements \Psr\Log\
                     'text' => ['party'],
                     'answer' => ['party'],
                 ],
-                [LogLevel::NOTICE, LogLevel::ERROR, LogLevel::ERROR],
+                [LogLevel::WARNING, LogLevel::ERROR, LogLevel::ERROR],
             ],
             [
                 [
@@ -224,7 +224,7 @@ class WordValidatorTest extends \PHPUnit_Framework_TestCase implements \Psr\Log\
                     'text' => ['party'],
                     'answer' => ['party', '/ぱーてぃー?/'],
                 ],
-                [LogLevel::NOTICE, LogLevel::NOTICE, LogLevel::ERROR],
+                [LogLevel::WARNING, LogLevel::WARNING, LogLevel::ERROR],
             ],
             [
                 [
@@ -234,7 +234,7 @@ class WordValidatorTest extends \PHPUnit_Framework_TestCase implements \Psr\Log\
                 [
                     'text' => ['party'],
                 ],
-                [LogLevel::NOTICE, LogLevel::ERROR, LogLevel::NOTICE],
+                [LogLevel::WARNING, LogLevel::ERROR, LogLevel::WARNING],
             ],
             [
                 [
@@ -447,7 +447,7 @@ class WordValidatorTest extends \PHPUnit_Framework_TestCase implements \Psr\Log\
                     'option' => ['選択肢A', '選択肢B'],
                     'type' => ['selection'],
                 ],
-                [LogLevel::NOTICE, LogLevel::NOTICE],
+                [LogLevel::WARNING, LogLevel::WARNING],
             ],
             [
                 [

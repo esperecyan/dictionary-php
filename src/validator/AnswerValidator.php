@@ -91,7 +91,7 @@ class AnswerValidator extends AbstractFieldValidator
     {
         if ($this->validate($input)) {
             if ($this->isRegExp($input)) {
-                $this->logger->notice(_('正規表現は使わないようにするべきです。'));
+                $this->logger->warning(_('正規表現は使わないようにするべきです。'));
             }
             $output = $input;
         } elseif ($this->isRegExp($input)) {
@@ -103,7 +103,7 @@ class AnswerValidator extends AbstractFieldValidator
         }
         
         if ($output !== '' && !$this->isRegExp($input) && !$this->isHiraganaOrReplaceableKatakana($output)) {
-            $this->logger->notice(_('日本語話者向けの辞書であれば、解答はひらがなかカタカナにすべきです: ') . $output);
+            $this->logger->warning(_('日本語話者向けの辞書であれば、解答はひらがなかカタカナにすべきです: ') . $output);
         }
         
         return $output;

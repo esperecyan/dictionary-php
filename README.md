@@ -105,7 +105,7 @@ Composer のインストール方法については、[Composer のグローバ�
 
 汎用辞書形式で `@title` フィールドが存在する場合、この指定は無視されます。
 
-#### [Dictionary esperecyan\dictionary_php\Parser#parse(SplFileInfo $file, bool $header = null)](./src/Parser.php#L76-125)
+#### [Dictionary esperecyan\dictionary_php\Parser#parse(SplFileInfo $file, bool $header = null)](./src/Parser.php#L78-133)
 ##### `SplFileInfo $file`
 変換元のファイルを[SplFileInfo]、またはその派生クラスで与えます。
 
@@ -114,7 +114,7 @@ Composer のインストール方法については、[Composer のグローバ�
 ##### `bool $header = null`
 変換元のファイルが `汎用辞書` の場合、ヘッダ行が存在すれば `true`、存在しなければ `false`、不明なら `null` を指定します。
 
-#### 例外 [esperecyan\dictionary_php\SyntaxException](./src/SyntaxException.php)
+#### 例外 [esperecyan\dictionary_php\SyntaxException](./src/exception/SyntaxException.php)
 SyntaxException#getMessage() から、ユーザーに示すエラーメッセージを取得できます。
 
 | `$from`                  | 説明・例                                                             |
@@ -174,7 +174,7 @@ SyntaxException#getMessage() から、ユーザーに示すエラーメッセー
 [PSR-3: Logger Interface]: http://guttally.net/psr/psr-3/ "この文書では，ロギングライブラリのための共通インタフェースについて記述します。"
 [Psr\Log\LoggerAwareInterface]: https://github.com/php-fig/log/blob/master/Psr/Log/LoggerAwareInterface.php
 
-### [class esperecyan\dictionary_php\Serializer(string $to = '汎用辞書')](./src/serializer/Serializer.php)
+### [class esperecyan\dictionary_php\Serializer(string $to = '汎用辞書')](./src/Serializer.php)
 直列化器。
 
 #### `string $to = '汎用辞書'`
@@ -182,7 +182,7 @@ SyntaxException#getMessage() から、ユーザーに示すエラーメッセー
 
 指定されていないか間違った値が指定されていれば、`汎用辞書` になります。
 
-#### [string\[\] esperecyan\dictionary_php\Serializer#serialize(Dictionary $dictionary)]
+#### [string\[\] esperecyan\dictionary_php\Serializer#serialize(Dictionary $dictionary)](./src/Serializer.php#L21-51)
 次のような構造の連想配列で直列化したデータを返します。
 
 - \[bytes] => 直列化したデータのバイナリ文字列
@@ -209,7 +209,7 @@ SyntaxException#getMessage() から、ユーザーに示すエラーメッセー
 ### [class esperecyan\dictionary_php\Dictionary](./src/Dictionary.php)
 辞書データ。
 
-#### [(string|string\[\]|float|URLSearchParams)\[\]\[\]\[\] esperecyan\dictionary_php\Dictionary#getWords()](./src/Dictionary.php#L40-77)
+#### [(string|string\[\]|float|URLSearchParams)\[\]\[\]\[\] esperecyan\dictionary_php\Dictionary#getWords()](./src/Dictionary.php#L49-57)
 次のような構造の多次元配列で表されたお題の一覧を返します。
 
 - \[0] => 
@@ -240,7 +240,7 @@ SyntaxException#getMessage() から、ユーザーに示すエラーメッセー
 - \[2] => ……
 - ……
 
-#### [(string|string\[\])\[\] esperecyan\dictionary_php\Dictionary#getMetadata()](./src/Dictionary.php#L79-105)
+#### [(string|string\[\])\[\] esperecyan\dictionary_php\Dictionary#getMetadata()](./src/Dictionary.php#L71-L79)
 次のような構造の多次元配列で表されたメタフィールドの一覧を返します。
 
 - \[@title] => 文字列
@@ -249,7 +249,7 @@ SyntaxException#getMessage() から、ユーザーに示すエラーメッセー
 	- \[html] => HTML (文字列)
 - \[@regard] => 文字列
 
-#### [FilesystemIterator esperecyan\dictionary_php\Dictionary#getFiles()](./src/Dictionary.php#L107-122)
+#### [FilesystemIterator esperecyan\dictionary_php\Dictionary#getFiles()](./src/Dictionary.php#L81-L88)
 辞書に同梱されるファイルを返します。
 
 Contribution

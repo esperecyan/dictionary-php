@@ -114,7 +114,7 @@ Composer のインストール方法については、[Composer のグローバ�
 ##### `bool $header = null`
 変換元のファイルが `汎用辞書` の場合、ヘッダ行が存在すれば `true`、存在しなければ `false`、不明なら `null` を指定します。
 
-#### 例外 [esperecyan\dictionary_php\SyntaxException](./src/exception/SyntaxException.php)
+#### 例外 [esperecyan\dictionary_php\exception\SyntaxException](./src/exception/SyntaxException.php)
 SyntaxException#getMessage() から、ユーザーに示すエラーメッセージを取得できます。
 
 | `$from`                  | 説明・例                                                             |

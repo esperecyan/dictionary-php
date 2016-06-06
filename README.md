@@ -267,10 +267,4 @@ Pull Request、または Issue よりお願いいたします。
 ----------
 当スクリプトのライセンスは [Mozilla Public License Version 2.0] \(MPL-2.0) です。
 
-ただし、[tests/resources/inteligenceo/quiz-input.txt] および [tests/resources/inteligenceo/shiritori-input.txt] は
-MPL-2.0 ではないフリーのファイルであり、著作権は[ろくしー様]にあります。
-
 [Mozilla Public License Version 2.0]: https://www.mozilla.org/MPL/2.0/
-[tests/resources/inteligenceo/quiz-input.txt]: tests/resources/inteligenceo/quiz-input.txt
-[tests/resources/inteligenceo/shiritori-input.txt]: tests/resources/inteligenceo/shiritori-input.txt
-[ろくしー様]: https://twitter.com/loxeee

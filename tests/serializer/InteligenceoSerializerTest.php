@@ -362,10 +362,10 @@ class InteligenceoSerializerTest extends \PHPUnit_Framework_TestCase implements 
      * @param string[] $metadata
      * @param string[] $files
      * @param string $type
-     * @expectedException \esperecyan\dictionary_php\exception\SyntaxException
+     * @expectedException \esperecyan\dictionary_php\exception\EmptyOutputException
      * @dataProvider invalidDictionaryProvider
      */
-    public function testSyntaxException(
+    public function testEmptyOutputException(
         array $fieldsAsMultiDimensionalArrays,
         array $metadata,
         array $files,

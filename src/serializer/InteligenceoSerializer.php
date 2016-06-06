@@ -2,7 +2,7 @@
 namespace esperecyan\dictionary_php\serializer;
 
 use esperecyan\url\URLSearchParams;
-use esperecyan\dictionary_php\{Dictionary, parser\InteligenceoParser, exception\SyntaxException};
+use esperecyan\dictionary_php\{Dictionary, parser\InteligenceoParser, exception\EmptyOutputException};
 
 class InteligenceoSerializer extends AbstractSerializer
 {
@@ -275,7 +275,7 @@ class InteligenceoSerializer extends AbstractSerializer
     
     /**
      * @param Dictionary $dictionary
-     * @throws SyntaxException 該当の辞書形式に変換可能なお題が一つも存在しなかった。
+     * @throws EmptyOutputException 該当の辞書形式に変換可能なお題が一つも存在しなかった。
      * @return string[]
      */
     public function serialize(Dictionary $dictionary): array
@@ -290,7 +290,7 @@ class InteligenceoSerializer extends AbstractSerializer
         }
         
         if (empty($words)) {
-            throw new SyntaxException(sprintf(_('%sの辞書形式に変換可能なお題が見つかりませんでした。'), $this->type));
+            throw new EmptyOutputException(sprintf(_('%sの辞書形式に変換可能なお題が見つかりませんでした。'), $this->type));
         }
         
         $previousSubstituteCharacter = mb_substitute_character();

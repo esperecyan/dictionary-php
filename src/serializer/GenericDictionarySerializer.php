@@ -5,7 +5,7 @@ use esperecyan\dictionary_php\{
     Dictionary,
     parser\GenericDictionaryParser,
     validator\NumberValidator,
-    exception\SyntaxException
+    exception\TooLargeOutputException
 };
 
 class GenericDictionarySerializer extends AbstractSerializer
@@ -116,7 +116,7 @@ class GenericDictionarySerializer extends AbstractSerializer
     
     /**
      * @param Dictionary $dictionary
-     * @throws SyntaxException ZIPファイルについて、CSVファイルの追加により、許容される容量を超過したとき。
+     * @throws TooLargeOutputException ZIPファイルについて、CSVファイルの追加により、許容される容量を超過したとき。
      * @return string[]
      */
     public function serialize(Dictionary $dictionary): array
@@ -134,7 +134,7 @@ class GenericDictionarySerializer extends AbstractSerializer
             
             if ($archiveFileInfo->getSize() > GenericDictionaryParser::MAX_COMPRESSED_ARCHIVE_SIZE) {
                 $byteFormatter = new \ScriptFUSION\Byte\ByteFormatter();
-                throw new SyntaxException(sprintf(
+                throw new TooLargeOutputException(sprintf(
                     _('出力される圧縮ファイルの容量が %1$s を超えました: 現在 %2$s'),
                     $byteFormatter->format(GenericDictionaryParser::MAX_COMPRESSED_ARCHIVE_SIZE),
                     $byteFormatter->format($archiveFileInfo->getSize())

@@ -191,11 +191,17 @@ SyntaxException#getMessage() から、ユーザーに示すエラーメッセー
 
 [MIME型]: https://mimesniff.spec.whatwg.org/#mime-type
 
-#### 例外
-| `$to`                 | 説明・例                                               |
-|-----------------------|--------------------------------------------------------|
-| 共通 (`汎用辞書`以外) | 該当の辞書形式に変換可能なお題が一つも存在しなかった。 |
-| `汎用辞書`            | 辞書全体の容量が大き過ぎる。                           |
+#### 例外 [esperecyan\dictionary_php\exception\SerializeExceptionInterface](./src/exception/SerializeExceptionInterface.php)
+SerializeExceptionInterface#getMessage() から、ユーザーに示すエラーメッセージを取得できます。
+以下の例外はいずれも SerializeExceptionInterface を実装しています。
+
+| `$to`                 | 例外                                                          | 説明・例                                               |
+|-----------------------|---------------------------------------------------------------|--------------------------------------------------------|
+| 共通 (`汎用辞書`以外) | [esperecyan\dictionary_php\exception\EmptyOutputException]    | 該当の辞書形式に変換可能なお題が一つも存在しなかった。 |
+| `汎用辞書`            | [esperecyan\dictionary_php\exception\TooLargeOutputException] | 辞書全体の容量が大き過ぎる。                           |
+
+[esperecyan\dictionary_php\exception\EmptyOutputException]: ./src/exception/EmptyOutputException.php
+[esperecyan\dictionary_php\exception\TooLargeOutputException]: ./src/exception/TooLargeOutputException.php
 
 #### ロギング
 |`$to`                  | ログレベル                 | 説明・例                                                |

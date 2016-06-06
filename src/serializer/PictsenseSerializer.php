@@ -1,7 +1,7 @@
 <?php
 namespace esperecyan\dictionary_php\serializer;
 
-use esperecyan\dictionary_php\{Dictionary, parser\PictsenseParser, exception\SyntaxException};
+use esperecyan\dictionary_php\{Dictionary, parser\PictsenseParser, exception\EmptyOutputException};
 
 class PictsenseSerializer extends AbstractSerializer
 {
@@ -42,7 +42,7 @@ class PictsenseSerializer extends AbstractSerializer
     
     /**
      * @param Dictionary $dictionary
-     * @throws SyntaxException 該当の辞書形式に変換可能なお題が一つも存在しなかった。
+     * @throws EmptyOutputException 該当の辞書形式に変換可能なお題が一つも存在しなかった。
      * @return string[]
      */
     public function serialize(Dictionary $dictionary): array
@@ -55,7 +55,7 @@ class PictsenseSerializer extends AbstractSerializer
         }
         
         if (empty($words)) {
-            throw new SyntaxException(sprintf(_('%sの辞書形式に変換可能なお題が見つかりませんでした。'), 'ピクトセンス'));
+            throw new EmptyOutputException(sprintf(_('%sの辞書形式に変換可能なお題が見つかりませんでした。'), 'ピクトセンス'));
         }
         
         $wordsLength = count($words);

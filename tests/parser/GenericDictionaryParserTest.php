@@ -119,6 +119,30 @@ class GenericDictionaryParserTest extends \PHPUnit_Framework_TestCase implements
                 [LogLevel::ERROR, LogLevel::ERROR, LogLevel::ERROR],
             ],
             [
+                '太陽,たいよう,おひさま
+                地球,ちきゅう
+                カロン
+                ',
+                'ヘッダが省略された辞書.txt',
+                null,
+                [
+                    [
+                        'text' => ['太陽'],
+                        'answer' => ['たいよう', 'おひさま'],
+                    ],
+                    [
+                        'text' => ['地球'],
+                        'answer' => ['ちきゅう'],
+                    ],
+                    [
+                        'text' => ['カロン'],
+                    ],
+                ],
+                [
+                    '@title' => 'ヘッダが省略された辞書',
+                ],
+            ],
+            [
                 'たいよう
                 ',
                 null,

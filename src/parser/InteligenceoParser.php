@@ -18,13 +18,16 @@ class InteligenceoParser extends AbstractParser
     /** @var int レベルをweightフィールド値に変換する際の、小数点以下の最大桁数。 */
     const SCALE = 6;
     
-    public function __construct($type = null)
+    /**
+     * @param string $type
+     */
+    public function __construct(string $type = null)
     {
+        parent::__construct();
         if ($type === 'Inteligenceω しりとり' || $type === 'Inteligenceω クイズ') {
             $this->type = $type;
         }
     }
-    
     
     /**
      * Inteligenceωにおいて数値として扱われる文字列であれば真を返します。

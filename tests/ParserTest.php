@@ -338,6 +338,31 @@ class ParserTest extends \PHPUnit_Framework_TestCase implements \Psr\Log\LoggerI
                 [LogLevel::ERROR, LogLevel::ERROR, LogLevel::ERROR],
             ],
             [
+                $this->stripIndentsAndToCRLF('太陽,たいよう,おひさま
+                地球,ちきゅう
+                カロン
+                '),
+                '汎用辞書',
+                'ヘッダが省略された辞書.txt',
+                null,
+                [
+                    [
+                        'text' => ['太陽'],
+                        'answer' => ['たいよう', 'おひさま'],
+                    ],
+                    [
+                        'text' => ['地球'],
+                        'answer' => ['ちきゅう'],
+                    ],
+                    [
+                        'text' => ['カロン'],
+                    ],
+                ],
+                [
+                    '@title' => 'ヘッダが省略された辞書',
+                ],
+            ],
+            [
                 function (): string {
                     $archive = $this->generateArchive();
                     

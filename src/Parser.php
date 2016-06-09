@@ -84,7 +84,7 @@ class Parser extends log\AbstractLoggerAware
     public function parse(\SplFileInfo $file, $header = null): Dictionary
     {
         if ($this->from === '汎用辞書') {
-            $parser = new parser\GenericDictionaryParser();
+            $parser = new parser\GenericDictionaryParser($header);
         } else {
             $binary = $this->getBinary($file);
 
@@ -129,6 +129,6 @@ class Parser extends log\AbstractLoggerAware
         
         $parser->setLogger($this->logger);
         
-        return $parser->parse($file, $this->filename, $this->title, $this->from, $header);
+        return $parser->parse($file, $this->filename, $this->title, $this->from);
     }
 }

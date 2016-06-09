@@ -77,6 +77,18 @@ class GenericDictionaryParser extends AbstractParser
         'audio/mpeg' => ['mp3'],
         'video/mp4' => ['mp4'],
     ];
+    
+    /** @var bool|null */
+    protected $header;
+
+    /**
+     * @param bool|null $header ヘッダ行が存在すれば真、存在しなければ偽、不明ならnull。
+     */
+    public function __construct(bool $header = null)
+    {
+        parent::__construct();
+        $this->header = $header;
+    }
 
     /**
      * 配列をCSVレコード風の文字列に変換して返します。
@@ -446,15 +458,13 @@ class GenericDictionaryParser extends AbstractParser
      * @param \SplFileInfo $file
      * @param string|null $filename
      * @param string|null $title
-     * @param bool|null $header ヘッダ行が存在すれば真、存在しなければ偽、不明ならnull。
      * @throws SyntaxException
      * @return Dictionary
      */
     public function parse(
         \SplFileInfo $file,
         string $filename = null,
-        string $title = null,
-        bool $header = null
+        string $title = null
     ): Dictionary {
         if ($file instanceof \SplTempFileObject) {
             $binary = (new Parser())->getBinary($file);
@@ -480,7 +490,7 @@ class GenericDictionaryParser extends AbstractParser
         $type = isset($binary) ? $finfo->buffer($binary) : $finfo->file($file->getRealPath());
         switch ($type) {
             case 'application/zip':
-                $header = true;
+                $this->header = true;
                 $csvFile = $this->parseArchive($file);
                 $csv = new \SplFileInfo($this->generateTempFile($csvFile));
                 $files = new \FilesystemIterator($csvFile->getPath());
@@ -498,7 +508,7 @@ class GenericDictionaryParser extends AbstractParser
         
         $dictionary = new Dictionary($files ?? null);
         $dictionary->setLogger($this->logger);
-        $this->parseCSVFile($dictionary, $csv, $header);
+        $this->parseCSVFile($dictionary, $csv, $this->header);
         
         if (!$dictionary->getWords()) {
             throw new SyntaxException(_('CSVファイルが空です。'));

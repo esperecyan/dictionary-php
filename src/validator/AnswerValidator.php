@@ -84,7 +84,7 @@ class AnswerValidator extends AbstractFieldValidator
      */
     public function isHiraganaOrReplaceableKatakana(string $input): bool
     {
-        return preg_match('/^[〜あ-ゔア-ヴー]+$/u', $input) === 1;
+        return preg_match('/^[〜ぁ-ゔァ-ヴー]+$/u', $input) === 1;
     }
     
     public function correct(string $input): string

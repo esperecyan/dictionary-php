@@ -45,6 +45,14 @@ class WordValidatorTest extends \PHPUnit_Framework_TestCase implements \Psr\Log\
             ],
             [
                 [
+                    'text' => ['サファイア'],
+                ],
+                [
+                    'text' => ['サファイア'],
+                ],
+            ],
+            [
+                [
                     'text' => ['る〜こと'],
                 ],
                 [

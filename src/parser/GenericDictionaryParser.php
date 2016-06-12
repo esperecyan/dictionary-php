@@ -80,14 +80,19 @@ class GenericDictionaryParser extends AbstractParser
     
     /** @var bool|null */
     protected $header;
+    
+    /** @var string[] */
+    protected $filenames;
 
     /**
      * @param bool|null $header ヘッダ行が存在すれば真、存在しなければ偽、不明ならnull。
+     * @param string[] $filenames 画像・音声・動画ファイルのアーカイブを展開したファイル名の一覧。
      */
-    public function __construct(bool $header = null)
+    public function __construct(bool $header = null, array $filenames = [])
     {
         parent::__construct();
         $this->header = $header;
+        $this->filenames = $filenames;
     }
 
     /**
@@ -461,11 +466,8 @@ class GenericDictionaryParser extends AbstractParser
      * @throws SyntaxException
      * @return Dictionary
      */
-    public function parse(
-        \SplFileInfo $file,
-        string $filename = null,
-        string $title = null
-    ): Dictionary {
+    public function parse(\SplFileInfo $file, string $filename = null, string $title = null): Dictionary
+    {
         if ($file instanceof \SplTempFileObject) {
             $binary = (new Parser())->getBinary($file);
         }
@@ -506,7 +508,7 @@ class GenericDictionaryParser extends AbstractParser
                 throw new SyntaxException(_('汎用辞書はCSVファイルかZIPファイルでなければなりません。'));
         }
         
-        $dictionary = new Dictionary($files ?? null);
+        $dictionary = new Dictionary($files ?? $this->filenames);
         $dictionary->setLogger($this->logger);
         $this->parseCSVFile($dictionary, $csv, $this->header);
         

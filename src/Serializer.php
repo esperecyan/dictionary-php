@@ -22,9 +22,10 @@ class Serializer extends log\AbstractLoggerAware
      * 直列化したデータを返します。
      * @see https://github.com/esperecyan/dictionary-php#void-esperecyandictionary_phpserializerserializedictionary-dictionary
      * @param Dictionary $dictionary
+     * @param bool $csvOnly `汎用辞書` の場合、ZIPファイルの代わりにCSVファイルのみを返すときに真に設定します。
      * @return string[]
      */
-    public function serialize(Dictionary $dictionary): array
+    public function serialize(Dictionary $dictionary, bool $csvOnly = false): array
     {
         switch ($this->to) {
             case 'キャッチフィーリング':
@@ -41,7 +42,7 @@ class Serializer extends log\AbstractLoggerAware
                 $serializer = new serializer\PictsenseSerializer();
                 break;
             case '汎用辞書':
-                $serializer = new serializer\GenericDictionarySerializer();
+                $serializer = new serializer\GenericDictionarySerializer($csvOnly);
                 break;
         }
         

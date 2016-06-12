@@ -167,4 +167,50 @@ class GenericDictionarySerializerTest extends \PHPUnit_Framework_TestCase implem
             ],
         ];
     }
+    
+    /**
+     * @param string[][][] $fieldsAsMultiDimensionalArrays
+     * @param string[] $metadata
+     * @param string[] $filenames
+     * @expectedException \BadMethodCallException
+     * @dataProvider invalidAttributesProvider
+     */
+    public function testBadMethodCallException(
+        array $fieldsAsMultiDimensionalArrays,
+        array $metadata,
+        array $filenames
+    ) {
+        $dictionary = new \esperecyan\dictionary_php\Dictionary($filenames);
+        foreach ($fieldsAsMultiDimensionalArrays as $word) {
+            $dictionary->addWord($word);
+        }
+        (new GenericDictionarySerializer())->serialize($dictionary);
+    }
+    
+    public function invalidAttributesProvider(): array
+    {
+        return [
+            [
+                [
+                    [
+                        'text' => ['ピン'],
+                        'image' => ['png.png'],
+                        'weight' => ['1.5'],
+                    ],
+                    [
+                        'text' => ['ジェイフィフ'],
+                        'image' => ['jfif.jpg'],
+                        'weight' => ['0.000001'],
+                    ],
+                    [
+                        'text' => ['エスブイジー'],
+                        'image' => ['svg.svg'],
+                        'weight' => ['1000000000000000'],
+                    ],
+                ],
+                [],
+                ['png.png', 'jfif.jpg', 'svg.svg'],
+            ],
+        ];
+    }
 }

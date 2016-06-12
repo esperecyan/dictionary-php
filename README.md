@@ -105,7 +105,7 @@ Composer のインストール方法については、[Composer のグローバ�
 
 汎用辞書形式で `@title` フィールドが存在する場合、この指定は無視されます。
 
-#### [Dictionary esperecyan\dictionary_php\Parser#parse(SplFileInfo $file, bool $header = null)](./src/Parser.php#L78-133)
+#### [Dictionary esperecyan\dictionary_php\Parser#parse(SplFileInfo $file, bool $header = null, string\[\] $filenames = \[\])](./src/Parser.php#L78-133)
 ##### `SplFileInfo $file`
 変換元のファイルを[SplFileInfo]、またはその派生クラスで与えます。
 
@@ -113,6 +113,10 @@ Composer のインストール方法については、[Composer のグローバ�
 
 ##### `bool $header = null`
 変換元のファイルが `汎用辞書` の場合、ヘッダ行が存在すれば `true`、存在しなければ `false`、不明なら `null` を指定します。
+
+##### `string[] $filenames = []`
+変換元のファイルが `汎用辞書` の場合、`$file` にZIPファイルを与える代わりに、`$file` にCSVファイルを与えこの引数にファイル名のリストを与えることで、
+「画像・音声・動画ファイルを含む場合のファイル形式」の構文解析できます。
 
 #### 例外 [esperecyan\dictionary_php\exception\SyntaxException](./src/exception/SyntaxException.php)
 SyntaxException#getMessage() から、ユーザーに示すエラーメッセージを取得できます。
@@ -183,7 +187,7 @@ SyntaxException#getMessage() から、ユーザーに示すエラーメッセー
 
 指定されていないか間違った値が指定されていれば、`汎用辞書` になります。
 
-#### [string\[\] esperecyan\dictionary_php\Serializer#serialize(Dictionary $dictionary)](./src/Serializer.php#L21-51)
+#### [string\[\] esperecyan\dictionary_php\Serializer#serialize(Dictionary $dictionary, bool $csvOnly = false)](./src/Serializer.php#L21-51)
 次のような構造の連想配列で直列化したデータを返します。
 
 - \[bytes] => 直列化したデータのバイナリ文字列
@@ -191,6 +195,12 @@ SyntaxException#getMessage() から、ユーザーに示すエラーメッセー
 - \[name] => ファイル名
 
 [MIME型]: https://mimesniff.spec.whatwg.org/#mime-type
+
+#### `Dictionary $dictionary`
+辞書。
+
+#### `bool $csvOnly = false`
+`汎用辞書` の場合、ZIPファイルの代わりにCSVファイルのみを返すときに真に設定します。
 
 #### 例外 [esperecyan\dictionary_php\exception\SerializeExceptionInterface](./src/exception/SerializeExceptionInterface.php)
 SerializeExceptionInterface#getMessage() から、ユーザーに示すエラーメッセージを取得できます。
@@ -200,9 +210,11 @@ SerializeExceptionInterface#getMessage() から、ユーザーに示すエラー
 |-----------------------|---------------------------------------------------------------|--------------------------------------------------------|
 | 共通 (`汎用辞書`以外) | [esperecyan\dictionary_php\exception\EmptyOutputException]    | 該当の辞書形式に変換可能なお題が一つも存在しなかった。 |
 | `汎用辞書`            | [esperecyan\dictionary_php\exception\TooLargeOutputException] | 辞書全体の容量が大き過ぎる。                           |
+| `汎用辞書`            | [BadMethodCallException] | `$csvOnly` が偽、かつ「画像・音声・動画ファイルを含む場合のファイル形式」をCSVファイルのみで構文解析していた場合。 |
 
 [esperecyan\dictionary_php\exception\EmptyOutputException]: ./src/exception/EmptyOutputException.php
 [esperecyan\dictionary_php\exception\TooLargeOutputException]: ./src/exception/TooLargeOutputException.php
+[BadMethodCallException]: http://jp2.php.net/manual/class.badmethodcallexception
 
 #### ロギング
 |`$to`                  | ログレベル                 | 説明・例                                                |

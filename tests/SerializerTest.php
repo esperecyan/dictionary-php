@@ -15,6 +15,7 @@ class SerializerTest extends \PHPUnit_Framework_TestCase implements \Psr\Log\Log
      * @param string[] $files
      * @param string[] $expectedFile
      * @param string[] $logLevels
+     * @param bool $csvOnly
      * @dataProvider dictionaryProvider
      */
     public function testSerialize(
@@ -23,7 +24,8 @@ class SerializerTest extends \PHPUnit_Framework_TestCase implements \Psr\Log\Log
         array $metadata,
         array $files,
         array $expectedFile,
-        array $logLevels
+        array $logLevels,
+        bool $csvOnly = false
     ) {
         $dictionary = $this->generateDictionary($fieldsAsMultiDimensionalArrays, $metadata, $files);
         
@@ -31,8 +33,8 @@ class SerializerTest extends \PHPUnit_Framework_TestCase implements \Psr\Log\Log
         
         $serializer = new Serializer($to);
         $serializer->setLogger($this);
-        $file = $serializer->serialize($dictionary);
-        if ($to === '汎用辞書' && $files) {
+        $file = $serializer->serialize($dictionary, $csvOnly);
+        if ($to === '汎用辞書' && $files && !$csvOnly) {
             $archive = $this->generateArchive($file['bytes']);
             
             $finfo = new \esperecyan\dictionary_php\fileinfo\Finfo(FILEINFO_MIME_TYPE);
@@ -448,6 +450,51 @@ class SerializerTest extends \PHPUnit_Framework_TestCase implements \Psr\Log\Log
                     'name' => '選択・並べ替え.csv',
                 ],
                 [LogLevel::ERROR, LogLevel::ERROR, LogLevel::ERROR, LogLevel::ERROR, LogLevel::CRITICAL],
+            ],
+            [
+                '汎用辞書',
+                [
+                    [
+                        'text' => ['ピン'],
+                        'image' => ['png.png'],
+                    ],
+                    [
+                        'text' => ['ジェイフィフ'],
+                        'image' => ['jfif.jpg'],
+                    ],
+                    [
+                        'text' => ['エスブイジー'],
+                        'image' => ['svg.svg'],
+                    ],
+                ],
+                [],
+                (function (): array {
+                    $image = imagecreatetruecolor(1000, 1000);
+                    ob_start();
+                    imagepng($image);
+                    $files['png.png'] = ob_get_clean();
+                    
+                    ob_start();
+                    imagejpeg($image);
+                    $files['jfif.jpg'] = ob_get_clean();
+                    imagedestroy($image);
+                    
+                    $files['svg.svg'] = '<?xml version="1.0" ?>
+                        <svg xmlns="http://www.w3.org/2000/svg"><rect width="100" height="100" /></svg>';
+                    
+                    return $files;
+                })(),
+                [
+                    'bytes' => 'text,image
+                    ピン,png.png
+                    ジェイフィフ,jfif.jpg
+                    エスブイジー,svg.svg
+                    ',
+                    'type' => 'text/csv; charset=UTF-8; header=present',
+                    'name' => 'dictionary.csv',
+                ],
+                [],
+                true,
             ],
         ];
     }

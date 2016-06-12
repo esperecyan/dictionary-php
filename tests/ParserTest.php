@@ -49,6 +49,7 @@ class ParserTest extends \PHPUnit_Framework_TestCase implements \Psr\Log\LoggerI
      * @param (string|string[]|float|URLSearchParams)[][][] $jsonable
      * @param (string|string[])[] $metadata
      * @param string[] $logLevels
+     * @param string[] $inputFilenames
      * @dataProvider fileProvider
      */
     public function testParse(
@@ -58,12 +59,15 @@ class ParserTest extends \PHPUnit_Framework_TestCase implements \Psr\Log\LoggerI
         string $title = null,
         array $jsonable = [],
         array $metadata = [],
-        array $logLevels = []
+        array $logLevels = [],
+        array $inputFilenames = []
     ) {
         $parser = new Parser($from, $filename, $title);
         $parser->setLogger($this);
         $dictionary = $parser->parse(
-            $input instanceof \Closure ? new \SplFileInfo($input()) : $this->generateTempFileObject($input)
+            $input instanceof \Closure ? new \SplFileInfo($input()) : $this->generateTempFileObject($input),
+            null,
+            $inputFilenames
         );
         
         $this->assertEquals($jsonable, $dictionary->getWords());
@@ -452,6 +456,50 @@ class ParserTest extends \PHPUnit_Framework_TestCase implements \Psr\Log\LoggerI
                     ['text' => ['はれーすいせい']],
                 ],
                 [],
+            ],
+            [
+                $this->stripIndentsAndToCRLF(
+                    'text,image,audio,video
+                    ピン,png.png,,
+                    ジェイフィフ,jfif.jpg,,
+                    エスブイジー,svg.svg,,
+                    エーエーシー,,mpeg4-aac.m4a,
+                    エムピースリー,,mpeg1-audio-layer3.mp3,
+                    エイチニーロクヨン,,,mpeg4-h264.mp4
+                    '
+                ),
+                null,
+                null,
+                null,
+                [
+                    [
+                        'text' => ['ピン'],
+                        'image' => ['png.png'],
+                    ],
+                    [
+                        'text' => ['ジェイフィフ'],
+                        'image' => ['jfif.jpg'],
+                    ],
+                    [
+                        'text' => ['エスブイジー'],
+                        'image' => ['svg.svg'],
+                    ],
+                    [
+                        'text' => ['エーエーシー'],
+                        'audio' => ['mpeg4-aac.m4a'],
+                    ],
+                    [
+                        'text' => ['エムピースリー'],
+                        'audio' => ['mpeg1-audio-layer3.mp3'],
+                    ],
+                    [
+                        'text' => ['エイチニーロクヨン'],
+                        'video' => ['mpeg4-h264.mp4'],
+                    ],
+                ],
+                [],
+                [],
+                ['png.png', 'jfif.jpg', 'svg.svg', 'mpeg4-aac.m4a', 'mpeg1-audio-layer3.mp3', 'mpeg4-h264.mp4'],
             ],
         ];
     }

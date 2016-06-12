@@ -18,24 +18,33 @@ class Dictionary extends log\AbstractLoggerAware
     /** @var \FilesystemIterator|null 画像・音声・動画ファイルのアーカイブを展開したファイルの一覧。 */
     protected $files = null;
     
+    /** @var string[] 画像・音声・動画ファイルのアーカイブを展開したファイル名の一覧。 */
+    protected $filenames = [];
+    
     /** @var validator\WordValidator */
     protected $validator = null;
     
     /**
-     * @param \FilesystemIterator|null $files
+     * @param \FilesystemIterator|string[] $files
      */
-    public function __construct(\FilesystemIterator $files = null)
+    public function __construct($files = [])
     {
         parent::__construct();
         
-        $this->files = $files;
-        if ($this->files) {
-            $files->setFlags(\FilesystemIterator::KEY_AS_FILENAME
-                | \FilesystemIterator::CURRENT_AS_FILEINFO
-                | \FilesystemIterator::SKIP_DOTS);
-            $filenames = array_keys(iterator_to_array($files));
+        if ($files) {
+            if (is_array($files)) {
+                $this->filenames = $files;
+            } else {
+                $this->files = $files;
+                if ($this->files) {
+                    $files->setFlags(\FilesystemIterator::KEY_AS_FILENAME
+                        | \FilesystemIterator::CURRENT_AS_FILEINFO
+                        | \FilesystemIterator::SKIP_DOTS);
+                    $this->filenames = array_keys(iterator_to_array($files));
+                }
+            }
         }
-        $this->validator = new validator\WordValidator($filenames ?? []);
+        $this->validator = new validator\WordValidator($this->filenames);
     }
     
     public function setLogger(\Psr\Log\LoggerInterface $logger)
@@ -85,6 +94,16 @@ class Dictionary extends log\AbstractLoggerAware
     public function getFiles()
     {
         return $this->files;
+    }
+    
+    /**
+     * 辞書に同梱されるファイル名を返します。
+     * @internal
+     * @return string[]
+     */
+    public function getFilenames(): array
+    {
+        return $this->filenames;
     }
     
     /**

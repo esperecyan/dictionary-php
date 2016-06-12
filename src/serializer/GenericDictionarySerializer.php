@@ -14,6 +14,18 @@ class GenericDictionarySerializer extends AbstractSerializer
     const COLUMN_POSITIONS = ['text', 'image', 'image-source', 'audio', 'audio-source', 'video', 'video-source',
         'answer', 'description', 'weight', 'specifics', 'question', 'option', 'type', '@title', '@summary', '@regard'];
     
+    /** @var bool */
+    protected $csvOnly;
+
+    /**
+     * @param bool $csvOnly ZIPファイルの代わりにCSVファイルのみを返すときに真に設定します。
+     */
+    public function __construct($csvOnly = false)
+    {
+        parent::__construct();
+        $this->csvOnly = $csvOnly;
+    }
+    
     /**
      * 列の位置の比較に使うインデックスを返します。
      * @param string $fieldName
@@ -116,6 +128,7 @@ class GenericDictionarySerializer extends AbstractSerializer
     
     /**
      * @param Dictionary $dictionary
+     * @throws \BadMethodCallException $this->csvOnly が偽、かつ「画像・音声・動画ファイルを含む場合のファイル形式」をCSVファイルのみで構文解析していた場合。
      * @throws TooLargeOutputException ZIPファイルについて、CSVファイルの追加により、許容される容量を超過したとき。
      * @return string[]
      */
@@ -123,7 +136,9 @@ class GenericDictionarySerializer extends AbstractSerializer
     {
         $csv = (new \esperecyan\dictionary_php\Parser())->getBinary($this->getAsCSVFile($dictionary));
         $files = $dictionary->getFiles();
-        if ($files) {
+        if (!$files && !$this->csvOnly && $dictionary->getFilenames()) {
+            throw new \BadMethodCallException();
+        } elseif ($files && !$this->csvOnly) {
             $archive = $this->generateArchive();
             foreach ($files as $file) {
                 $archive->addFile($file, $file->getFilename());

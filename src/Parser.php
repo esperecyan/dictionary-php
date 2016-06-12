@@ -78,13 +78,14 @@ class Parser extends log\AbstractLoggerAware
     /**
      * @param \SplFileInfo $file
      * @param bool|null $header CSVにヘッダ行が存在すれば真、存在しなければ偽、不明ならnull。
+     * @param string[] $filenames 画像・音声・動画ファイルのアーカイブを展開したファイル名の一覧。
      * @throws SyntaxException
      * @return Dictionary
      */
-    public function parse(\SplFileInfo $file, $header = null): Dictionary
+    public function parse(\SplFileInfo $file, bool $header = null, $filenames = []): Dictionary
     {
         if ($this->from === '汎用辞書') {
-            $parser = new parser\GenericDictionaryParser($header);
+            $parser = new parser\GenericDictionaryParser($header, $filenames);
         } else {
             $binary = $this->getBinary($file);
 

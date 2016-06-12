@@ -334,10 +334,11 @@ class GenericDictionaryParserTest extends \PHPUnit_Framework_TestCase implements
     
     /**
      * @param string|\Closure $input
+     * @param string[] $filenames
      * @expectedException \esperecyan\dictionary_php\exception\SyntaxException
      * @dataProvider invalidDictionaryProvider
      */
-    public function testSyntaxException($input)
+    public function testSyntaxException($input, $filenames = [])
     {
         if ($input instanceof \Closure) {
             $archive = $input();
@@ -348,7 +349,7 @@ class GenericDictionaryParserTest extends \PHPUnit_Framework_TestCase implements
             $file = $this->generateTempFileObject($this->stripIndents($input));
         }
         
-        (new GenericDictionaryParser())->parse($file);
+        (new GenericDictionaryParser(null, $filenames))->parse($file);
     }
     
     public function invalidDictionaryProvider(): array
@@ -448,6 +449,9 @@ class GenericDictionaryParserTest extends \PHPUnit_Framework_TestCase implements
             ['text,description
             おだい,説明,ヘッダ行よりフィールド数が多いレコード
             '],
+            ['テスト', array_map(function ($index) {
+                return "$index.png";
+            }, range(1, 10000))],
         ];
     }
 }

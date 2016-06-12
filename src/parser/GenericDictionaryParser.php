@@ -20,6 +20,18 @@ class GenericDictionaryParser extends AbstractParser
     const MAX_RECOMMENDED_COMPRESSED_ARCHIVE_SIZE = 512 * 2 ** 20;
     
     /**
+     * アーカイブ中のファイル数の上限。
+     * @var int
+     */
+    const MAX_FILES = 10000;
+    
+    /**
+     * 推奨されるアーカイブ中のファイル数の上限。
+     * @var int
+     */
+    const MAX_RECOMMENDED_FILES = 2000;
+    
+    /**
      * 画像ファイルの最大容量。
      * @var int
      */
@@ -495,7 +507,7 @@ class GenericDictionaryParser extends AbstractParser
                 $this->header = true;
                 $csvFile = $this->parseArchive($file);
                 $csv = new \SplFileInfo($this->generateTempFile($csvFile));
-                $files = new \FilesystemIterator($csvFile->getPath());
+                $files = new \FilesystemIterator($csvFile->getPath(), \FilesystemIterator::SKIP_DOTS);
                 unlink($csvFile);
                 break;
             
@@ -506,6 +518,21 @@ class GenericDictionaryParser extends AbstractParser
                 
             default:
                 throw new SyntaxException(_('汎用辞書はCSVファイルかZIPファイルでなければなりません。'));
+        }
+        
+        $filesCount = (isset($files) ? iterator_count($files) : count($this->filenames)) /* CSVファイル分を加算 */ + 1;
+        if ($filesCount > self::MAX_FILES) {
+            throw new SyntaxException(sprintf(
+                _('アーカイブ中のファイル数は %1$s 個以下にしてください: 現在 %2$s 個'),
+                self::MAX_FILES,
+                $filesCount
+            ));
+        } elseif ($filesCount > self::MAX_RECOMMENDED_FILES) {
+            $this->logger->warning(sprintf(
+                _('アーカイブ中のファイル数は %1$s 個以下にすべきです: 現在 %2$s 個'),
+                self::MAX_RECOMMENDED_FILES,
+                $filesCount
+            ));
         }
         
         $dictionary = new Dictionary($files ?? $this->filenames);

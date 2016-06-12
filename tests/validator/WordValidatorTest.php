@@ -467,6 +467,19 @@ class WordValidatorTest extends \PHPUnit_Framework_TestCase implements \Psr\Log\
                     '@title' => ['メタデータ'],
                 ],
             ],
+            [
+                [
+                    'text' => [str_repeat('あ', 400)],
+                    'description' => [str_repeat('あ', 10000)],
+                ],
+                [
+                    'text' => [str_repeat('あ', 400)],
+                    'description' => [[
+                        'lml' => str_repeat('あ', 10000),
+                        'html' => '<p>' . str_repeat('あ', 10000) . "</p>\n",
+                    ]],
+                ],
+            ],
         ];
     }
     
@@ -529,18 +542,36 @@ class WordValidatorTest extends \PHPUnit_Framework_TestCase implements \Psr\Log\
                     '@title' => 'メタデータ',
                 ],
             ],
+            [
+                [
+                    '@title' => str_repeat('あ', 400),
+                    '@summary' => str_repeat('あ', 10000),
+                ],
+                [
+                    '@title' => str_repeat('あ', 400),
+                    '@summary' => [
+                        'lml' => str_repeat('あ', 10000),
+                        'html' => '<p>' . str_repeat('あ', 10000) . "</p>\n",
+                    ],
+                ],
+            ],
         ];
     }
     
     /**
      * @param string[][] $input
+     * @param bool $metadata
      * @expectedException \esperecyan\dictionary_php\exception\SyntaxException
      * @dataProvider invalidWords
      */
-    public function testSyntaxException($input)
+    public function testSyntaxException(array $input, bool $metadata = false)
     {
-        (new WordValidator())->parse($input);
-        
+        $wordValidator = new WordValidator();
+        if ($metadata) {
+            $wordValidator->parseMetadata($input);
+        } else {
+            $wordValidator->parse($input);
+        }
     }
     
     public function invalidWords(): array
@@ -571,6 +602,29 @@ class WordValidatorTest extends \PHPUnit_Framework_TestCase implements \Psr\Log\
                     'text' => ['optionフィールドが存在しない'],
                     'type' => ['selection'],
                 ],
+            ],
+            [
+                [
+                    'text' => [str_repeat('あ', 401)],
+                ],
+            ],
+            [
+                [
+                    'text' => ['テスト'],
+                    'description' => [str_repeat('あ', 10001)],
+                ],
+            ],
+            [
+                [
+                    '@title' => str_repeat('あ', 401),
+                ],
+                true,
+            ],
+            [
+                [
+                    '@summary' => str_repeat('あ', 10001),
+                ],
+                true,
             ],
         ];
     }

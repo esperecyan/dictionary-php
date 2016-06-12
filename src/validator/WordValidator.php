@@ -11,6 +11,15 @@ use esperecyan\dictionary_php\exception\SyntaxException;
  */
 class WordValidator extends \esperecyan\dictionary_php\log\AbstractLoggerAware
 {
+    /** @var int 1つのフィールドの文字数制限 (CommonMarkで記述するフィールドを除く)。 */
+    const MAX_FIELD_LENGTH = 400;
+    
+    /** @var int CommonMarkで記述するフィールドの文字数制限。 */
+    const MAX_MARKUP_FIELD_LENGTH = 10000;
+    
+    /** @var string[] CommonMarkで記述するフィールドの名前。 */
+    const MARKUP_FIELD_NAMES = ['image-source', 'audio-source', 'video-source', 'description', '@summary'];
+    
     /** @var string[] ファイル所在の検証に使用するファイル名のリスト。 */
     protected $filenames = [];
     
@@ -211,6 +220,19 @@ class WordValidator extends \esperecyan\dictionary_php\log\AbstractLoggerAware
             
             default:
                 $output = $field;
+        }
+        
+        $correctedField = is_array($output) ? $output['lml'] : $output;
+        $fieldLength = mb_strlen($correctedField, 'UTF-8');
+        $maxFieldLength
+            = in_array($fieldName, self::MARKUP_FIELD_NAMES) ? self::MAX_MARKUP_FIELD_LENGTH : self::MAX_FIELD_LENGTH;
+        if ($fieldLength > $maxFieldLength) {
+            throw new SyntaxException(sprintf(
+                _('「%1$s」フィールドの値は%2$d文字です。%3$d文字以内にしなければなりません:'),
+                $fieldName,
+                $fieldLength,
+                $maxFieldLength
+            ) . "\n$correctedField");
         }
         
         return $output === '' ? null : $output;

@@ -273,6 +273,43 @@ SerializeExceptionInterface#getMessage() から、ユーザーに示すエラー
 #### [FilesystemIterator esperecyan\dictionary_php\Dictionary#getFiles()](./src/Dictionary.php#L81-L88)
 辞書に同梱されるファイルを返します。
 
+### [class esperecyan\dictionary_php\Validator()](./src/Validator.php)
+辞書に同梱されるファイルのバリデータ。
+
+#### [string\[\] esperecyan\dictionary_php\Validator#correct(string|SplFileInfo $file, string $filename)](./src/Validator.php)
+[Serializer#serialize()]の戻り値と同じ構造の戻り値を返します。
+
+[Serializer#serialize()]: #string-esperecyandictionary_phpserializerserializedictionary-dictionary-bool-csvonly-false
+
+##### `string|SplFileInfo $file`
+ファイルをバイナリ文字列、[SplFileInfo]、その派生クラスのいずれかで与えます。
+
+##### `string $filename`
+ファイル名。
+
+#### 例外 [esperecyan\dictionary_php\exception\SyntaxException](./src/exception/SyntaxException.php)
+SyntaxException#getMessage() から、ユーザーに示すエラーメッセージを取得できます。
+
+| 説明・例                         |
+|----------------------------------|
+| 画像ファイルの容量が大き過ぎる。 |
+| 音声ファイルの容量が大き過ぎる。 |
+| 動画ファイルの容量が大き過ぎる。 |
+| ファイルの名前が妥当でない。     |
+| ファイルの形式が間違っている。   |
+| ファイルの拡張子が正しくない。   |
+
+#### ロギング
+[esperecyan\dictionary_php\Validator]は[PSR-3: Logger Interface]の[Psr\Log\LoggerAwareInterface]を実装しています。
+
+| ログレベル                | 説明・例                     |
+|---------------------------|------------------------------|
+| Psr\Log\LogLevel::WARNING | 画像ファイルの容量が大きい。 |
+| Psr\Log\LogLevel::WARNING | 音声ファイルの容量が大きい。 |
+| Psr\Log\LogLevel::WARNING | 動画ファイルの容量が大きい。 |
+
+[esperecyan\dictionary_php\Validator]: ./src/Validator.php
+
 Contribution
 ------------
 Pull Request、または Issue よりお願いいたします。

@@ -2,7 +2,6 @@
 namespace esperecyan\dictionary_php\parser;
 
 use esperecyan\dictionary_php\{Dictionary, Parser, exception\SyntaxException};
-use ScriptFUSION\Byte\ByteFormatter;
 use esperecyan\dictionary_php\fileinfo\Finfo;
 
 class GenericDictionaryParser extends AbstractParser
@@ -31,42 +30,6 @@ class GenericDictionaryParser extends AbstractParser
      */
     const MAX_RECOMMENDED_FILES = 2000;
     
-    /**
-     * 画像ファイルの最大容量。
-     * @var int
-     */
-    const MAX_IMAGE_SIZE = 2 ** 20;
-    
-    /**
-     * 推奨される画像ファイルの最大容量。
-     * @var int
-     */
-    const MAX_RECOMMENDED_IMAGE_SIZE = 100 * 2 ** 10;
-    
-    /**
-     * 音声ファイルの最大容量。
-     * @var int
-     */
-    const MAX_AUDIO_SIZE = 16 * 2 ** 20;
-    
-    /**
-     * 推奨される音声ファイルの最大容量。
-     * @var int
-     */
-    const MAX_RECOMMENDED_AUDIO_SIZE = 2 ** 20;
-    
-    /**
-     * 動画ファイルの最大容量。
-     * @var int
-     */
-    const MAX_VIDEO_SIZE = 16 * 2 ** 20;
-    
-    /**
-     * 推奨される動画ファイルの最大容量。
-     * @var int
-     */
-    const MAX_RECOMMENDED_VIDEO_SIZE = 2 ** 20;
-    
     /** @var int generateTempDirectory() で作成するランダムなディレクトリ名の長さ。  */
     const TEMP_DIRECTORY_NAME_LENGTH = 32;
     
@@ -79,16 +42,6 @@ class GenericDictionaryParser extends AbstractParser
      * @see http://qiita.com/shoyan/items/d9f7c014ba8003e19b57#comment-958a3830a0a450f69071
      */
     const ENCODING_DETECTION_ORDER = 'US-ASCII,ISO-2022-JP,UTF-8,eucJP-win,Windows-31J';
-    
-    /** @var string[][] 有効な拡張子。 */
-    const VALID_EXTENSIONS = [
-        'image/png' => ['png'],
-        'image/jpeg' => ['jpg', 'jpeg'],
-        'image/svg+xml' => ['svg'],
-        'audio/mp4' => ['mp4', 'm4a'],
-        'audio/mpeg' => ['mp3'],
-        'video/mp4' => ['mp4'],
-    ];
     
     /** @var bool|null */
     protected $header;
@@ -251,64 +204,6 @@ class GenericDictionaryParser extends AbstractParser
     }
     
     /**
-     * ファイルサイズをチェックします。
-     * @param int $size
-     * @param string $topLevelType
-     * @param string $filename
-     * @throws SyntaxException
-     */
-    protected function checkFileSize(int $size, string $topLevelType, string $filename)
-    {
-        $byteFormatter = new ByteFormatter();
-        
-        $message = sprintf(_('「%1$s」の容量は %2$s です。'), $filename, $byteFormatter->format($size));
-        
-        switch ($topLevelType) {
-            case 'image':
-                if ($size > self::MAX_IMAGE_SIZE) {
-                    throw new SyntaxException(sprintf(
-                        _('画像ファイルの容量は %s 以下にしてください。'),
-                        $byteFormatter->format(self::MAX_IMAGE_SIZE)
-                    ) . $message);
-                } elseif ($size > self::MAX_RECOMMENDED_IMAGE_SIZE) {
-                    $this->logger->warning(sprintf(
-                        _('画像ファイルの容量は %s 以下にすべきです。'),
-                        $byteFormatter->format(self::MAX_RECOMMENDED_IMAGE_SIZE)
-                    ) . $message);
-                }
-                break;
-                
-            case 'audio':
-                if ($size > self::MAX_AUDIO_SIZE) {
-                    throw new SyntaxException(sprintf(
-                        _('音声ファイルの容量は %s 以下にしてください。'),
-                        $byteFormatter->format(self::MAX_AUDIO_SIZE)
-                    ) . $message);
-                } elseif ($size > self::MAX_RECOMMENDED_AUDIO_SIZE) {
-                    $this->logger->warning(sprintf(
-                        _('音声ファイルの容量は %s 以下にすべきです。'),
-                        $byteFormatter->format(self::MAX_RECOMMENDED_AUDIO_SIZE)
-                    ) . $message);
-                }
-                break;
-                
-            case 'video':
-                if ($size > self::MAX_VIDEO_SIZE) {
-                    throw new SyntaxException(sprintf(
-                        _('動画ファイルの容量は %s 以下にしてください。'),
-                        $byteFormatter->format(self::MAX_VIDEO_SIZE)
-                    ) . $message);
-                } elseif ($size > self::MAX_RECOMMENDED_VIDEO_SIZE) {
-                    $this->logger->warning(sprintf(
-                        _('動画ファイルの容量は %s 以下にすべきです。'),
-                        $byteFormatter->format(self::MAX_RECOMMENDED_VIDEO_SIZE)
-                    ) . $message);
-                }
-                break;
-        }
-    }
-    
-    /**
      * PHPがWindowsでコンパイルされていれば真を返します。
      * @return bool
      */
@@ -396,7 +291,6 @@ class GenericDictionaryParser extends AbstractParser
      */
     protected function parseArchive(\SplFileInfo $file): \SplFileInfo
     {
-        $filenameValidator = new \esperecyan\dictionary_php\validator\FileLocationValidator();
         $archive = new \ZipArchive();
         $result = $archive->open(
             $file instanceof \SplTempFileObject ? $this->generateTempFile($file) : $file->getRealPath(),
@@ -418,7 +312,8 @@ class GenericDictionaryParser extends AbstractParser
         $files = new \FilesystemIterator($tempDirectoryPath, \FilesystemIterator::KEY_AS_FILENAME);
 
         $finfo = new Finfo(FILEINFO_MIME_TYPE);
-
+        $validator = new \esperecyan\dictionary_php\Validator();
+        $validator->setLogger($this->logger);
         foreach ($files as $filename => $file) {
             if ($filename === 'dictionary.csv') {
                 if (!in_array($finfo->file($file), ['text/plain', 'text/csv'])) {
@@ -428,40 +323,7 @@ class GenericDictionaryParser extends AbstractParser
                 continue;
             }
             
-            if (!$filenameValidator->validateArchivedFilename($filename)) {
-                throw new SyntaxException(sprintf(_('「%s」は妥当なファイル名ではありません。'), $filename));
-            }
-
-            $type = $finfo->file($file);
-
-            if (empty(self::VALID_EXTENSIONS[$type])) {
-                throw new SyntaxException(sprintf(_('「%s」は妥当な画像、音声、動画ファイルではありません。'), $filename));
-            }
-
-            if ($type === 'video/mp4' && $file->getExtension() === 'm4a') {
-                $type = 'audio/mp4';
-            } elseif (!in_array(
-                $file->getExtension(),
-                $type === 'video/mp4'
-                    ? array_merge(self::VALID_EXTENSIONS['audio/mp4'], self::VALID_EXTENSIONS['video/mp4'])
-                    : self::VALID_EXTENSIONS[$type]
-            )) {
-                throw new SyntaxException(sprintf(_('「%s」の拡張子は次のいずれかにしなければなりません:'), $filename)
-                    . ' ' . implode(', ', self::VALID_EXTENSIONS[$type]));
-            }
-
-            $topLevelType = explode('/', $type)[0];
-
-            $this->checkFileSize($file->getSize(), $topLevelType, $filename);
-
-            if ($topLevelType === 'image') {
-                $validator = new \esperecyan\dictionary_php\validator\ImageValidator($type, $filename);
-                $validator->setLogger($this->logger);
-                $file = $file->openFile();
-                $binary = (new Parser())->getBinary($file);
-                $file->ftruncate(0);
-                $file->fwrite($validator->correct($binary));
-            }
+            $validator->correct($file, $filename);
         }
 
         if (empty($csvFile)) {
@@ -484,7 +346,7 @@ class GenericDictionaryParser extends AbstractParser
             $binary = (new Parser())->getBinary($file);
         }
         
-        $byteFormatter = new ByteFormatter();
+        $byteFormatter = new \ScriptFUSION\Byte\ByteFormatter();
         $fileSize = isset($binary) ? strlen(bin2hex($binary)) / 2 : $file->getSize();
         if ($fileSize > self::MAX_COMPRESSED_ARCHIVE_SIZE) {
             throw new SyntaxException(sprintf(

@@ -1,7 +1,6 @@
 <?php
 namespace esperecyan\dictionary_php\parser;
 
-use esperecyan\url\URLSearchParams;
 use Psr\Log\LogLevel;
 
 class InteligenceoParserTest extends \PHPUnit_Framework_TestCase implements \Psr\Log\LoggerInterface
@@ -13,7 +12,7 @@ class InteligenceoParserTest extends \PHPUnit_Framework_TestCase implements \Psr
      * @param string $from
      * @param string|null $filename
      * @param string|null $title
-     * @param (string|string[]|float|URLSearchParams)[][][] $jsonable
+     * @param (string|string[]|float)[][][] $jsonable
      * @param (string|string[])[] $metadata
      * @param string[] $logLevels
      * @dataProvider dictionaryProvider
@@ -73,7 +72,7 @@ class InteligenceoParserTest extends \PHPUnit_Framework_TestCase implements \Psr
                         'image' => ['local/sun.png'],
                         'option' => ['地球', 'カロン', '太陽'],
                         'answer' => ['太陽'],
-                        'specifics' => [new URLSearchParams('pixelization=')],
+                        'specifics' => ['pixelization='],
                         'type' => ['selection'],
                     ],
                     [
@@ -81,7 +80,7 @@ class InteligenceoParserTest extends \PHPUnit_Framework_TestCase implements \Psr
                         'audio' => ['local/four-seasons.mp4'],
                         'option' => ['四季', '魔王', 'ラデツキー行進曲'],
                         'answer' => ['四季'],
-                        'specifics' => [new URLSearchParams('speed=5&start=13.5&length=0.5')],
+                        'specifics' => ['speed=5&start=13.5&length=0.5'],
                         'type' => ['selection'],
                     ],
                     [
@@ -107,7 +106,7 @@ class InteligenceoParserTest extends \PHPUnit_Framework_TestCase implements \Psr
                         'question' => ['同じ種類のものを選びましょう'],
                         'option' => ['リンゴ', 'ゴリラ', 'ラッパ', 'パン'],
                         'answer' => ['リンゴ', 'パン'],
-                        'specifics' => [new URLSearchParams('require-all-right=')],
+                        'specifics' => ['require-all-right='],
                         'type' => ['selection'],
                     ],
                     [
@@ -173,7 +172,7 @@ class InteligenceoParserTest extends \PHPUnit_Framework_TestCase implements \Psr
                         'image' => ['local/sun.png'],
                         'option' => ['地球', 'カロン', '太陽'],
                         'answer' => ['太陽'],
-                        'specifics' => [new URLSearchParams('score=100')],
+                        'specifics' => ['score=100'],
                         'type' => ['selection'],
                     ],
                 ],

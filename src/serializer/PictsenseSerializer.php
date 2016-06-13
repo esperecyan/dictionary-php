@@ -12,7 +12,7 @@ class PictsenseSerializer extends AbstractSerializer
     
     /**
      * 一つのお題を表す配列を直列化します。
-     * @param (string|string[]|float|URLSearchParams)[][] $word
+     * @param (string|string[]|float)[][] $word
      * @return string 末尾に改行は含みません。直列化できないお題だった場合は空文字列を返します。
      */
     protected function serializeWord(array $word): string

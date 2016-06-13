@@ -68,7 +68,7 @@ class InteligenceoSerializer extends AbstractSerializer
     
     /**
      * 一つのお題を表す配列をしりとり形式で直列化します。
-     * @param (string|string[]|float|URLSearchParams)[][] $word
+     * @param (string|string[]|float)[][] $word
      * @return string 末尾に改行 (CRLF) を含みます。直列化できないお題だった場合は空文字列を返します。
      */
     protected function serializeWordAsShiritori(array $word): string
@@ -116,7 +116,7 @@ class InteligenceoSerializer extends AbstractSerializer
     
     /**
      * 一つのお題を表す配列から問題行に直列化します。
-     * @param (string|string[]|float|URLSearchParams)[][] $word
+     * @param (string|string[]|float)[][] $word
      * @return string 末尾に改行 (CRLF) を含みます。
      */
     protected function serializeQuestionLine(array $word): string
@@ -143,7 +143,7 @@ class InteligenceoSerializer extends AbstractSerializer
         }
         
         if (isset($word['specifics'][0])) {
-            $specifics = $word['specifics'][0];
+            $specifics = new URLSearchParams($word['specifics'][0]);
             if ($specifics->has('start')) {
                 $line[] = 'start=' . round($specifics->get('start') * InteligenceoParser::SECONDS_TO_MILISECONDS);
             }
@@ -198,14 +198,14 @@ class InteligenceoSerializer extends AbstractSerializer
     
     /**
      * 一つのお題を表す配列から解答行に直列化します。
-     * @param (string|string[]|float|URLSearchParams)[][] $word
+     * @param (string|string[]|float)[][] $word
      * @return string 末尾に改行 (CRLF) を含みます。
      */
     protected function serializeAnswerLine(array $word): string
     {
         $line = ['A'];
         
-        $specifics = $word['specifics'][0] ?? new URLSearchParams();
+        $specifics = new URLSearchParams($word['specifics'][0] ?? '');
         
         if (isset($word['option'][0])) {
             if (isset($word['type'][0]) && $word['type'][0] === 'selection' && empty($word['answer'])) {
@@ -258,7 +258,7 @@ class InteligenceoSerializer extends AbstractSerializer
     
     /**
      * 一つのお題を表す配列をクイズ形式で直列化します。
-     * @param (string|string[]|float|URLSearchParams)[][] $word
+     * @param (string|string[]|float)[][] $word
      * @return string 末尾に改行 (CRLF) を含みます。直列化できないお題だった場合は空文字列を返します。
      */
     protected function serializeWordAsQuiz(array $word): string

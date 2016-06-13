@@ -1,7 +1,6 @@
 <?php
 namespace esperecyan\dictionary_php;
 
-use esperecyan\url\URLSearchParams;
 use Psr\Log\LogLevel;
 
 class ParserTest extends \PHPUnit_Framework_TestCase implements \Psr\Log\LoggerInterface
@@ -46,7 +45,7 @@ class ParserTest extends \PHPUnit_Framework_TestCase implements \Psr\Log\LoggerI
      * @param string|null $from
      * @param string|null $filename
      * @param string|null $title
-     * @param (string|string[]|float|URLSearchParams)[][][] $jsonable
+     * @param (string|string[]|float)[][][] $jsonable
      * @param (string|string[])[] $metadata
      * @param string[] $logLevels
      * @param string[] $inputFilenames
@@ -229,7 +228,7 @@ class ParserTest extends \PHPUnit_Framework_TestCase implements \Psr\Log\LoggerI
                         'question' => ['同じ種類のものを選びましょう'],
                         'option' => ['リンゴ', 'ゴリラ', 'ラッパ', 'パン'],
                         'answer' => ['リンゴ', 'パン'],
-                        'specifics' => [new URLSearchParams('require-all-right=')],
+                        'specifics' => ['require-all-right='],
                         'type' => ['selection'],
                     ],
                     [

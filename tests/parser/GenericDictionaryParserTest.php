@@ -1,7 +1,6 @@
 <?php
 namespace esperecyan\dictionary_php\parser;
 
-use esperecyan\url\URLSearchParams;
 use Psr\Log\LogLevel;
 
 class GenericDictionaryParserTest extends \PHPUnit_Framework_TestCase implements \Psr\Log\LoggerInterface
@@ -13,7 +12,7 @@ class GenericDictionaryParserTest extends \PHPUnit_Framework_TestCase implements
      * @param string|\Closure $input
      * @param string|null $filename
      * @param string|null $title
-     * @param (string|string[]|float|URLSearchParams)[][][] $jsonable
+     * @param (string|string[]|float)[][][] $jsonable
      * @param (string|string[])[] $metadata
      * @param string[] $logLevels
      * @dataProvider dictionaryProvider
@@ -323,7 +322,7 @@ class GenericDictionaryParserTest extends \PHPUnit_Framework_TestCase implements
                     [
                         'text' => ['ウェブエム'],
                         'video' => ['local/webm-vb8.mp4'],
-                        'specifics' => [new URLSearchParams('score=1000000000000000')],
+                        'specifics' => ['score=1000000000000000'],
                     ],
                 ],
                 [],

@@ -11,7 +11,7 @@ class CatchfeelingParserTest extends \PHPUnit_Framework_TestCase implements \Psr
      * @param string $input
      * @param string|null $filename
      * @param string|null $title
-     * @param (string|string[]|float|URLSearchParams)[][][] $jsonable
+     * @param (string|string[]|float)[][][] $jsonable
      * @param (string|string[])[] $metadata
      * @param string[] $logLevels
      * @dataProvider dictionaryProvider

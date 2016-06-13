@@ -230,7 +230,7 @@ SerializeExceptionInterface#getMessage() から、ユーザーに示すエラー
 ### [class esperecyan\dictionary_php\Dictionary](./src/Dictionary.php)
 辞書データ。
 
-#### [(string|string\[\]|float|URLSearchParams)\[\]\[\]\[\] esperecyan\dictionary_php\Dictionary#getWords()](./src/Dictionary.php#L49-57)
+#### [(string|string\[\]|float)\[\]\[\]\[\] esperecyan\dictionary_php\Dictionary#getWords()](./src/Dictionary.php#L49-57)
 次のような構造の多次元配列で表されたお題の一覧を返します。
 
 - \[0] => 
@@ -253,7 +253,7 @@ SerializeExceptionInterface#getMessage() から、ユーザーに示すエラー
 	- \[answer] => array(文字列, ……)
 	- \[description] => array(文字列)
 	- \[weight] => array(浮動小数点数)
-	- \[specifics] => array([esperecyan\url\URLSearchParams](https://esperecyan.github.io/url/class-esperecyan.url.URLSearchParams))
+	- \[specifics] => array(文字列)
 	- \[question] => array(文字列)
 	- \[option] => array(文字列, ……)
 	- \[type] => array(文字列)

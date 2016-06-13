@@ -1,15 +1,12 @@
 <?php
 namespace esperecyan\dictionary_php;
 
-use esperecyan\url\URLSearchParams;
-use esperecyan\dictionary_php\exception\SyntaxException;
-
 /**
  * 1つの辞書を表します。
  */
 class Dictionary extends log\AbstractLoggerAware
 {
-    /** @var (string|string[]|float|URLSearchParams)[][][] お題の一覧。 */
+    /** @var (string|string[]|float)[][][] お題の一覧。 */
     protected $words = [];
     
     /** @var (string|string[])[] メタフィールドの一覧。 */
@@ -57,8 +54,8 @@ class Dictionary extends log\AbstractLoggerAware
     
     /**
      * お題の一覧を取得します。
-     * @see https://github.com/esperecyan/dictionary-php#stringstringfloaturlsearchparams-esperecyandictionary_phpdictionarygetwords
-     * @return (string|string[]|float|URLSearchParams)[][][]
+     * @see https://github.com/esperecyan/dictionary-php#stringstringfloat-esperecyandictionary_phpdictionarygetwords
+     * @return (string|string[]|float)[][][]
      */
     public function getWords(): array
     {

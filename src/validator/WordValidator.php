@@ -1,7 +1,6 @@
 <?php
 namespace esperecyan\dictionary_php\validator;
 
-use esperecyan\url\URLSearchParams;
 use esperecyan\html_filter\Filter as HTMLFilter;
 use League\CommonMark\CommonMarkConverter;
 use esperecyan\dictionary_php\exception\SyntaxException;
@@ -57,7 +56,7 @@ class WordValidator extends \esperecyan\dictionary_php\log\AbstractLoggerAware
      * @param string[][] $fieldsAsMultiDimensionalArray フィールド名はバリデート済み、かつフィールド値が空文字列であってはなりません。
      * @throws SyntaxException 妥当なtextフィールドが存在しない場合。
      *      typeフィールドにselectionが指定されているとき、answerフィールド、optionフィールドが規則に合致しない場合。
-     * @return (string|string[]|float|URLSearchParams)[][]
+     * @return (string|string[]|float)[][]
      */
     public function parse(array $fieldsAsMultiDimensionalArray): array
     {
@@ -137,7 +136,7 @@ class WordValidator extends \esperecyan\dictionary_php\log\AbstractLoggerAware
      * フィールド単体の構文解析を行います。
      * @param string $fieldName フィールド名。未知のフィールド名が指定された場合はそのまま返します。
      * @param string $field フィールド値。
-     * @return string|string[]|float|URLSearchParams|null 矯正したフィールド値を返します。矯正の結果フィールドの削除が生じるときは null を返します。
+     * @return string|string[]|float|null 矯正したフィールド値を返します。矯正の結果フィールドの削除が生じるときは null を返します。
      */
     protected function parseField(string $fieldName, string $field)
     {
@@ -203,9 +202,6 @@ class WordValidator extends \esperecyan\dictionary_php\log\AbstractLoggerAware
                 $validator = new SpecificsValidator();
                 $validator->setLogger($this->logger);
                 $output = $validator->correct($field);
-                if ($output !== '') {
-                    $output = new URLSearchParams($output);
-                }
                 break;
 
             case '@regard':

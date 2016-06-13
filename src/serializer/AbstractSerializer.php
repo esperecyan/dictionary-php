@@ -78,7 +78,7 @@ abstract class AbstractSerializer extends AbstractLoggerAware
     /**
      * 指定された辞書形式に直列化できないお題があったことを、「error」レベルで記録します。
      * @param string $to 辞書形式。
-     * @param (string|string[]|float|URLSearchParams)[][] $word
+     * @param (string|string[]|float)[][] $word
      */
     protected function logUnserializableError(string $to, array $word)
     {
@@ -98,7 +98,7 @@ abstract class AbstractSerializer extends AbstractLoggerAware
      * 4. ASCII英字
      * 5. ASCII英数字
      * 6. その他
-     * @param (string|string[]|float|URLSearchParams)[][] $word
+     * @param (string|string[]|float)[][] $word
      * @return string[] Shift_JISに直列化不能な解答しか存在しなければ、空の配列を返します。
      */
     protected function getOrderedAnswers(array $word)
@@ -139,7 +139,7 @@ abstract class AbstractSerializer extends AbstractLoggerAware
     
     /**
      * 一つのお題を表す配列から、正規表現を除いた解答をShift_JISに直列化可能に文字列に変換して返します。
-     * @param (string|string[]|float|URLSearchParams)[][] $word
+     * @param (string|string[]|float)[][] $word
      * @param callable|null $convert 変換器。
      * @return string[] 選択肢必須の問題、またはShift_JISに直列化不能な解答しか存在しなければ、空の配列を返します。
      */

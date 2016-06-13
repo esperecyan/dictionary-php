@@ -83,7 +83,7 @@ class GenericDictionarySerializer extends AbstractSerializer
 
     /**
      * 一つのお題を表す配列を、CSVのレコードに変換します。
-     * @param (string|string[]|float|URLSearchParams)[][] $word
+     * @param (string|string[]|float)[][] $word
      * @param string[] $fieldNames
      * @param (string|string[])[] $metadata
      * @return string[]

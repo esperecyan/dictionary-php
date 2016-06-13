@@ -503,21 +503,6 @@ class InteligenceoParser extends AbstractParser
     }
     
     /**
-     * 各回答形式で共通のオプションを解析します。
-     * @param URLSearchParams $params
-     * @param string $field
-     * @return bool 解答オプションであれば真。
-     */
-    protected function parseAnswerOption(URLSearchParams $params, string $field): bool
-    {
-        if ($field === '\\norandom') {
-            $params->set('no-random', '');
-        } elseif (preg_match('/^\\explain=(.+)$', $field, $matches) === 1) {
-            $params->set('description', $matches[1]);
-        }
-    }
-    
-    /**
      * 問題行を解析します。
      * @param Dictionary $dictionary
      * @param string $question

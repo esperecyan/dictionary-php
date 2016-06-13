@@ -17,7 +17,7 @@ class DictionaryTest extends \PHPUnit_Framework_TestCase implements \Psr\Log\Log
 
     /**
      * @param string[][][] $input
-     * @param (string|string[]|float|URLSearchParams)[][][] $output
+     * @param (string|string[]|float)[][][] $output
      * @param string[] $logLevels
      * @dataProvider multiDimensionalArraysProvider
      */
@@ -118,7 +118,7 @@ class DictionaryTest extends \PHPUnit_Framework_TestCase implements \Psr\Log\Log
     
     /**
      * @param string[] $metadata
-     * @param (string|string[]|float|URLSearchParams)[][][] $jsonable
+     * @param (string|string[]|float)[][][] $jsonable
      * @dataProvider metadataProvider
      */
     public function testSetMetadata(array $metadata, array $jsonable)

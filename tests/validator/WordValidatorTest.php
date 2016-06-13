@@ -1,7 +1,6 @@
 <?php
 namespace esperecyan\dictionary_php\validator;
 
-use esperecyan\url\URLSearchParams;
 use Psr\Log\LogLevel;
 
 class WordValidatorTest extends \PHPUnit_Framework_TestCase implements \Psr\Log\LoggerInterface
@@ -10,7 +9,7 @@ class WordValidatorTest extends \PHPUnit_Framework_TestCase implements \Psr\Log\
     
     /**
      * @param string[][] $input
-     * @param (string|string[]|float|URLSearchParams)[][] $output
+     * @param (string|string[]|float)[][] $output
      * @param string[] $logLevels
      * @dataProvider wordProvider
      */
@@ -406,7 +405,7 @@ class WordValidatorTest extends \PHPUnit_Framework_TestCase implements \Psr\Log\
                 ],
                 [
                     'text' => ['テスト'],
-                    'specifics' => [new URLSearchParams('length=0.5')],
+                    'specifics' => ['length=0.5'],
                 ],
                 [LogLevel::ERROR],
             ],

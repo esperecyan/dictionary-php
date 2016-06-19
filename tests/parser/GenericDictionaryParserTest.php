@@ -34,7 +34,9 @@ class GenericDictionaryParserTest extends \PHPUnit_Framework_TestCase implements
             $archive->close();
             $dictionary = $parser->parse($file, $filename, $title);
         } else {
-            $dictionary = $parser->parse($this->generateTempFileObject($this->stripIndents($input)), $filename, $title);
+            $dictionary = $parser->parse($this->generateTempFileObject(
+                mb_check_encoding($input, 'UTF-8') ? $this->stripIndents($input) : $input
+            ), $filename, $title);
         }
         
         array_walk_recursive($jsonable, (function (&$field) {
@@ -183,6 +185,18 @@ class GenericDictionaryParserTest extends \PHPUnit_Framework_TestCase implements
                 [
                     '@title' => 'テスト',
                 ],
+            ],
+            [
+                mb_convert_encoding('テスト', 'Windows-31J', 'UTF-8'),
+                null,
+                null,
+                [
+                    [
+                        'text' => ['テスト'],
+                    ],
+                ],
+                [],
+                [LogLevel::ERROR],
             ],
             [
                 'text,image,image-source,description

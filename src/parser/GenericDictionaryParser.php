@@ -147,7 +147,7 @@ class GenericDictionaryParser extends AbstractParser
                 throw new SyntaxException(_('CSVファイルの符号化方式 (文字コード) の検出に失敗しました。')
                     . _('CSVファイルの符号化方式 (文字コード) は UTF-8 でなければなりません。'));
             }
-            $this->error(_('CSVファイルの符号化方式 (文字コード) は UTF-8 でなければなりません。'));
+            $this->logger->error(_('CSVファイルの符号化方式 (文字コード) は UTF-8 でなければなりません。'));
         }
         return mb_convert_encoding($binary, 'UTF-8', $fromEncoding);
     }

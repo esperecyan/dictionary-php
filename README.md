@@ -326,3 +326,12 @@ Pull Request、または Issue よりお願いいたします。
 当スクリプトのライセンスは [Mozilla Public License Version 2.0] \(MPL-2.0) です。
 
 [Mozilla Public License Version 2.0]: https://www.mozilla.org/MPL/2.0/
+
+### [naist-jdic](naist-jdic)
+当ディレクトリに含まれるファイルは、[修正BSDライセンス]の[NAIST-jdic] \(ライセンス全文は[naist-jdic/COPYNG]) を
+[Igo]解析用バイナリ辞書に変換したものです。
+
+[修正BSDライセンス]: https://ja.osdn.net/projects/opensource/wiki/licenses%2Fnew_BSD_license
+[NAIST-jdic]: https://ja.osdn.net/projects/naist-jdic/wiki/FrontPage "NAIST-jdic は、IPAdic の後継です。 IPAdic の固有名詞以外の全エントリをチェック（可能性に基づく品詞の整理）し、 表記ゆれ情報を付与し、複合語の構造を付与する作業を行っています。 固有名詞については不要な語、新規追加などの整理を随時行っていきます。 この作業により IPAdic のライセンスで問題となっていた ICOT 条項を削除し、 広告条項無しの BSD ライセンスに変更致しました。"
+[naist-jdic/COPYNG]: naist-jdic/COPYNG
+[Igo]: https://igo.osdn.jp/ "Javaで実装された形態素解析器"

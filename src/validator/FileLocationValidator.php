@@ -9,16 +9,6 @@ class FileLocationValidator extends AbstractFieldValidator
     /** @var string 不正な入力値の矯正後に付加するWebサービス識別子。 */
     const DEFAULT_WEB_SERVICE_IDENTIFIER = 'local';
     
-    /** @var string[][] */
-    const EXTENSIONS = [
-        'image' => ['png', 'jpg', 'jpeg', 'svg'],
-        'audio' => ['mp4', 'm4a', 'mp3'],
-        'video' => ['mp4'],
-    ];
-    
-    /** @var int 自動的に生成される拡張子を除くファイル名の長さ。偶数。 */
-    const AUTO_GENERATED_FILENAME_LENGTH = 8;
-    
     /** @var string|null */
     protected $fieldName = null;
     
@@ -35,7 +25,7 @@ class FileLocationValidator extends AbstractFieldValidator
         parent::__construct();
         
         if (!is_null($fieldName)) {
-            if (isset(self::EXTENSIONS[$fieldName])) {
+            if (isset(FilenameValidator::EXTENSIONS[$fieldName])) {
                 $this->fieldName = $fieldName;
             } else {
                 throw new \DomainException();
@@ -68,8 +58,8 @@ class FileLocationValidator extends AbstractFieldValidator
                 '/^[0-9a-z-]+\\/(?!((?i)CON|PRN|AUX|NUL|(LPT|COM)[1-9]|\\p{Z}.*|.*\\p{Z})\\.)[^\\p{C}"*.\\/:<>?\\\\|]+\\.(' . implode(
                     '|',
                     $this->fieldName
-                        ? self::EXTENSIONS[$this->fieldName]
-                        : call_user_func_array('array_merge', self::EXTENSIONS)
+                        ? FilenameValidator::EXTENSIONS[$this->fieldName]
+                        : call_user_func_array('array_merge', FilenameValidator::EXTENSIONS)
                 ) . ')$/u',
                 $input
             ) === 1;
@@ -88,24 +78,11 @@ class FileLocationValidator extends AbstractFieldValidator
                 '/^(?!(CON|PRN|AUX|NUL|(LPT|COM)[1-9]|\\p{Z}.*|.*\\p{Z})\\.)[^\\p{C}"*.\\/:<>?\\\\|]+\\.(' . implode(
                     '|',
                     $this->fieldName
-                        ? self::EXTENSIONS[$this->fieldName]
-                        : call_user_func_array('array_merge', self::EXTENSIONS)
+                        ? FilenameValidator::EXTENSIONS[$this->fieldName]
+                        : call_user_func_array('array_merge', FilenameValidator::EXTENSIONS)
                 ) . ')$/ui',
                 $input
             ) === 1;
-    }
-    
-    /**
-     * 入力値がアーカイブ中のファイル名の規則に違反していなければ真を返します。
-     * @param string $input
-     * @return bool
-     */
-    public function validateArchivedFilename(string $input): bool
-    {
-        return preg_match('/^(?!(con|prn|aux|nul|(lpt|com)[1-9])\\.)[_0-9a-z][-_0-9a-z]{0,25}\\.(' . implode(
-            '|',
-            $this->fieldName ? self::EXTENSIONS[$this->fieldName] : call_user_func_array('array_merge', self::EXTENSIONS)
-        ) . ')$/u', $input) === 1;
     }
     
     /**
@@ -149,7 +126,7 @@ class FileLocationValidator extends AbstractFieldValidator
         $trimed = preg_replace('/^\\p{Z}+|\\p{C}+|\\p{Z}+$/u', '', $filenameWithoutExtension);
         
         return $trimed === ''
-            ? $this->generateRandomFilename()
+            ? (new FilenameValidator())->generateRandomFilename()
             : preg_replace_callback(
                 '/^(CON|PRN|AUX|CLOCK\\$|NUL|(COM|LPT)[1-9])$|["*.\\/:<>?\\\\|]+/i',
                 function (array $matches): string {
@@ -176,18 +153,9 @@ class FileLocationValidator extends AbstractFieldValidator
      */
     protected function convertToValidExtension(string $extension): string
     {
-        return (in_array($extension, self::EXTENSIONS[$this->fieldName])
+        return (in_array($extension, FilenameValidator::EXTENSIONS[$this->fieldName])
             ? $extension
-            : self::EXTENSIONS[$this->fieldName][0]);
-    }
-    
-    /**
-     * ランダムな英数字列を生成します。
-     * @return string
-     */
-    protected function generateRandomFilename(): string
-    {
-        return bin2hex(random_bytes(self::AUTO_GENERATED_FILENAME_LENGTH / 2));
+            : FilenameValidator::EXTENSIONS[$this->fieldName][0]);
     }
 
     public function correct(string $input): string

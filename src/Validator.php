@@ -54,16 +54,12 @@ class Validator extends log\AbstractLoggerAware
         'video/mp4' => ['mp4'],
     ];
     
-    /** @var validator\FileLocationValidator */
-    protected $fileLocationValidator;
-    
     /** @var fileinfo\Finfo */
     protected $finfo;
 
     public function __construct()
     {
         parent::__construct();
-        $this->fileLocationValidator = new validator\FileLocationValidator();
         $this->finfo = new fileinfo\Finfo(FILEINFO_MIME_TYPE);
     }
     
@@ -132,7 +128,7 @@ class Validator extends log\AbstractLoggerAware
      */
     public function correct($file, string $filename): array
     {
-        if (!$this->fileLocationValidator->validateArchivedFilename($filename)) {
+        if (!(new validator\FilenameValidator())->validate($filename)) {
             throw new SyntaxException(sprintf(_('「%s」は妥当なファイル名ではありません。'), $filename));
         }
 

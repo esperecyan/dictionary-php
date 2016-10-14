@@ -23,6 +23,7 @@
 		"esperecyan/html-filter": "^1.0.1",
 		"logue/igo-php": "@dev",
 		"mbilbille/jpnforphp": "^0.6.1",
+		"danielstjules/stringy": "^2.3.2",
 		"ext-gettext": "*",
 		"ext-imagick": "*",
 		"ext-intl": "*",

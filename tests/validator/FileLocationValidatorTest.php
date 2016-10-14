@@ -3,7 +3,19 @@ namespace esperecyan\dictionary_php\validator;
 
 class FileLocationValidatorTest extends \PHPUnit_Framework_TestCase implements \Psr\Log\LoggerInterface
 {
-    use \esperecyan\dictionary_php\LogLevelLoggerTrait;
+    use \Psr\Log\LoggerTrait;
+    
+    /** @var (string|string[])[] */
+    protected $logs = [];
+
+    public function log($level, $message, array $context = [])
+    {
+        $this->logs[] = [
+            'level' => $level,
+            'message' => $message,
+            'context' => $context,
+        ];
+    }
     
     /**
      * @param string $fieldName
@@ -29,7 +41,12 @@ class FileLocationValidatorTest extends \PHPUnit_Framework_TestCase implements \
         $validator = new FileLocationValidator($fieldName, $filenames);
         $validator->setLogger($this);
         $this->{$output[0] === '/' ? 'assertRegExp' : 'assertSame'}($output, $validator->correct($input));
-        $this->assertEquals($input !== $output ? [\Psr\Log\LogLevel::ERROR] : [], $this->logLevels);
+        $this->assertEquals(
+            $input !== $output && (empty($filenames[$input]) || $filenames[$input] !== $output)
+                ? [\Psr\Log\LogLevel::ERROR]
+                : [],
+            array_column($this->logs, 'level')
+        );
     }
     
     public function filenameProvider(): array
@@ -118,6 +135,42 @@ class FileLocationValidatorTest extends \PHPUnit_Framework_TestCase implements \
                 [],
                 'C:\\Users\\山田太郎\\Desktop\\曲\\四季『春』.mp4',
                 'local/四季『春』.mp4',
+            ],
+            [
+                'audio',
+                ['四季『春』.mp4' => 'shiki-haru.mp4'],
+                'C:\\Users\\山田太郎\\Desktop\\曲\\四季『春』.mp4',
+                'shiki-haru.mp4',
+            ],
+            [
+                'audio',
+                ['四季『春』.mp4'],
+                'C:\\Users\\山田太郎\\Desktop\\曲\\四季『春』.mp4',
+                '四季『春』.mp4',
+            ],
+            [
+                'audio',
+                ['-AUX.mp4' => 'aux-.mp4'],
+                'C:\\Users\\山田太郎\\Desktop\\曲\\-AUX.mp4',
+                'aux-.mp4',
+            ],
+            [
+                'audio',
+                ['test--test.mp4'],
+                'C:\\Users\\山田太郎\\Desktop\\曲\\test--test.mp4',
+                'test--test.mp4',
+            ],
+            [
+                'audio',
+                ['test--TEST.mp4' => 'test-test.mp4'],
+                'C:\\Users\\山田太郎\\Desktop\\曲\\test--TEST.mp4',
+                'test-test.mp4',
+            ],
+            [
+                'audio',
+                ['test--TEST.mp4' => 'test-test.mp4'],
+                'test--TEST.mp4',
+                'test-test.mp4',
             ],
         ];
     }

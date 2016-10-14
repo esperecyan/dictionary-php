@@ -17,7 +17,7 @@ class FileLocationValidator extends AbstractFieldValidator
     
     /**
      * @param string|null $fieldName
-     * @param string[] $filenames CSVファイルと同梱されているファイルの一覧。
+     * @param string[] $filenames CSVファイルと同梱されているファイルの一覧。文字列キーが存在すれば、変更前の名前を表します。
      * @throws \DomainException フィールド名がimage、audio、videoのいずれでもないとき。
      */
     public function __construct(string $fieldName = null, array $filenames = [])
@@ -162,18 +162,20 @@ class FileLocationValidator extends AbstractFieldValidator
     {
         if ($this->validate($input)) {
             $output = $input;
+        } elseif (isset($this->filenames[$input])) {
+            $output = $this->filenames[$input];
         } else {
-            $normalized = \Normalizer::normalize($input);
-            if ($this->validate($normalized)) {
-                $output = $input;
+            $basename = $this->getBasename($input);
+            if ($this->validate($basename)) {
+                $output = $basename;
+            } elseif (isset($this->filenames[$basename])) {
+                $output = $this->filenames[$basename];
             } else {
-                $basename = $this->getBasename($normalized);
-                if ($basename === '') {
-                    $filename = $this->convertToValidFilename($normalized);
-                } elseif ($this->validate($basename)) {
-                    $filename = $basename;
+                $normalized = \Normalizer::normalize($basename);
+                if ($this->validate($normalized)) {
+                    $filename = $normalized;
                 } else {
-                    $filename = $this->convertToValidFilename($basename);
+                    $filename = $this->convertToValidFilename($normalized);
                 }
                 $output = self::DEFAULT_WEB_SERVICE_IDENTIFIER . "/$filename";
             }

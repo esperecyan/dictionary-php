@@ -16,8 +16,8 @@ class LightweightMarkupValidatorTest extends \PHPUnit_Framework_TestCase impleme
         $validator = new LightweightMarkupValidator($source);
         $validator->setLogger($this);
         $this->assertSame(
-            preg_replace('/^ +/um', '', $output),
-            $validator->correct(preg_replace('/^ +/um', '', $input))
+            preg_replace('/^ {16}/um', '', $output),
+            $validator->correct(preg_replace('/^ {16}/um', '', $input))
         );
         $this->assertEquals($input === $output ? [] : [\Psr\Log\LogLevel::ERROR], $this->logLevels);
     }
@@ -106,6 +106,23 @@ class LightweightMarkupValidatorTest extends \PHPUnit_Framework_TestCase impleme
                 [リンク] **強調** <b>名前</b> _強勢_ <i>心の声</i> `コード`
 
                 [リンク]: https://example.jp/'
+            ],
+            [
+                false,
+                '- 主人公。
+                - 年齢不詳。
+                - <details>
+                      <summary>主なセリフ</summary>
+                      ○○○○○○○○○○○○○○○
+                  </details>
+                ',
+                '- 主人公。
+                - 年齢不詳。
+                - <details>
+                      <summary>主なセリフ</summary>
+                      ○○○○○○○○○○○○○○○
+                  </details>
+                ',
             ],
         ];
     }

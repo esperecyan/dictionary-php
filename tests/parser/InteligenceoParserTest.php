@@ -6,9 +6,10 @@ use Psr\Log\LogLevel;
 class InteligenceoParserTest extends \PHPUnit_Framework_TestCase implements \Psr\Log\LoggerInterface
 {
     use \esperecyan\dictionary_php\LogLevelLoggerTrait;
+    use \esperecyan\dictionary_php\PreprocessingTrait;
     
     /**
-     * @param string $input
+     * @param string|\Closure $input
      * @param string $from
      * @param string|null $filename
      * @param string|null $title
@@ -18,7 +19,7 @@ class InteligenceoParserTest extends \PHPUnit_Framework_TestCase implements \Psr
      * @dataProvider dictionaryProvider
      */
     public function testParse(
-        string $input,
+        $input,
         string $from = null,
         string $filename = null,
         string $title = null,
@@ -28,11 +29,26 @@ class InteligenceoParserTest extends \PHPUnit_Framework_TestCase implements \Psr
     ) {
         $parser = new InteligenceoParser($from);
         $parser->setLogger($this);
-        $temp = new \SplTempFileObject();
-        $temp->fwrite(preg_replace('/\\n */u', "\r\n", $input));
-        $dictionary = $parser->parse($temp, $filename, $title);
+        if ($input instanceof \Closure) {
+            $archive = $input();
+            $file = new \SplFileInfo($archive->filename);
+            $archive->close();
+            $dictionary = $parser->parse($file, $filename, $title);
+        } else {
+            $dictionary = $parser->parse($this->generateTempFileObject($this->stripIndents($input)), $filename, $title);
+        }
         
+        array_walk_recursive($jsonable, (function (&$field) {
+            if (is_string($field)) {
+                $field = $this->stripIndents($field);
+            }
+        })->bindTo($this));
         $this->assertEquals($jsonable, $dictionary->getWords());
+        array_walk_recursive($metadata, (function (string &$field) {
+            if (is_string($field)) {
+                $field = $this->stripIndents($field);
+            }
+        })->bindTo($this));
         $this->assertEquals($metadata, $dictionary->getMetadata());
         $this->assertEquals($logLevels, $this->logLevels);
     }
@@ -224,6 +240,56 @@ class InteligenceoParserTest extends \PHPUnit_Framework_TestCase implements \Psr
                         'answer' => ['あんーん', 'をーん', 'ゎーん', 'ゎーーゎ', 'っーっ', 'っをー'],
                     ]
                 ],
+                [],
+            ],
+            [
+                function (): \ZipArchive {
+                    $archive = $this->generateArchive();
+                    
+                    $archive->addFromString('テスト.txt', mb_convert_encoding($this->stripIndents(
+                        'Q,2,,C:\\Users\\テスト\\inteli\\画像ファイル形式\\PNG.png
+                        A,0,ピン
+                        Q,2,,C:\\Users\\テスト\\inteli\\画像ファイル形式\\ジェイフィフ.jpg
+                        A,0,ジェイフィフ
+                        Q,2,,C:\\Users\\テスト\\inteli\\画像ファイル形式\\svg.svg
+                        A,0,エスブイジー
+                        '
+                    ), 'Shift_JIS', 'UTF-8'));
+                    
+                    $image = imagecreatetruecolor(1000, 1000);
+                    ob_start();
+                    imagepng($image);
+                    $archive->addFromString('png.PNG', ob_get_clean());
+                    ob_start();
+                    imagejpeg($image);
+                    $archive->addFromString(
+                        mb_convert_encoding('画像ファイル形式/ジェイフィフ.jpg', 'Shift_JIS', 'UTF-8'),
+                        ob_get_clean()
+                    );
+                    imagedestroy($image);
+                    $archive->addFromString('svg.svg', '<?xml version="1.0" ?>
+                        <svg xmlns="http://www.w3.org/2000/svg"><rect width="100" height="100" /></svg>');
+                    
+                    return $archive;
+                },
+                'Inteligenceω クイズ',
+                null,
+                null,
+                [
+                    [
+                        'text' => ['ピン'],
+                        'image' => ['png.png'],
+                    ],
+                    [
+                        'text' => ['ジェイフィフ'],
+                        'image' => ['jeififu.jpg'],
+                    ],
+                    [
+                        'text' => ['エスブイジー'],
+                        'image' => ['svg.svg'],
+                    ],
+                ],
+                [],
                 [],
             ],
         ];

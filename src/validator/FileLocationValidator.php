@@ -31,7 +31,8 @@ class FileLocationValidator extends AbstractFieldValidator
                 throw new \DomainException();
             }
         }
-        $this->filenames = $filenames;
+        $this->filenames = array_change_key_case($filenames);
+
     }
     
     /**
@@ -90,7 +91,7 @@ class FileLocationValidator extends AbstractFieldValidator
      * @param string $input
      * @return string ファイル名が取得できなかった場合は空文字列を返します。
      */
-    protected function getBasename(string $input): string
+    public function getBasename(string $input): string
     {
         preg_match('/([^\\/\\\\]*?)\\s*$/u', $input, $matches);
         return $matches[1] ?? '';
@@ -162,14 +163,16 @@ class FileLocationValidator extends AbstractFieldValidator
     {
         if ($this->validate($input)) {
             $output = $input;
-        } elseif (isset($this->filenames[$input])) {
-            $output = $this->filenames[$input];
+        } elseif ($this->validate(strtolower($input))) {
+            $output = strtolower($input);
+        } elseif (isset($this->filenames[strtolower($input)])) {
+            $output = $this->filenames[strtolower($input)];
         } else {
             $basename = $this->getBasename($input);
             if ($this->validate($basename)) {
                 $output = $basename;
-            } elseif (isset($this->filenames[$basename])) {
-                $output = $this->filenames[$basename];
+            } elseif (isset($this->filenames[strtolower($basename)])) {
+                $output = $this->filenames[strtolower($basename)];
             } else {
                 $normalized = \Normalizer::normalize($basename);
                 if ($this->validate($normalized)) {

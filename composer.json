@@ -24,6 +24,7 @@
 		"logue/igo-php": "@dev",
 		"mbilbille/jpnforphp": "^0.6.1",
 		"danielstjules/stringy": "^2.3.2",
+		"nelexa/zip": "^2.1.0",
 		"ext-gettext": "*",
 		"ext-imagick": "*",
 		"ext-intl": "*",

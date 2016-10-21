@@ -496,6 +496,60 @@ class SerializerTest extends \PHPUnit_Framework_TestCase implements \Psr\Log\Log
                 [],
                 true,
             ],
+            [
+                'Inteligenceω クイズ',
+                [
+                    [
+                        'text' => ['ピン'],
+                        'image' => ['png.png'],
+                        'weight' => ['1.5'],
+                    ],
+                    [
+                        'text' => ['ジェイフィフ'],
+                        'image' => ['jfif.jpg'],
+                        'weight' => ['0.000001'],
+                    ],
+                    [
+                        'text' => ['エスブイジー'],
+                        'image' => ['svg.svg'],
+                        'weight' => ['1000000000000000'],
+                    ],
+                ],
+                [
+                    '@title' => '画像ファイル形式',
+                ],
+                (function (): array {
+                    $image = imagecreatetruecolor(1000, 1000);
+                    ob_start();
+                    imagepng($image);
+                    $files['png.png'] = ob_get_clean();
+                    
+                    ob_start();
+                    imagejpeg($image);
+                    $files['jfif.jpg'] = ob_get_clean();
+                    imagedestroy($image);
+                    
+                    $files['svg.svg'] = '<?xml version="1.0" ?>
+                        <svg xmlns="http://www.w3.org/2000/svg"><rect width="100" height="100" /></svg>';
+                    
+                    return $files;
+                })(),
+                [
+                    'bytes' => '% 【画像ファイル形式】
+                    
+                    Q,2,,./gazo-fairu-keishiki/png.png
+                    A,0,ピン,\\explain=ピン
+                    Q,2,,./gazo-fairu-keishiki/jfif.jpg
+                    A,0,ジェイフィフ,\\explain=ジェイフィフ
+                    Q,2,,./gazo-fairu-keishiki/svg.svg
+                    A,0,エスブイジー,\\explain=エスブイジー
+                    ',
+                    'type' => 'text/plain; charset=Shift_JIS',
+                    'name' => '画像ファイル形式.txt',
+                ],
+                [],
+                true,
+            ],
         ];
     }
 }

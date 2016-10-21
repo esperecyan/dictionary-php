@@ -1,6 +1,8 @@
 <?php
 namespace esperecyan\dictionary_php\validator;
 
+use esperecyan\dictionary_php\{exception\SyntaxException, internal\Transliterator};
+
 /**
  * アーカイブ中のファイル名の矯正。
  */
@@ -25,12 +27,17 @@ class FilenameValidator extends AbstractFieldValidator
     /** @var string[] */
     protected $filenames;
     
+    /** @var bool */
+    protected $checkExtension;
+    
     /**
      * @param string|null $fieldName
      * @param string[] $filenames すでに存在するファイル名の一覧。
+     * @param bool $checkExtension $fieldNameがnullの場合、拡張子の確認を行わないときは偽。
      * @throws \DomainException フィールド名がimage、audio、videoのいずれでもないとき。
+     *      または、$fieldNameがnull以外、かつ$checkExtensionが偽の場合。
      */
-    public function __construct(string $fieldName = null, array $filenames = [])
+    public function __construct(string $fieldName = null, array $filenames = [], bool $checkExtension = true)
     {
         parent::__construct();
         
@@ -40,9 +47,14 @@ class FilenameValidator extends AbstractFieldValidator
             } else {
                 throw new \DomainException();
             }
+            
+            if (!$checkExtension) {
+                throw new \DomainException();
+            }
         }
         
         $this->filenames = $filenames;
+        $this->checkExtension = $checkExtension;
     }
     
     /**
@@ -92,23 +104,27 @@ class FilenameValidator extends AbstractFieldValidator
         
         return $this->preventDuplicate($this->convertToValidFilenameWithoutExtensionInArchives(
             is_int($fullstopIndex) ? mb_substr($filename, 0, $fullstopIndex, 'UTF-8') : $filename
-        ) . '.' . mb_substr($filename, $fullstopIndex + 1, null, 'UTF-8'));
+        ) . '.' . strtolower(mb_substr($filename, $fullstopIndex + 1, null, 'UTF-8')));
     }
     
     /**
      * 入力をアーカイブ中で妥当な拡張子を除くファイル名に変換します。
-     * @param string $filenameWithoutExtension NFC適用済みの拡張子を除くファイル名。
+     * @param string $filenameWithoutExtension 拡張子を除くファイル名。
      * @return string 制御文字・空白文字のみで構成されていた場合、ランダムな文字列生成します。
      */
-    protected function convertToValidFilenameWithoutExtensionInArchives(string $filenameWithoutExtension): string
+    public function convertToValidFilenameWithoutExtensionInArchives(string $filenameWithoutExtension): string
     {
         $asciiString = $this->preventWindowsReserved(mb_substr(trim(preg_replace(
             '/[^0-9_a-z]+/u',
             '-',
             \Stringy\StaticStringy::dasherize(
-                \esperecyan\dictionary_php\internal\Transliterator::translateUsingLatinAlphabet(
-                    preg_replace('/^\\p{Z}+|\\p{C}+|\\p{Z}+$/u', '', $filenameWithoutExtension)
-                )
+                Transliterator::translateUsingLatinAlphabet(preg_replace(
+                    '/^\\p{Z}+|\\p{C}+|\\p{Z}+$/u',
+                    '',
+                    \Normalizer::isNormalized($filenameWithoutExtension)
+                        ? $filenameWithoutExtension
+                        : \Normalizer::normalize($filenameWithoutExtension)
+                ))
             )
         ), '-'), 0, static::MAX_LENGTH));
         
@@ -149,13 +165,13 @@ class FilenameValidator extends AbstractFieldValidator
 
     public function correct(string $input): string
     {
-        if (!preg_match('/\\.(' . implode(
+        if (!preg_match('/\\.(' . ($this->checkExtension ? implode(
             '|',
             $this->fieldName
                 ? static::EXTENSIONS[$this->fieldName]
                 : call_user_func_array('array_merge', static::EXTENSIONS)
-        ) . ')$/u', $input)) {
-            throw new \DomainException();
+        ) : '[0-9a-z]+') . ')$/iu', $input)) {
+            throw new SyntaxException(_('取り扱えない拡張子のファイルです: ') . $input);
         }
         
         if ($this->validate($input)) {

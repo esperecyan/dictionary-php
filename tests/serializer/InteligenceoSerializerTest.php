@@ -29,9 +29,29 @@ class InteligenceoSerializerTest extends \PHPUnit_Framework_TestCase implements 
         
         $serializer = new InteligenceoSerializer($type);
         $serializer->setLogger($this);
-        $file = $serializer->serialize($this->generateDictionary($fieldsAsMultiDimensionalArrays, $metadata, $files));
-        $file['bytes'] = mb_convert_encoding($file['bytes'], 'UTF-8', 'Windows-31J');
+        $dictionary = $this->generateDictionary($fieldsAsMultiDimensionalArrays, $metadata, $files);
+        $file = $serializer->serialize($dictionary);
         
+        if ($files) {
+            $finfo = new \esperecyan\dictionary_php\fileinfo\Finfo(FILEINFO_MIME_TYPE);
+            
+            $archive = $this->generateArchive($file['bytes']);
+            for ($i = 0, $l = $archive->numFiles; $i < $l; $i++) {
+                $actualTypes[$archive->getNameIndex($i)] = $finfo->buffer($archive->getFromIndex($i));
+            }
+            
+            $asciiTitle = (new \esperecyan\dictionary_php\validator\FilenameValidator())
+                ->convertToValidFilenameWithoutExtensionInArchives($dictionary->getTitle());
+            foreach ($files as $filename => $content) {
+                $expectedTypes["$asciiTitle/$filename"] = $finfo->buffer($content);
+            }
+            $expectedTypes["$asciiTitle.txt"] = 'text/plain';
+            
+            $this->assertEquals($expectedTypes, $actualTypes);
+            
+            $file['bytes'] = $archive->getFromName("$asciiTitle.txt");
+        }
+        $file['bytes'] = mb_convert_encoding($file['bytes'], 'UTF-8', 'Windows-31J');
         $this->assertEquals($expectedFile, $file);
         $this->assertEquals($logLevels, $this->logLevels);
     }
@@ -353,6 +373,59 @@ class InteligenceoSerializerTest extends \PHPUnit_Framework_TestCase implements 
                     'name' => 'dictionary.txt',
                 ],
                 [LogLevel::ERROR, LogLevel::ERROR],
+            ],
+            [
+                [
+                    [
+                        'text' => ['ピン'],
+                        'image' => ['png.png'],
+                        'weight' => ['1.5'],
+                    ],
+                    [
+                        'text' => ['ジェイフィフ'],
+                        'image' => ['jfif.jpg'],
+                        'weight' => ['0.000001'],
+                    ],
+                    [
+                        'text' => ['エスブイジー'],
+                        'image' => ['svg.svg'],
+                        'weight' => ['1000000000000000'],
+                    ],
+                ],
+                [
+                    '@title' => '画像ファイル形式',
+                ],
+                (function (): array {
+                    $image = imagecreatetruecolor(1000, 1000);
+                    ob_start();
+                    imagepng($image);
+                    $files['png.png'] = ob_get_clean();
+                    
+                    ob_start();
+                    imagejpeg($image);
+                    $files['jfif.jpg'] = ob_get_clean();
+                    imagedestroy($image);
+                    
+                    $files['svg.svg'] = '<?xml version="1.0" ?>
+                        <svg xmlns="http://www.w3.org/2000/svg"><rect width="100" height="100" /></svg>';
+                    
+                    return $files;
+                })(),
+                'Inteligenceω クイズ',
+                [
+                    'bytes' => '% 【画像ファイル形式】
+                    
+                    Q,2,,./gazo-fairu-keishiki/png.png
+                    A,0,ピン,\\explain=ピン
+                    Q,2,,./gazo-fairu-keishiki/jfif.jpg
+                    A,0,ジェイフィフ,\\explain=ジェイフィフ
+                    Q,2,,./gazo-fairu-keishiki/svg.svg
+                    A,0,エスブイジー,\\explain=エスブイジー
+                    ',
+                    'type' => 'application/zip',
+                    'name' => '画像ファイル形式.zip',
+                ],
+                [],
             ],
         ];
     }

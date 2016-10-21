@@ -36,7 +36,7 @@ class Serializer extends log\AbstractLoggerAware
                 break;
             case 'Inteligenceω クイズ':
             case 'Inteligenceω しりとり':
-                $serializer = new serializer\InteligenceoSerializer($this->to);
+                $serializer = new serializer\InteligenceoSerializer($this->to, $csvOnly);
                 break;
             case 'ピクトセンス':
                 $serializer = new serializer\PictsenseSerializer();

@@ -207,7 +207,7 @@ class GenericDictionaryParser extends AbstractParser
      * PHPがWindowsでコンパイルされていれば真を返します。
      * @return bool
      */
-    protected function isWindows(): bool
+    public function isWindows(): bool
     {
         return strpos(PHP_OS, 'WIN') === 0;
     }

@@ -6,6 +6,7 @@ use esperecyan\dictionary_php\{Dictionary, parser\InteligenceoParser, exception\
 
 class InteligenceoSerializer extends AbstractSerializer
 {
+    use \esperecyan\dictionary_php\internal\ArchiveGenerator;
     
     /** @var string[] キーがひらがな、値が母音の対応表。「っ」「ん」「ゐ」「ゑ」は含みません。 */
     const VOWEL_CORRESPONDENCE_TABLE = [
@@ -24,17 +25,22 @@ class InteligenceoSerializer extends AbstractSerializer
     /** @var string 辞書の種類。 */
     protected $type;
     
+    /** @var bool */
+    protected $textFileOnly;
+    
     /**
      * @param string $type
+     * @param bool $textFileOnly ZIPファイルの代わりにクイズファイルのみを返すときに真に設定します。
      * @throws Exception \DomainException $typeが「Inteligenceω しりとり」「Inteligenceω クイズ」のいずれにも一致しない場合。
      */
-    public function __construct(string $type)
+    public function __construct(string $type, $textFileOnly = false)
     {
         if ($type !== 'Inteligenceω しりとり' && $type !== 'Inteligenceω クイズ') {
             throw new \DomainException();
         }
         parent::__construct();
         $this->type = $type;
+        $this->textFileOnly = $textFileOnly;
     }
     
     /**
@@ -117,29 +123,27 @@ class InteligenceoSerializer extends AbstractSerializer
     /**
      * 一つのお題を表す配列から問題行に直列化します。
      * @param (string|string[]|float)[][] $word
+     * @param string $directoryName
      * @return string 末尾に改行 (CRLF) を含みます。
      */
-    protected function serializeQuestionLine(array $word): string
+    protected function serializeQuestionLine(array $word, string $directoryName): string
     {
         $line = ['Q'];
         
         if (isset($word['image'][0])) {
             $line[] = 2;
+            $fileLocation = $word['image'][0];
         } elseif (isset($word['audio'][0])) {
             $line[] = 1;
+            $fileLocation = $word['audio'][0];
         } else {
             $line[] = 0;
         }
 
         $line[] = isset($word['question'][0]) ? $this->serializeQuizField($word['question'][0]) : '';
         
-        switch ($line[1]) {
-            case 1:
-                $line[] = $word['audio'][0];
-                break;
-            case 2:
-                $line[] = $word['image'][0];
-                break;
+        if (isset($fileLocation)) {
+            $line[] = (\Stringy\StaticStringy::contains($fileLocation, '/') ? '' : "./$directoryName/") . $fileLocation;
         }
         
         if (isset($word['specifics'][0])) {
@@ -259,15 +263,16 @@ class InteligenceoSerializer extends AbstractSerializer
     /**
      * 一つのお題を表す配列をクイズ形式で直列化します。
      * @param (string|string[]|float)[][] $word
+     * @param string $directoryName
      * @return string 末尾に改行 (CRLF) を含みます。直列化できないお題だった場合は空文字列を返します。
      */
-    protected function serializeWordAsQuiz(array $word): string
+    protected function serializeWordAsQuiz(array $word, string $directoryName): string
     {
         if (isset($word['question'][0])
             || isset($word['image'][0]) || isset($word['audio'][0]) || isset($word['option'][0])) {
             $answerLine = $this->serializeAnswerLine($word);
             if ($answerLine !== '') {
-                $output = $this->serializeQuestionLine($word) . $answerLine;
+                $output = $this->serializeQuestionLine($word, $directoryName) . $answerLine;
             }
         }
         return $output ?? '';
@@ -275,15 +280,19 @@ class InteligenceoSerializer extends AbstractSerializer
     
     /**
      * @param Dictionary $dictionary
+     * @throws \BadMethodCallException $this->textFileOnly が偽、かつ「画像・音声・動画ファイルを含む場合のファイル形式」をCSVファイルのみで構文解析していた場合。
      * @throws EmptyOutputException 該当の辞書形式に変換可能なお題が一つも存在しなかった。
      * @return string[]
      */
     public function serialize(Dictionary $dictionary): array
     {
+        $directoryName = (new \esperecyan\dictionary_php\validator\FilenameValidator())
+            ->convertToValidFilenameWithoutExtensionInArchives($dictionary->getTitle());
+        
         foreach ($dictionary->getWords() as $word) {
             $serialized = $this->type === 'Inteligenceω しりとり'
                 ? $this->serializeWordAsShiritori($word)
-                : $this->serializeWordAsQuiz($word);
+                : $this->serializeWordAsQuiz($word, $directoryName);
             if ($serialized !== '') {
                 $words[] = $serialized;
             }
@@ -301,10 +310,30 @@ class InteligenceoSerializer extends AbstractSerializer
             'UTF-8'
         );
         mb_substitute_character($previousSubstituteCharacter);
-        return [
-            'bytes' => $bytes,
-            'type' => 'text/plain; charset=Shift_JIS',
-            'name' => $this->getFilename($dictionary, 'txt'),
-        ];
+        
+        $files = $dictionary->getFiles();
+        if (!$files && !$this->textFileOnly && $dictionary->getFilenames()) {
+            throw new \BadMethodCallException();
+        } elseif ($files && !$this->textFileOnly) {
+            $archive = $this->generateArchive();
+            foreach ($files as $file) {
+                $archive->addFile($file, "$directoryName/" . $file->getFilename());
+            }
+            $archive->addFromString("$directoryName.txt", $bytes);
+            $archivePath = $archive->filename;
+            $archive->close();
+            
+            return [
+                'bytes' => file_get_contents($archivePath),
+                'type' => 'application/zip',
+                'name' => $this->getFilename($dictionary, 'zip'),
+            ];
+        } else {
+            return [
+                'bytes' => $bytes,
+                'type' => 'text/plain; charset=Shift_JIS',
+                'name' => $this->getFilename($dictionary, 'txt'),
+            ];
+        }
     }
 }

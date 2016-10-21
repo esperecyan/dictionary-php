@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "42dd65706156d1c5819fcaae4cf1de9e",
-    "content-hash": "3f75e0f9010e38ff755b00fb9ae93430",
+    "hash": "c2f15e5ec8eac7680886e763f11f3c5d",
+    "content-hash": "94cee2007703f4ed1690e5f3c08c585a",
     "packages": [
         {
             "name": "danielstjules/stringy",
@@ -536,6 +536,54 @@
                 "library"
             ],
             "time": "2016-02-06 13:14:31"
+        },
+        {
+            "name": "nelexa/zip",
+            "version": "2.1.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Ne-Lexa/php-zip.git",
+                "reference": "f2ffdae0c20e42dbb4bb3798ae6977fe0f5c3937"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/Ne-Lexa/php-zip/zipball/f2ffdae0c20e42dbb4bb3798ae6977fe0f5c3937",
+                "reference": "f2ffdae0c20e42dbb4bb3798ae6977fe0f5c3937",
+                "shasum": ""
+            },
+            "require": {
+                "ext-mbstring": "*",
+                "php-64bit": "^5.4 || ^7.0"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "4.8"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Ne-Lexa",
+                    "email": "alexey@nelexa.ru",
+                    "role": "Developer"
+                }
+            ],
+            "description": "Zip files CRUD. Open, create, update, extract and get info tool. Supports appending to existing ZIP files, WinZip AES encryption, Traditional PKWARE Encryption, ZipAlign tool, BZIP2 compression, external file attributes and ZIP64 extensions. Alternative ZipArchive. It does not require php-zip extension.",
+            "keywords": [
+                "archive",
+                "extract",
+                "winzip",
+                "zip",
+                "zipalign"
+            ],
+            "time": "2016-10-14 15:10:04"
         },
         {
             "name": "psr/log",

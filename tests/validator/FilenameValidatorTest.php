@@ -222,7 +222,7 @@ class FilenameValidatorTest extends \PHPUnit_Framework_TestCase
     /**
      * @param string $filename
      * @param string|null $fieldName
-     * @expectedException \DomainException
+     * @expectedException \esperecyan\dictionary_php\exception\SyntaxException
      * @dataProvider invalidFilenameProvider
      */
     public function testInvalidFilename(string $filename, string $fieldName = null)

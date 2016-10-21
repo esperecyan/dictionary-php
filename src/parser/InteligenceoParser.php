@@ -1,8 +1,9 @@
 <?php
 namespace esperecyan\dictionary_php\parser;
 
-use esperecyan\dictionary_php\{Dictionary, exception\SyntaxException};
+use esperecyan\dictionary_php\{Dictionary, validator, exception\SyntaxException, fileinfo\Finfo};
 use esperecyan\url\URLSearchParams;
+use PhpZip\{ZipFile, ZipOutputFile};
 
 class InteligenceoParser extends AbstractParser
 {
@@ -14,6 +15,9 @@ class InteligenceoParser extends AbstractParser
     
     /** @var string|null 辞書の種類。 */
     protected $type = null;
+    
+    /** @var string ファイル名の一覧。ファイル名が矯正されている場合、キーに矯正前のファイル名を持ちます。 */
+    protected $filenames = [];
     
     /** @var int レベルをweightフィールド値に変換する際の、小数点以下の最大桁数。 */
     const SCALE = 6;
@@ -585,18 +589,170 @@ class InteligenceoParser extends AbstractParser
         $withoutExtension = pathinfo($filename, PATHINFO_FILENAME);
         return $withoutExtension !== '' ? $withoutExtension : $filename;
     }
+    
+    /**
+     * アーカイブ中のファイル名の符号化方式をUTF-8に矯正します。
+     * @param ZipOutputFile $archive
+     */
+    protected function correctArchiveFilenamesEncoding(ZipOutputFile $archive)
+    {
+        $parser = new GenericDictionaryParser();
+        foreach ($archive->getListFiles() as $filename) {
+            $corrected = $parser->correctEncoding($filename);
+            if ($filename !== $corrected) {
+                $archive->rename($filename, $corrected);
+            }
+        }
+    }
+    
+    /**
+     * アーカイブ中のディレクトリ構造を除去します。
+     * @param ZipOutputFile $archive
+     * @throws SyntaxException 同名のファイルが存在する場合。
+     */
+    protected function flattenArchive(ZipOutputFile $archive)
+    {
+        $validator = new validator\FileLocationValidator();
+        foreach ($archive->getListFiles() as $filename) {
+            if (\Stringy\StaticStringy::endsWith($filename, '/')) {
+                $archive->deleteFromName($directory);
+            } else {
+                $basename = $validator->getBasename($filename);
+                if ($filename !== $basename) {
+                    if (in_array(strtolower($basename), array_map('strtolower', $archive->getListFiles()))) {
+                        throw SyntaxException(_('アーカイブ中に同名のファイルを含めることはできません: ') . $basename);
+                    }
+                    $archive->rename($filename, $basename);
+                }
+            }
+        }
+    }
+    
+    /**
+     * アーカイブ中のファイル名を矯正します。
+     * @param ZipOutputFile $archive
+     * @return string[] ファイル名の一覧。矯正を行った場合は、キーに矯正前のファイル名を持ちます。
+     */
+    protected function correctArchiveFilenames(ZipOutputFile $archive): array
+    {
+        $filenames = [];
+        
+        foreach ($archive->getListFiles() as $filename) {
+            $corrected = (new validator\FilenameValidator(null, $filenames, false))->correct($filename);
+            if ($filename !== $corrected) {
+                $archive->rename($filename, $corrected);
+                $filenames[$filename] = $corrected;
+            } else {
+                $filenames[] = $filename;
+            }
+        }
+        
+        return $filenames;
+    }
+    
+    /**
+     * ZIPアーカイブを解析し、ファイルの矯正を行います。
+     * @param \SplFileInfo $file
+     * @throws SyntaxException
+     * @return \SplFileInfo
+     */
+    protected function parseArchive(\SplFileInfo $file): \SplFileInfo
+    {
+        $archive = new ZipOutputFile(ZipFile::openFromFile(
+            $file instanceof \SplTempFileObject ? $this->generateTempFile($file) : $file->getRealPath()
+        ));
+        $this->correctArchiveFilenamesEncoding($archive);
+        $this->flattenArchive($archive);
+        $this->filenames = $this->correctArchiveFilenames($archive);
+        
+        $tempDirectoryPath = (new GenericDictionaryParser())->generateTempDirectory();
+        $archive->extractTo($tempDirectoryPath);
+        $archive->close();
+
+        $validator = new \esperecyan\dictionary_php\Validator();
+        $validator->setLogger($this->logger);
+        foreach (new \FilesystemIterator(
+            $tempDirectoryPath,
+            \FilesystemIterator::KEY_AS_FILENAME
+        ) as $filename => $file) {
+            if ($file->getExtension() === 'txt') {
+                if (isset($quizFile)) {
+                    throw new SyntaxException(_('拡張子が「.txt」のファイルが2つ以上含まれています。'));
+                }
+                if (!in_array(
+                    (new Finfo(FILEINFO_MIME_TYPE))->file($file),
+                    ['text/plain', 'text/csv']
+                )) {
+                    throw new SyntaxException(
+                        sprintf(_('「%s」は通常のテキストファイルとして認識できません。'), $filename)
+                    );
+                }
+                $quizFile = $file;
+            }
+        }
+
+        if (empty($quizFile)) {
+            throw new SyntaxException(_('拡張子が「.txt」のファイルが見つかりません。'));
+        }
+        
+        return $quizFile;
+    }
 
     public function parse(\SplFileInfo $file, string $filename = null, string $title = null): Dictionary
     {
-        $dictionary = new Dictionary();
+        $this->filenames = [];
+        
+        if ($file instanceof \SplTempFileObject) {
+            $binary = (new \esperecyan\dictionary_php\Parser())->getBinary($file);
+        }
         
         if (!($file instanceof \SplFileObject)) {
             $file = $file->openFile();
         } else {
             $file->rewind();
         }
-        $file->setFlags(\SplFileObject::DROP_NEW_LINE | \SplFileObject::READ_AHEAD | \SplFileObject::SKIP_EMPTY);
-        foreach ($file as $line) {
+        
+        $finfo = new Finfo(FILEINFO_MIME_TYPE);
+        $type = isset($binary) ? $finfo->buffer($binary) : $finfo->file($file->getRealPath());
+        switch ($type) {
+            case 'application/zip':
+                $this->header = true;
+                $quizFile = $this->parseArchive($file);
+                $binary = file_get_contents($quizFile);
+                if (!mb_check_encoding($binary, 'Windows-31J')) {
+                    throw new SyntaxException(sprintf(
+                        _('%sの辞書の符号化方式 (文字コード) は Shift_JIS でなければなりません。'),
+                        'Inteligenceω'
+                    ));
+                }
+                $txt = new \SplTempFileObject();
+                $txt->fwrite(mb_convert_encoding($binary, 'UTF-8', 'Windows-31J'));
+                $files = new \FilesystemIterator($quizFile->getPath(), \FilesystemIterator::SKIP_DOTS);
+                unlink($quizFile);
+                break;
+            
+            case 'text/csv':
+            case 'text/plain':
+                $txt = $file;
+                break;
+                
+            default:
+                throw new SyntaxException(_('Inteligenceωの辞書はテキストファイルかZIPファイルでなければなりません。'));
+        }
+        
+        $filesCount = count($this->filenames) /* クイズファイル分を加算 */ + 1;
+        if ($filesCount > GenericDictionaryParser::MAX_FILES) {
+            throw new SyntaxException(sprintf(
+                _('アーカイブ中のファイル数は %1$s 個以下にしてください: 現在 %2$s 個'),
+                GenericDictionaryParser::MAX_FILES,
+                $filesCount
+            ));
+        }
+        
+        $dictionary = new Dictionary($files ?? [], $this->filenames);
+        
+        $txt->setFlags(\SplFileObject::DROP_NEW_LINE | \SplFileObject::READ_AHEAD | \SplFileObject::SKIP_EMPTY);
+        foreach ($txt as $line) {
             $this->parseLine($dictionary, $line);
         }
         $this->parseLine($dictionary);

@@ -5,11 +5,12 @@
 * [主に単語で答えるゲームにおける汎用的な辞書形式] \(以下、汎用辞書形式)
 * [キャッチフィーリング]、[Drawing Catch] \(*.cfq)
 * [きゃっちま] \(*.dat) ※暗号化後のファイルは扱えません
-* [Inteligenceω] \(*.txt) ※暗号化後のファイルは扱えません
+* [Inteligenceω] \(*.txt, \*.zip) ※暗号化後のファイルは扱えません
 * [ピクトセンス]
 
-Inteligenceωの辞書で画像・音声ファイルへのパスが含まれる場合、単にファイル名を抽出します。
-当ライブラリでは、Inteligenceωの辞書と画像・音声ファイルをまとめて扱うことはできません。
+Inteligenceωの辞書で画像・音声ファイルへのパスが含まれる場合、
+そのファイルが含まれるフォルダをdatファイルと一緒にアーカイブする必要があります。
+同名のファイルが含まれる辞書 (同名のファイルを別々のフォルダに分けて格納したアーカイブ) は取り扱えません。
 
 [主に単語で答えるゲームにおける汎用的な辞書形式]: https://github.com/esperecyan/dictionary/blob/master/dictionary.md
 [キャッチフィーリング]: http://www.forest.impress.co.jp/library/software/catchfeeling/
@@ -84,6 +85,9 @@ Composer のインストール方法については、[Composer のグローバ�
 ----
 * PHP 7.0 以上
 
+### 依存するライブラリ由来の要件
+* PHP 64bit — [nelexa/zip](https://packagist.org/packages/nelexa/zip)
+
 パブリックAPI
 -------------
 ### [class esperecyan\dictionary_php\Parser(string $from = null, string $filename = null, string $title = null)](./src/Parser.php)
@@ -157,6 +161,12 @@ SyntaxException#getMessage() から、ユーザーに示すエラーメッセー
 | `Inteligenceω クイズ`   | 問題行に対応する解答行が存在しない。                                 |
 | `Inteligenceω クイズ`   | 解答行より前に問題行が存在する。                                     |
 | `Inteligenceω クイズ`   | コメント、問題、解答のいずれにも該当しない行が存在する。             |
+| `Inteligenceω クイズ`   | アーカイブ中に同名のファイルが含まれている。                         |
+| `Inteligenceω クイズ`   | アーカイブ中に、拡張子が `.txt` のファイルが2つ以上含まれている。    |
+| `Inteligenceω クイズ`   | アーカイブ中に、拡張子が `.txt` のファイル含まれていない。           |
+| `Inteligenceω クイズ`   | アーカイブに含まれるファイルの形式が、汎用辞書と互換性がない。       |
+| `Inteligenceω クイズ`   | アーカイブに含まれるファイルの拡張子が、汎用辞書と互換性がない。     |
+| `Inteligenceω クイズ`   | アーカイブに含まれるファイルの数が多過ぎる。                         |
 | `ピクトセンス`           | ワードにひらがな以外が含まれている。                                 |
 | `ピクトセンス`           | 1ワードの文字数が多過ぎる。                                          |
 | `ピクトセンス`           | 辞書のワード数が少な過ぎる、または多過ぎる。                         |
@@ -202,7 +212,7 @@ SyntaxException#getMessage() から、ユーザーに示すエラーメッセー
 辞書。
 
 #### `bool $csvOnly = false`
-`汎用辞書` の場合、ZIPファイルの代わりにCSVファイルのみを返すときに真に設定します。
+`汎用辞書` `Inteligenceω クイズ` の場合、ZIPファイルの代わりにCSVファイル、datファイルのみを返すときに真に設定します。
 
 #### 例外 [esperecyan\dictionary_php\exception\SerializeExceptionInterface](./src/exception/SerializeExceptionInterface.php)
 SerializeExceptionInterface#getMessage() から、ユーザーに示すエラーメッセージを取得できます。

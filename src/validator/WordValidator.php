@@ -19,7 +19,8 @@ class WordValidator extends \esperecyan\dictionary_php\log\AbstractLoggerAware
     /** @var string[] CommonMarkで記述するフィールドの名前。 */
     const MARKUP_FIELD_NAMES = ['image-source', 'audio-source', 'video-source', 'description', '@summary'];
     
-    /** @var string[] ファイル所在の検証に使用するファイル名のリスト。 */
+    /** @var string[] ファイル所在の検証に使用するファイル名のリスト。
+     *      展開前にファイル名が矯正されている場合、キーに矯正前のファイル名を持ちます。 */
     protected $filenames = [];
     
     /**

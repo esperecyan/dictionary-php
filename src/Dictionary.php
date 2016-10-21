@@ -15,7 +15,8 @@ class Dictionary extends log\AbstractLoggerAware
     /** @var \FilesystemIterator|null 画像・音声・動画ファイルのアーカイブを展開したファイルの一覧。 */
     protected $files = null;
     
-    /** @var string[] 画像・音声・動画ファイルのアーカイブを展開したファイル名の一覧。 */
+    /** @var string[] 画像・音声・動画ファイルのアーカイブを展開したファイル名の一覧。
+     *      展開前にファイル名が矯正されている場合、キーに矯正前のファイル名を持ちます。 */
     protected $filenames = [];
     
     /** @var validator\WordValidator */
@@ -23,10 +24,16 @@ class Dictionary extends log\AbstractLoggerAware
     
     /**
      * @param \FilesystemIterator|string[] $files
+     * @param string[]|null $filenames 指定されていれば、$filesからファイル名を抽出する代わりにこちらを利用します。
+     * @throws \DomainException $filenamesのみが指定されている場合、または$filesが配列で$filenamesも指定されている場合。
      */
-    public function __construct($files = [])
+    public function __construct($files = [], array $filenames = null)
     {
         parent::__construct();
+        
+        if (!$files && $filenames || is_array($files) && $filenames) {
+            new \DomainException();
+        }
         
         if ($files) {
             if (is_array($files)) {
@@ -34,10 +41,14 @@ class Dictionary extends log\AbstractLoggerAware
             } else {
                 $this->files = $files;
                 if ($this->files) {
-                    $files->setFlags(\FilesystemIterator::KEY_AS_FILENAME
-                        | \FilesystemIterator::CURRENT_AS_FILEINFO
-                        | \FilesystemIterator::SKIP_DOTS);
-                    $this->filenames = array_keys(iterator_to_array($files));
+                    if ($filenames) {
+                        $this->filenames = $filenames;
+                    } else {
+                        $files->setFlags(\FilesystemIterator::KEY_AS_FILENAME
+                            | \FilesystemIterator::CURRENT_AS_FILEINFO
+                            | \FilesystemIterator::SKIP_DOTS);
+                        $this->filenames = array_keys(iterator_to_array($files));
+                    }
                 }
             }
         }
@@ -100,7 +111,7 @@ class Dictionary extends log\AbstractLoggerAware
      */
     public function getFilenames(): array
     {
-        return $this->filenames;
+        return array_values($this->filenames);
     }
     
     /**

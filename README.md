@@ -84,6 +84,15 @@ Composer のインストール方法については、[Composer のグローバ�
 要件
 ----
 * PHP 7.0 以上
+* php-mbstring ([mbstring拡張モジュール])
+* php-intl ([Intl拡張モジュール])
+* php-pecl-zip ([Zip拡張モジュール])
+* php-pecl-imagick ([imagick (PECL拡張モジュール)])
+
+[mbstring拡張モジュール]: http://jp2.php.net/manual/book.mbstring "mbstring はマルチバイト対応の文字列関数を提供し、PHP でマルチバイトエンコーディングを処理することを容易にします。"
+[Intl拡張モジュール]: http://jp2.php.net/manual/book.intl.php "国際化用拡張モジュール (Intl と略します) は ICU ライブラリのラッパーです。 PHP プログラマが、UCA 準拠の照合順序 (collation) や日付/時刻/数値/通貨のフォーマットを扱えるようにします。"
+[Zip拡張モジュール]: http://jp2.php.net/manual/book.zip "この拡張モジュールにより、ZIP 圧縮されたアーカイブとその内部のファイルに対する透過的な読み書きが可能となります。"
+[imagick (PECL拡張モジュール)]: http://jp2.php.net/manual/book.imagick "Imagick は、ImageMagick API を使用して画像の作成や修正を行う ネイティブ PHP 拡張モジュールです。"
 
 ### 依存するライブラリ由来の要件
 * PHP 64bit — [nelexa/zip](https://packagist.org/packages/nelexa/zip)

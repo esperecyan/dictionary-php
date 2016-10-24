@@ -105,6 +105,15 @@ class Dictionary extends log\AbstractLoggerAware
     }
     
     /**
+     * 辞書に同梱されるファイルを設定します。
+     * @return \FilesystemIterator
+     */
+    public function setFiles(\FilesystemIterator $files)
+    {
+        $this->files = $files;
+    }
+    
+    /**
      * 辞書に同梱されるファイル名を返します。
      * @internal
      * @return string[]

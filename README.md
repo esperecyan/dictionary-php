@@ -292,6 +292,13 @@ SerializeExceptionInterface#getMessage() から、ユーザーに示すエラー
 #### [FilesystemIterator esperecyan\dictionary_php\Dictionary#getFiles()](./src/Dictionary.php#L81-L88)
 辞書に同梱されるファイルを返します。
 
+#### [FilesystemIterator esperecyan\dictionary_php\Dictionary#setFiles()](./src/Dictionary.php#L107-L114)
+辞書に同梱されるファイルを設定します。それぞれ同梱されるファイルとして妥当で、
+かつすべてのファイル名と[Parser#parse()]の第3引数[$filenames]に与えたファイル名が一致している必要があります。
+
+[Parser#parse()]: #dictionary-esperecyandictionary_phpparserparsesplfileinfo-file-bool-header--null-string-filenames--
+[$filenames]: #string-filenames--
+
 ### [class esperecyan\dictionary_php\Validator()](./src/Validator.php)
 辞書に同梱されるファイルのバリデータ。
 

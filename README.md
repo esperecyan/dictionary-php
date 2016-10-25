@@ -74,7 +74,7 @@ text,image,answer,answer,description,specifics,question,option,option,option,opt
 インストール
 ------------
 ```sh
-composer require esperecyan/dictionary-php
+composer require esperecyan/dictionary-php logue/igo-php:@dev
 ```
 
 Composer のインストール方法については、[Composer のグローバルインストール - Qiita]などをご覧ください。
@@ -88,11 +88,14 @@ Composer のインストール方法については、[Composer のグローバ�
 * php-intl ([Intl拡張モジュール])
 * php-pecl-zip ([Zip拡張モジュール])
 * php-pecl-imagick ([imagick (PECL拡張モジュール)])
+* [logue/igo-php:@dev] ※[minimum-stability]が`dev`以外 (既定値は`stable`) の場合、依存関係は自動的に解決されないため、[上記インストール手順](#インストール)のように手動でインストールする必要があります。
 
 [mbstring拡張モジュール]: http://jp2.php.net/manual/book.mbstring "mbstring はマルチバイト対応の文字列関数を提供し、PHP でマルチバイトエンコーディングを処理することを容易にします。"
 [Intl拡張モジュール]: http://jp2.php.net/manual/book.intl.php "国際化用拡張モジュール (Intl と略します) は ICU ライブラリのラッパーです。 PHP プログラマが、UCA 準拠の照合順序 (collation) や日付/時刻/数値/通貨のフォーマットを扱えるようにします。"
 [Zip拡張モジュール]: http://jp2.php.net/manual/book.zip "この拡張モジュールにより、ZIP 圧縮されたアーカイブとその内部のファイルに対する透過的な読み書きが可能となります。"
 [imagick (PECL拡張モジュール)]: http://jp2.php.net/manual/book.imagick "Imagick は、ImageMagick API を使用して画像の作成や修正を行う ネイティブ PHP 拡張モジュールです。"
+[logue/igo-php:@dev]: https://packagist.org/packages/logue/igo-php "Morphological analysis engine 'Igo' porting and changed for PHP 5.3 and composer."
+[minimum-stability]: http://kohkimakimoto.hatenablog.com/entry/2014/04/04/102125 "スタビリティの判断はルートパッケージのminimum-stabilityフィールドに基づいて行われる。これはルートオンリーだ。スタビリティフラグのデフォルト値を定義し、下限として振る舞う。"
 
 ### 依存するライブラリ由来の要件
 * PHP 64bit — [nelexa/zip](https://packagist.org/packages/nelexa/zip)

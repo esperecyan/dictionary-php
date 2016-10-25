@@ -550,6 +550,53 @@ class SerializerTest extends \PHPUnit_Framework_TestCase implements \Psr\Log\Log
                 [],
                 true,
             ],
+            [
+                'Inteligenceω しりとり',
+                [
+                    [
+                        'text' => ['ピン'],
+                        'image' => ['png.png'],
+                    ],
+                    [
+                        'text' => ['ジェイフィフ'],
+                        'image' => ['jfif.jpg'],
+                    ],
+                    [
+                        'text' => ['エスブイジー'],
+                        'image' => ['svg.svg'],
+                    ],
+                ],
+                [
+                    '@title' => '画像ファイル形式',
+                ],
+                (function (): array {
+                    $image = imagecreatetruecolor(1000, 1000);
+                    ob_start();
+                    imagepng($image);
+                    $files['png.png'] = ob_get_clean();
+                    
+                    ob_start();
+                    imagejpeg($image);
+                    $files['jfif.jpg'] = ob_get_clean();
+                    imagedestroy($image);
+                    
+                    $files['svg.svg'] = '<?xml version="1.0" ?>
+                        <svg xmlns="http://www.w3.org/2000/svg"><rect width="100" height="100" /></svg>';
+                    
+                    return $files;
+                })(),
+                [
+                    'bytes' => '% 【画像ファイル形式】
+
+                    ピン,ぴん
+                    ジェイフィフ,じぇいふぃふ
+                    エスブイジー,えすぶいじー
+                    ',
+                    'type' => 'text/plain; charset=Shift_JIS',
+                    'name' => '画像ファイル形式.txt',
+                ],
+                [],
+            ],
         ];
     }
 }

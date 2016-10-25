@@ -314,7 +314,7 @@ class InteligenceoSerializer extends AbstractSerializer
         $files = $dictionary->getFiles();
         if (!$files && !$this->textFileOnly && $dictionary->getFilenames()) {
             throw new \BadMethodCallException();
-        } elseif ($files && !$this->textFileOnly) {
+        } elseif ($this->type === 'Inteligenceω クイズ' && $files && !$this->textFileOnly) {
             $archive = $this->generateArchive();
             foreach ($files as $file) {
                 $archive->addFile($file, "$directoryName/" . $file->getFilename());

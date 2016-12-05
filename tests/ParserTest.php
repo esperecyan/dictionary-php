@@ -500,6 +500,58 @@ class ParserTest extends \PHPUnit_Framework_TestCase implements \Psr\Log\LoggerI
                 [],
                 ['png.png', 'jfif.jpg', 'svg.svg', 'mpeg4-aac.m4a', 'mpeg1-audio-layer3.mp3', 'mpeg4-h264.mp4'],
             ],
+            [
+                function (): string {
+                    $archive = $this->generateArchive();
+                    
+                    $archive->addFromString('テスト.txt', mb_convert_encoding($this->stripIndents(
+                        'Q,2,,C:\\Users\\テスト\\inteli\\画像ファイル形式\\PNG.png
+                        A,0,ピン
+                        Q,2,,C:\\Users\\テスト\\inteli\\画像ファイル形式\\ジェイフィフ.jpg
+                        A,0,ジェイフィフ
+                        Q,2,,C:\\Users\\テスト\\inteli\\画像ファイル形式\\svg.svg
+                        A,0,エスブイジー
+                        '
+                    ), 'Shift_JIS', 'UTF-8'));
+                    
+                    $image = imagecreatetruecolor(1000, 1000);
+                    ob_start();
+                    imagepng($image);
+                    $archive->addFromString('png.PNG', ob_get_clean());
+                    ob_start();
+                    imagejpeg($image);
+                    $archive->addFromString(
+                        mb_convert_encoding('画像ファイル形式/ジェイフィフ.jpg', 'Shift_JIS', 'UTF-8'),
+                        ob_get_clean()
+                    );
+                    imagedestroy($image);
+                    $archive->addFromString('svg.svg', '<?xml version="1.0" ?>
+                        <svg xmlns="http://www.w3.org/2000/svg"><rect width="100" height="100" /></svg>');
+                    
+                    $path = $archive->filename;
+                    $archive->close();
+                    return $path;
+                },
+                'Inteligenceω クイズ',
+                null,
+                null,
+                [
+                    [
+                        'text' => ['ピン'],
+                        'image' => ['png.png'],
+                    ],
+                    [
+                        'text' => ['ジェイフィフ'],
+                        'image' => ['jeififu.jpg'],
+                    ],
+                    [
+                        'text' => ['エスブイジー'],
+                        'image' => ['svg.svg'],
+                    ],
+                ],
+                [],
+                [],
+            ],
         ];
     }
     

@@ -88,43 +88,50 @@ class Parser extends log\AbstractLoggerAware
             $parser = new parser\GenericDictionaryParser($header, $filenames);
         } else {
             $binary = $this->getBinary($file);
-
-            $finfo = new fileinfo\Finfo(FILEINFO_MIME_TYPE);
-            if (!in_array($finfo->buffer($binary), ['text/csv', 'text/plain'])) {
-                throw new SyntaxException(sprintf(_('%sの辞書は通常のテキストファイルでなければなりません。'), $this->from));
-            }
-            
-            if ($file instanceof \SplTempFileObject) {
-                $file->ftruncate(0);
+            $type = (new fileinfo\Finfo(FILEINFO_MIME_TYPE))->buffer($binary);
+            if ($this->from === 'Inteligenceω クイズ' && $type === 'application/zip') {
+                $parser = new parser\InteligenceoParser($header, $filenames);
             } else {
-                $file = new \SplTempFileObject();
-            }
-            
-            if ($this->from === 'ピクトセンス') {
-                $file->fwrite((new parser\GenericDictionaryParser())->correctEncoding($binary));
-            } else {
-                if (!mb_check_encoding($binary, 'Windows-31J')) {
-                    throw new SyntaxException(sprintf(_('%sの辞書の符号化方式 (文字コード) は Shift_JIS でなければなりません。'), $this->from));
+                if (!in_array($type, ['text/csv', 'text/plain'])) {
+                    throw new SyntaxException(sprintf(_($this->from === 'Inteligenceω クイズ'
+                        ? '%sの辞書は通常のテキストファイルかZIPファイルでなければなりません。'
+                        : '%sの辞書は通常のテキストファイルでなければなりません。'), $this->from));
                 }
-                $file->fwrite(mb_convert_encoding($binary, 'UTF-8', 'Windows-31J'));
-            }
-            $file->rewind();
-            
-            switch ($this->from) {
-                case 'キャッチフィーリング':
-                    $parser = new parser\CatchfeelingParser();
-                    break;
-                case 'きゃっちま':
-                    $parser = new parser\CatchmParser();
-                    break;
-                case 'Inteligenceω クイズ':
-                case 'Inteligenceω しりとり':
-                case 'Inteligenceω':
-                    $parser = new parser\InteligenceoParser($this->from);
-                    break;
-                case 'ピクトセンス':
-                    $parser = new parser\PictsenseParser();
-                    break;
+
+                if ($file instanceof \SplTempFileObject) {
+                    $file->ftruncate(0);
+                } else {
+                    $file = new \SplTempFileObject();
+                }
+
+                if ($this->from === 'ピクトセンス') {
+                    $file->fwrite((new parser\GenericDictionaryParser())->correctEncoding($binary));
+                } else {
+                    if (!mb_check_encoding($binary, 'Windows-31J')) {
+                        throw new SyntaxException(
+                            sprintf(_('%sの辞書の符号化方式 (文字コード) は Shift_JIS でなければなりません。'), $this->from)
+                        );
+                    }
+                    $file->fwrite(mb_convert_encoding($binary, 'UTF-8', 'Windows-31J'));
+                }
+                $file->rewind();
+
+                switch ($this->from) {
+                    case 'キャッチフィーリング':
+                        $parser = new parser\CatchfeelingParser();
+                        break;
+                    case 'きゃっちま':
+                        $parser = new parser\CatchmParser();
+                        break;
+                    case 'Inteligenceω クイズ':
+                    case 'Inteligenceω しりとり':
+                    case 'Inteligenceω':
+                        $parser = new parser\InteligenceoParser($this->from);
+                        break;
+                    case 'ピクトセンス':
+                        $parser = new parser\PictsenseParser();
+                        break;
+                }
             }
         }
         

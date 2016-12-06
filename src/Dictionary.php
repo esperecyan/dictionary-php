@@ -55,6 +55,11 @@ class Dictionary extends log\AbstractLoggerAware
         $this->validator = new validator\WordValidator($this->filenames);
     }
     
+    public function __sleep()
+    {
+        return array_diff(array_keys(get_class_vars(__CLASS__)), ['files']);
+    }
+    
     public function setLogger(\Psr\Log\LoggerInterface $logger)
     {
         parent::setLogger($logger);

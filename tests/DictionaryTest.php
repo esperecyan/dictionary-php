@@ -154,4 +154,15 @@ class DictionaryTest extends \PHPUnit_Framework_TestCase implements \Psr\Log\Log
             ],
         ];
     }
+    
+    /**
+     * @param string[] $metadata
+     * @param (string|string[]|float)[][][] $jsonable
+     */
+    public function testSerialize()
+    {
+        $files = new \FilesystemIterator((new parser\GenericDictionaryParser())->generateTempDirectory());
+        $dictionary = new Dictionary($files);
+        $this->assertInstanceOf(Dictionary::class, unserialize(serialize($dictionary)));
+    }
 }

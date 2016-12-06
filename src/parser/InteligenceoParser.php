@@ -754,6 +754,7 @@ class InteligenceoParser extends AbstractParser
         $txt->setFlags(\SplFileObject::DROP_NEW_LINE | \SplFileObject::READ_AHEAD | \SplFileObject::SKIP_EMPTY);
         foreach ($txt as $line) {
             $this->parseLine($dictionary, $line);
+            set_time_limit(ini_get('max_execution_time'));
         }
         $this->parseLine($dictionary);
         

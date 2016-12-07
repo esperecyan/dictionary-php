@@ -26,7 +26,11 @@ class FileLocationValidatorTest extends \PHPUnit_Framework_TestCase implements \
      */
     public function testValidate(string $fieldName, array $filenames, string $input, string $output = null)
     {
-        $this->assertSame($input === $output, (new FileLocationValidator($fieldName, $filenames))->validate($input));
+        $this->assertSame(
+            $input === $output,
+            (new FileLocationValidator($fieldName, $filenames))->validate($input)
+            && empty($filenames[(new FileLocationValidator($fieldName, $filenames))->getBasename($input)])
+        );
     }
     
     /**
@@ -170,6 +174,12 @@ class FileLocationValidatorTest extends \PHPUnit_Framework_TestCase implements \
                 'audio',
                 ['test--TEST.mp4' => 'test-test.mp4'],
                 'test--TEST.mp4',
+                'test-test.mp4',
+            ],
+            [
+                'audio',
+                ['test--TEST.mp4' => 'test-test.mp4'],
+                'web-service-identifier/test--TEST.mp4',
                 'test-test.mp4',
             ],
         ];

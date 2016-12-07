@@ -32,7 +32,6 @@ class FileLocationValidator extends AbstractFieldValidator
             }
         }
         $this->filenames = array_change_key_case($filenames);
-
     }
     
     /**
@@ -161,29 +160,30 @@ class FileLocationValidator extends AbstractFieldValidator
 
     public function correct(string $input): string
     {
-        if ($this->validate($input)) {
+        if (in_array($input, $this->filenames)) {
             $output = $input;
-        } elseif ($this->validate(strtolower($input))) {
-            $output = strtolower($input);
+        } elseif (in_array(strtolower($input), $this->filenames)) {
+                $output = $basename;
         } elseif (isset($this->filenames[strtolower($input)])) {
             $output = $this->filenames[strtolower($input)];
         } else {
             $basename = $this->getBasename($input);
             if ($this->validate($basename)) {
                 $output = $basename;
+                $this->logger->error(sprintf(_('「%s」はファイル所在の規則に合致しません。'), $input));
             } elseif (isset($this->filenames[strtolower($basename)])) {
                 $output = $this->filenames[strtolower($basename)];
+                $this->logger->error(sprintf(_('「%s」はファイル所在の規則に合致しません。'), $input));
+            } elseif ($this->validate($input)) {
+                $output = $input;
+            } elseif ($this->validate($input)) {
+                $output = $basename;
             } else {
                 $normalized = \Normalizer::normalize($basename);
-                if ($this->validate($normalized)) {
-                    $filename = $normalized;
-                } else {
-                    $filename = $this->convertToValidFilename($normalized);
-                }
-                $output = self::DEFAULT_WEB_SERVICE_IDENTIFIER . "/$filename";
+                $output = self::DEFAULT_WEB_SERVICE_IDENTIFIER . '/'
+                    . ($this->validate($normalized) ? $normalized : $this->convertToValidFilename($normalized));
+                $this->logger->error(sprintf(_('「%s」はファイル所在の規則に合致しません。'), $input));
             }
-            
-            $this->logger->error(sprintf(_('「%s」はファイル所在の規則に合致しません。'), $input));
         }
         
         return $output;

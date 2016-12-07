@@ -154,14 +154,14 @@ class GenericDictionaryParser extends AbstractParser
     
     /**
      * スクリプト終了時に自動的に削除されるファイルを作成し、そのパスを返します。
-     * @param \SplTempFileObject|null $file ファイルに書き込む文字列を格納したSplFileInfo。
+     * @param string|\SplFileInfo|null $file ファイルに書き込む文字列を格納したSplFileInfo。
      * @return string
      */
-    protected function generateTempFile(\SplFileInfo $file = null): string
+    public function generateTempFile($file = null): string
     {
         $path = tempnam(sys_get_temp_dir(), self::TEMP_FILE_OR_DIRECTORY_PREFIX);
         if ($file) {
-            file_put_contents($path, (new Parser())->getBinary($file));
+            file_put_contents($path, $file instanceof \SplFileInfo ? (new Parser())->getBinary($file) : $file);
         }
         register_shutdown_function(function () use ($path) {
             if (file_exists($path)) {

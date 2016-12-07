@@ -102,7 +102,7 @@ class ValidatorTest extends \PHPUnit_Framework_TestCase implements \Psr\Log\Logg
                 file_get_contents(__DIR__ . '/resources/mpeg4-aac.m4a'),
                 'test.mp4',
                 [
-                    'type' => 'video/mp4',
+                    'type' => 'audio/mp4',
                     'name' => 'test.mp4',
                 ],
                 [],

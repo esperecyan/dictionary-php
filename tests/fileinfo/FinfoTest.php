@@ -15,6 +15,8 @@ class FinfoTest extends \PHPUnit_Framework_TestCase
         $finfo = new Finfo();
         $finfo->set_flags(FILEINFO_MIME_TYPE);
         $this->assertSame('text/plain', $finfo->buffer(self::CONTENTS));
+        
+        $this->assertSame('audio/mp4', $finfo->buffer(file_get_contents(__DIR__ . '/../resources/mpeg4-aac.m4a')));
     }
     
     public function testFile()
@@ -30,5 +32,7 @@ class FinfoTest extends \PHPUnit_Framework_TestCase
         $finfo = new Finfo();
         $finfo->set_flags(FILEINFO_MIME_TYPE);
         $this->assertSame('text/plain', $finfo->file($filename));
+        
+        $this->assertSame('audio/mp4', $finfo->file(__DIR__ . '/../resources/mpeg4-aac.m4a'));
     }
 }

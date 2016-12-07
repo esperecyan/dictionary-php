@@ -138,15 +138,7 @@ class Validator extends log\AbstractLoggerAware
             throw new SyntaxException(sprintf(_('「%s」は妥当な画像、音声、動画ファイルではありません。'), $filename));
         }
 
-        $extension = (new \SplFileInfo($filename))->getExtension();
-        if ($type === 'video/mp4' && $extension === 'm4a') {
-            $type = 'audio/mp4';
-        } elseif (!in_array(
-            $extension,
-            $type === 'video/mp4'
-                ? array_merge(self::VALID_EXTENSIONS['audio/mp4'], self::VALID_EXTENSIONS['video/mp4'])
-                : self::VALID_EXTENSIONS[$type]
-        )) {
+        if (!in_array((new \SplFileInfo($filename))->getExtension(), self::VALID_EXTENSIONS[$type])) {
             throw new SyntaxException(sprintf(_('「%s」の拡張子は次のいずれかにしなければなりません:'), $filename)
                 . ' ' . implode(', ', self::VALID_EXTENSIONS[$type]));
         }

@@ -1,6 +1,8 @@
 <?php
 namespace esperecyan\dictionary_php\fileinfo;
 
+use esperecyan\dictionary_php\parser\GenericDictionaryParser;
+
 /**
  * Fileinfo拡張モジュールに "`\r\n`\r\n" のような文字列を与えた際に発生するエラー「Notice: Array to string conversion」を抑制します。
  */
@@ -16,7 +18,17 @@ class Finfo extends \finfo
         }, E_NOTICE);
         $info = call_user_func_array([$this, "parent::$caller[function]"], $caller['args']);
         restore_error_handler();
-        return $info;
+        return $this->correctMP4MimeType($info, $caller['args'][0], $caller['function'] === 'buffer');
+    }
+    
+    protected function correctMP4MimeType(string $info, string $file, bool $binary): string
+    {
+        return $info === 'video/mp4'
+            && (new \getID3())->analyze(
+                $binary ? (new GenericDictionaryParser())->generateTempFile($file) : $file
+            )['mime_type'] === 'audio/mp4'
+            ? 'audio/mp4'
+            : $info;
     }
     
     /**

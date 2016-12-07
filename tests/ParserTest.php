@@ -72,6 +72,7 @@ class ParserTest extends \PHPUnit_Framework_TestCase implements \Psr\Log\LoggerI
         $this->assertEquals($jsonable, $dictionary->getWords());
         $this->assertEquals($metadata, $dictionary->getMetadata());
         $this->assertEquals($logLevels, $this->logLevels);
+        unset($GLOBALS['GETID3_ERRORARRAY']);
     }
     
     public function fileProvider(): array

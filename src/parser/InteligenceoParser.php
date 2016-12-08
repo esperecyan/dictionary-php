@@ -645,6 +645,7 @@ class InteligenceoParser extends AbstractParser
             } else {
                 $filenames[] = $filename;
             }
+            set_time_limit(ini_get('max_execution_time'));
         }
         
         return $filenames;

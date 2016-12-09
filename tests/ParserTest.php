@@ -553,6 +553,28 @@ class ParserTest extends \PHPUnit_Framework_TestCase implements \Psr\Log\LoggerI
                 [],
                 [],
             ],
+            [
+                $this->stripIndentsAndToCRLF(
+                    'text,description
+                    ピン,"![ピン](test/png.png) <audio src=""test/mp4.m4a""></audio> <video src=""test/mp4.mp4""></video>"
+                    '
+                ),
+                null,
+                null,
+                null,
+                [
+                    [
+                        'text' => ['ピン'],
+                        'description' => [[
+                            'lml' => '![ピン](test/png.png) <audio src="test/mp4.m4a"></audio> <video src="test/mp4.mp4"></video>',
+                            'html' => '<p><img src="test/png.png" alt="ピン" /> <audio src="test/mp4.m4a"></audio> <video src="test/mp4.mp4"></video></p>' . "\n",
+                        ]],
+                    ],
+                ],
+                [],
+                [],
+                [],
+            ],
         ];
     }
     

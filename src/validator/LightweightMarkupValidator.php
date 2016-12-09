@@ -119,7 +119,7 @@ class LightweightMarkupValidator extends AbstractFieldValidator implements \Psr\
      */
     public function validateAudioLocation(string $value): bool
     {
-        return $this->validateLocation('', $value);
+        return $this->validateLocation('audio', $value);
     }
     
     /**
@@ -129,7 +129,7 @@ class LightweightMarkupValidator extends AbstractFieldValidator implements \Psr\
      */
     public function validateImageLocation(string $value): bool
     {
-        return $this->validateLocation('', $value);
+        return $this->validateLocation('image', $value);
     }
     
     /**
@@ -139,7 +139,7 @@ class LightweightMarkupValidator extends AbstractFieldValidator implements \Psr\
      */
     public function validateVideoLocation(string $value): bool
     {
-        return $this->validateLocation('', $value);
+        return $this->validateLocation('video', $value);
     }
     
     /**

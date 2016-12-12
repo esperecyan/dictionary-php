@@ -5,7 +5,7 @@
 * [主に単語で答えるゲームにおける汎用的な辞書形式] \(以下、汎用辞書形式)
 * [キャッチフィーリング]、[Drawing Catch] \(*.cfq)
 * [きゃっちま] \(*.dat) ※暗号化後のファイルは扱えません
-* [Inteligenceω] \(*.txt, \*.zip) ※暗号化後のファイルは扱えません
+* [Inteligenceω] \(*.txt, *.zip) ※暗号化後のファイルは扱えません
 * [ピクトセンス]
 
 Inteligenceωの辞書で画像・音声ファイルへのパスが含まれる場合、
@@ -88,14 +88,15 @@ Composer のインストール方法については、[Composer のグローバ�
 * php-intl ([Intl拡張モジュール])
 * php-pecl-zip ([Zip拡張モジュール])
 * php-pecl-imagick ([imagick (PECL拡張モジュール)])
-* [logue/igo-php:@dev] ※[minimum-stability]が`dev`以外 (既定値は`stable`) の場合、依存関係は自動的に解決されないため、[上記インストール手順](#インストール)のように手動でインストールする必要があります。
+* [logue/igo-php:@dev] ※[minimum-stability]が`dev`以外 (既定値は`stable`) の場合、依存関係は自動的に解決されないため、[上記インストール手順]のように手動でインストールする必要があります。
 
-[mbstring拡張モジュール]: http://jp2.php.net/manual/book.mbstring "mbstring はマルチバイト対応の文字列関数を提供し、PHP でマルチバイトエンコーディングを処理することを容易にします。"
-[Intl拡張モジュール]: http://jp2.php.net/manual/book.intl.php "国際化用拡張モジュール (Intl と略します) は ICU ライブラリのラッパーです。 PHP プログラマが、UCA 準拠の照合順序 (collation) や日付/時刻/数値/通貨のフォーマットを扱えるようにします。"
-[Zip拡張モジュール]: http://jp2.php.net/manual/book.zip "この拡張モジュールにより、ZIP 圧縮されたアーカイブとその内部のファイルに対する透過的な読み書きが可能となります。"
-[imagick (PECL拡張モジュール)]: http://jp2.php.net/manual/book.imagick "Imagick は、ImageMagick API を使用して画像の作成や修正を行う ネイティブ PHP 拡張モジュールです。"
+[mbstring拡張モジュール]: https://secure.php.net/manual/book.mbstring "mbstring はマルチバイト対応の文字列関数を提供し、PHP でマルチバイトエンコーディングを処理することを容易にします。"
+[Intl拡張モジュール]: https://secure.php.net/manual/book.intl.php "国際化用拡張モジュール (Intl と略します) は ICU ライブラリのラッパーです。 PHP プログラマが、UCA 準拠の照合順序 (collation) や日付/時刻/数値/通貨のフォーマットを扱えるようにします。"
+[Zip拡張モジュール]: https://secure.php.net/manual/book.zip "この拡張モジュールにより、ZIP 圧縮されたアーカイブとその内部のファイルに対する透過的な読み書きが可能となります。"
+[imagick (PECL拡張モジュール)]: https://secure.php.net/manual/book.imagick "Imagick は、ImageMagick API を使用して画像の作成や修正を行う ネイティブ PHP 拡張モジュールです。"
 [logue/igo-php:@dev]: https://packagist.org/packages/logue/igo-php "Morphological analysis engine 'Igo' porting and changed for PHP 5.3 and composer."
 [minimum-stability]: http://kohkimakimoto.hatenablog.com/entry/2014/04/04/102125 "スタビリティの判断はルートパッケージのminimum-stabilityフィールドに基づいて行われる。これはルートオンリーだ。スタビリティフラグのデフォルト値を定義し、下限として振る舞う。"
+[上記インストール手順]: #%E3%82%A4%E3%83%B3%E3%82%B9%E3%83%88%E3%83%BC%E3%83%AB
 
 ### 依存するライブラリ由来の要件
 * PHP 64bit — [nelexa/zip](https://packagist.org/packages/nelexa/zip)
@@ -121,11 +122,11 @@ Composer のインストール方法については、[Composer のグローバ�
 
 汎用辞書形式で `@title` フィールドが存在する場合、この指定は無視されます。
 
-#### [Dictionary esperecyan\dictionary_php\Parser#parse(SplFileInfo $file, bool $header = null, string\[\] $filenames = \[\])](./src/Parser.php#L78-133)
+#### [Dictionary esperecyan\dictionary_php\Parser#parse(SplFileInfo $file, bool $header = null, string\[\] $filenames = \[\])](./src/Parser.php#L78-L141)
 ##### `SplFileInfo $file`
 変換元のファイルを[SplFileInfo]、またはその派生クラスで与えます。
 
-[SplFileInfo]: http://jp2.php.net/manual/class.splfileinfo
+[SplFileInfo]: https://secure.php.net/manual/class.splfileinfo
 
 ##### `bool $header = null`
 変換元のファイルが `汎用辞書` の場合、ヘッダ行が存在すれば `true`、存在しなければ `false`、不明なら `null` を指定します。
@@ -211,7 +212,7 @@ SyntaxException#getMessage() から、ユーザーに示すエラーメッセー
 
 指定されていないか間違った値が指定されていれば、`汎用辞書` になります。
 
-#### [string\[\] esperecyan\dictionary_php\Serializer#serialize(Dictionary $dictionary, bool $csvOnly = false)](./src/Serializer.php#L21-51)
+#### [string\[\] esperecyan\dictionary_php\Serializer#serialize(Dictionary $dictionary, bool $csvOnly = false)](./src/Serializer.php#L21-L52)
 次のような構造の連想配列で直列化したデータを返します。
 
 - \[bytes] => 直列化したデータのバイナリ文字列
@@ -238,7 +239,7 @@ SerializeExceptionInterface#getMessage() から、ユーザーに示すエラー
 
 [esperecyan\dictionary_php\exception\EmptyOutputException]: ./src/exception/EmptyOutputException.php
 [esperecyan\dictionary_php\exception\TooLargeOutputException]: ./src/exception/TooLargeOutputException.php
-[BadMethodCallException]: http://jp2.php.net/manual/class.badmethodcallexception
+[BadMethodCallException]: https://secure.php.net/manual/class.badmethodcallexception
 
 #### ロギング
 |`$to`                  | ログレベル                 | 説明・例                                                |
@@ -252,7 +253,7 @@ SerializeExceptionInterface#getMessage() から、ユーザーに示すエラー
 ### [class esperecyan\dictionary_php\Dictionary](./src/Dictionary.php)
 辞書データ。
 
-#### [(string|string\[\]|float)\[\]\[\]\[\] esperecyan\dictionary_php\Dictionary#getWords()](./src/Dictionary.php#L49-57)
+#### [(string|string\[\]|float)\[\]\[\]\[\] esperecyan\dictionary_php\Dictionary#getWords()](./src/Dictionary.php#L71-76)
 次のような構造の多次元配列で表されたお題の一覧を返します。
 
 - \[0] => 
@@ -283,7 +284,7 @@ SerializeExceptionInterface#getMessage() から、ユーザーに示すエラー
 - \[2] => ……
 - ……
 
-#### [(string|string\[\])\[\] esperecyan\dictionary_php\Dictionary#getMetadata()](./src/Dictionary.php#L71-L79)
+#### [(string|string\[\])\[\] esperecyan\dictionary_php\Dictionary#getMetadata()](./src/Dictionary.php#L93-L101)
 次のような構造の多次元配列で表されたメタフィールドの一覧を返します。
 
 - \[@title] => 文字列
@@ -292,10 +293,10 @@ SerializeExceptionInterface#getMessage() から、ユーザーに示すエラー
 	- \[html] => HTML (文字列)
 - \[@regard] => 文字列
 
-#### [FilesystemIterator esperecyan\dictionary_php\Dictionary#getFiles()](./src/Dictionary.php#L81-L88)
+#### [FilesystemIterator esperecyan\dictionary_php\Dictionary#getFiles()](./src/Dictionary.php#L102-L110)
 辞書に同梱されるファイルを返します。
 
-#### [esperecyan\dictionary_php\Dictionary#setFiles(FilesystemIterator $files)](./src/Dictionary.php#L107-L114)
+#### [esperecyan\dictionary_php\Dictionary#setFiles(FilesystemIterator $files)](./src/Dictionary.php#L112-L119)
 辞書に同梱されるファイルを設定します。それぞれ同梱されるファイルとして妥当で、
 かつすべてのファイル名と[Parser#parse()]の第3引数[$filenames]に与えたファイル名が一致している必要があります。
 
@@ -305,10 +306,10 @@ SerializeExceptionInterface#getMessage() から、ユーザーに示すエラー
 ### [class esperecyan\dictionary_php\Validator()](./src/Validator.php)
 辞書に同梱されるファイルのバリデータ。
 
-#### [string\[\] esperecyan\dictionary_php\Validator#correct(string|SplFileInfo $file, string $filename)](./src/Validator.php)
+#### [string\[\] esperecyan\dictionary_php\Validator#correct(string|SplFileInfo $file, string $filename)](./src/Validator.php#L124-L161)
 [Serializer#serialize()]の戻り値と同じ構造の戻り値を返します。
 
-[Serializer#serialize()]: #string-esperecyandictionary_phpserializerserializedictionary-dictionary-bool-csvonly-false
+[Serializer#serialize()]: #string-esperecyandictionary_phpserializerserializedictionary-dictionary-bool-csvonly--false
 
 ##### `string|SplFileInfo $file`
 ファイルをバイナリ文字列、[SplFileInfo]、その派生クラスのいずれかで与えます。
@@ -346,7 +347,7 @@ Pull Request、または Issue よりお願いいたします。
 セマンティック バージョニング
 ----------------------------
 当ライブラリは[セマンティック バージョニング]を採用しています。
-パブリックAPIは、[上記のとおり](#パブリックAPI)です。
+パブリックAPIは、[上記のとおり](#%E3%83%91%E3%83%96%E3%83%AA%E3%83%83%E3%82%AFapi)です。
 
 [セマンティック バージョニング]: http://semver.org/lang/ja/
 

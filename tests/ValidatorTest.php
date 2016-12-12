@@ -19,6 +19,7 @@ class ValidatorTest extends \PHPUnit_Framework_TestCase implements \Psr\Log\Logg
         $validator = new Validator();
         $validator->setLogger($this);
         $actualOutput = $validator->correct($file, $filename);
+        $this->assertInternalType('string', $actualOutput['bytes']);
         unset($actualOutput['bytes']);
         $this->assertEquals($output, $actualOutput);
         $this->assertEquals($logLevels, $this->logLevels);
@@ -100,6 +101,15 @@ class ValidatorTest extends \PHPUnit_Framework_TestCase implements \Psr\Log\Logg
             ],
             [
                 file_get_contents(__DIR__ . '/resources/mpeg4-aac.m4a'),
+                'test.mp4',
+                [
+                    'type' => 'audio/mp4',
+                    'name' => 'test.mp4',
+                ],
+                [],
+            ],
+            [
+                new \SplFileInfo(__DIR__ . '/resources/mpeg4-aac.m4a'),
                 'test.mp4',
                 [
                     'type' => 'audio/mp4',

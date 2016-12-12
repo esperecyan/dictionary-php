@@ -147,14 +147,15 @@ class Validator extends log\AbstractLoggerAware
 
         $this->checkFileSize(is_string($file) ? mb_strlen($file, 'ASCII') : $file->getSize(), $topLevelType, $filename);
 
+        $contents = is_string($file) ? $file : (new Parser())->getBinary($file);
         if ($topLevelType === 'image') {
             $validator = new validator\ImageValidator($type, $filename);
             $validator->setLogger($this->logger);
-            $file = $validator->correct(is_string($file) ? $file : (new Parser())->getBinary($file));
+            $contents = $validator->correct($contents);
         }
         
         return [
-            'bytes' => $file,
+            'bytes' => $contents,
             'type' => $type === 'image/svg+xml' ? 'image/svg+xml; charset=UTF-8' : $type,
             'name' => $filename,
         ];

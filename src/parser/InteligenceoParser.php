@@ -78,8 +78,8 @@ class InteligenceoParser extends AbstractParser
                 // レベル
                 $int = $this->convertToInt($field);
                 if ($int > 0) {
-                    $weight = rtrim(bcdiv('1', $int, self::SCALE), '0.');
-                    if ($weight !== '') {
+                    $weight = round(1 / $int, self::SCALE);
+                    if ($weight > 0) {
                         $fieldsAsMultiDimensionalArray['weight'][0] = $weight;
                     }
                 }

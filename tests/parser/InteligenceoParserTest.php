@@ -298,14 +298,18 @@ class InteligenceoParserTest extends \PHPUnit_Framework_TestCase implements \Psr
     /**
      * @param string $input
      * @param string $from
+     * @param string|null $partOfMessage エラーメッセージの一部。
      * @expectedException \esperecyan\dictionary_php\exception\SyntaxException
      * @dataProvider invalidDictionaryProvider
      */
-    public function testSyntaxException(string $input, string $from)
+    public function testSyntaxException(string $input, string $from, string $partOfMessage = null)
     {
+        if (isset($partOfMessage)) {
+            $this->expectExceptionMessageRegExp('/' . preg_quote($partOfMessage, '/') . '/u');
+        }
         $temp = new \SplTempFileObject();
         $temp->fwrite(preg_replace('/\\n */u', "\r\n", $input));
-        (new InteligenceoParser())->parse($temp);
+        (new InteligenceoParser($from))->parse($temp);
     }
     
     public function invalidDictionaryProvider(): array
@@ -366,6 +370,7 @@ class InteligenceoParserTest extends \PHPUnit_Framework_TestCase implements \Psr
             [
                 'ゐ,ゐ',
                 'Inteligenceω しりとり',
+                'ゐ',
             ],
             [
                 'ゑ,ゑ',

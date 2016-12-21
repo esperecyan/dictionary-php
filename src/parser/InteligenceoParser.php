@@ -99,7 +99,7 @@ class InteligenceoParser extends AbstractParser
             }
             
             if (preg_match('/^[ぁ-わをんー]*$/u', $field) !== 1) {
-                throw new SyntaxException(sprintf(_('「%s」には、しりとり辞書で使用可能なひらがな以外が含まれています。'), $field[1]));
+                throw new SyntaxException(sprintf(_('「%s」には、しりとり辞書で使用可能なひらがな以外が含まれています。'), $field));
             }
             
             $answerPattern[$mode][] = $field;

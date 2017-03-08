@@ -1,7 +1,7 @@
 <?php
 namespace esperecyan\dictionary_php\validator;
 
-class LightweightMarkupValidatorTest extends \PHPUnit_Framework_TestCase implements \Psr\Log\LoggerInterface
+class LightweightMarkupValidatorTest extends \PHPUnit\Framework\TestCase implements \Psr\Log\LoggerInterface
 {
     use \esperecyan\dictionary_php\LogLevelLoggerTrait;
     

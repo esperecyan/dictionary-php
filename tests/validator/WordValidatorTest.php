@@ -3,7 +3,7 @@ namespace esperecyan\dictionary_php\validator;
 
 use Psr\Log\LogLevel;
 
-class WordValidatorTest extends \PHPUnit_Framework_TestCase implements \Psr\Log\LoggerInterface
+class WordValidatorTest extends \PHPUnit\Framework\TestCase implements \Psr\Log\LoggerInterface
 {
     use \esperecyan\dictionary_php\LogLevelLoggerTrait;
     

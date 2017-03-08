@@ -3,7 +3,7 @@ namespace esperecyan\dictionary_php\serializer;
 
 use Psr\Log\LogLevel;
 
-class CatchfeelingSerializerTest extends \PHPUnit_Framework_TestCase implements \Psr\Log\LoggerInterface
+class CatchfeelingSerializerTest extends \PHPUnit\Framework\TestCase implements \Psr\Log\LoggerInterface
 {
     use \esperecyan\dictionary_php\LogLevelLoggerTrait;
     use \esperecyan\dictionary_php\PreprocessingTrait;

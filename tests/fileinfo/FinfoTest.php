@@ -1,7 +1,7 @@
 <?php
 namespace esperecyan\dictionary_php\fileinfo;
 
-class FinfoTest extends \PHPUnit_Framework_TestCase
+class FinfoTest extends \PHPUnit\Framework\TestCase
 {
     /** @var Fileinfo 拡張モジュールでエラーが発生するファイルの中身。 */
     const CONTENTS = "`\r\n`\r\n";

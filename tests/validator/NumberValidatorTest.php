@@ -1,7 +1,7 @@
 <?php
 namespace esperecyan\dictionary_php\validator;
 
-class NumberValidatorTest extends \PHPUnit_Framework_TestCase implements \Psr\Log\LoggerInterface
+class NumberValidatorTest extends \PHPUnit\Framework\TestCase implements \Psr\Log\LoggerInterface
 {
     use \esperecyan\dictionary_php\LogLevelLoggerTrait;
     

@@ -3,7 +3,7 @@ namespace esperecyan\dictionary_php\parser;
 
 use Psr\Log\LogLevel;
 
-class CatchmParserTest extends \PHPUnit_Framework_TestCase implements \Psr\Log\LoggerInterface
+class CatchmParserTest extends \PHPUnit\Framework\TestCase implements \Psr\Log\LoggerInterface
 {
     use \esperecyan\dictionary_php\LogLevelLoggerTrait;
     

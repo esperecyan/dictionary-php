@@ -1,7 +1,7 @@
 <?php
 namespace esperecyan\dictionary_php\serializer;
 
-class GenericDictionarySerializerTest extends \PHPUnit_Framework_TestCase implements \Psr\Log\LoggerInterface
+class GenericDictionarySerializerTest extends \PHPUnit\Framework\TestCase implements \Psr\Log\LoggerInterface
 {
     use \esperecyan\dictionary_php\LogLevelLoggerTrait;
     use \esperecyan\dictionary_php\PreprocessingTrait;

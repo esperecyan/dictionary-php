@@ -1,7 +1,7 @@
 <?php
 namespace esperecyan\dictionary_php\internal;
 
-class TransliteratorTest extends \PHPUnit_Framework_TestCase
+class TransliteratorTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * @param string $kanjiAndKanaString

@@ -3,7 +3,7 @@ namespace esperecyan\dictionary_php;
 
 use Psr\Log\LogLevel;
 
-class SerializerTest extends \PHPUnit_Framework_TestCase implements \Psr\Log\LoggerInterface
+class SerializerTest extends \PHPUnit\Framework\TestCase implements \Psr\Log\LoggerInterface
 {
     use LogLevelLoggerTrait;
     use PreprocessingTrait;

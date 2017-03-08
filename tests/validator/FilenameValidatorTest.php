@@ -1,7 +1,7 @@
 <?php
 namespace esperecyan\dictionary_php\validator;
 
-class FilenameValidatorTest extends \PHPUnit_Framework_TestCase
+class FilenameValidatorTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * @param string $input

@@ -1,7 +1,7 @@
 <?php
 namespace esperecyan\dictionary_php\validator;
 
-class FileLocationValidatorTest extends \PHPUnit_Framework_TestCase implements \Psr\Log\LoggerInterface
+class FileLocationValidatorTest extends \PHPUnit\Framework\TestCase implements \Psr\Log\LoggerInterface
 {
     use \Psr\Log\LoggerTrait;
     

@@ -69,19 +69,19 @@ class GenericDictionarySerializerTest extends \PHPUnit\Framework\TestCase implem
                 [
                     [
                         'text' => ['太陽'],
-                        'image' => ['local/sun.png'],
+                        'image' => ['https://resource.test/sun.png'],
                         'answer' => ['たいよう', 'おひさま'],
                         'description' => ['恒星。'],
                     ],
                     [
                         'text' => ['地球'],
-                        'image' => ['local/earth.png'],
+                        'image' => ['tag:pokemori.jp,2016:local:earth.png'],
                         'answer' => ['ちきゅう'],
                         'description' => ['惑星。'],
                     ],
                     [
                         'text' => ['カロン'],
-                        'image' => ['local/charon.png'],
+                        'image' => ['urn:uuid:b1ff60e4-0c01-4680-a2d1-b24eb5a34132'],
                         'description' => [$this->stripIndents(
                             '冥王星の衛星。
 
@@ -102,9 +102,9 @@ class GenericDictionarySerializerTest extends \PHPUnit\Framework\TestCase implem
                 [],
                 [
                     'bytes' => 'text,image,answer,answer,description,@title,@summary
-                    太陽,local/sun.png,たいよう,おひさま,恒星。,恒星/惑星/衛星,恒星、惑星、衛星などのリスト。
-                    地球,local/earth.png,ちきゅう,,惑星。,,
-                    カロン,local/charon.png,,,"冥王星の衛星。
+                    太陽,https://resource.test/sun.png,たいよう,おひさま,恒星。,恒星/惑星/衛星,恒星、惑星、衛星などのリスト。
+                    地球,"tag:pokemori.jp,2016:local:earth.png",ちきゅう,,惑星。,,
+                    カロン,urn:uuid:b1ff60e4-0c01-4680-a2d1-b24eb5a34132,,,"冥王星の衛星。
 
                     > カロンは1978年6月22日にアメリカの天文学者ジェームズ・クリスティーによって発見された。
                     > その後、冥王星が冥府の王プルートーの名に因むことから、

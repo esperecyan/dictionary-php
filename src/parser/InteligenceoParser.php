@@ -203,7 +203,8 @@ class InteligenceoParser extends AbstractParser
                     throw new SyntaxException(_('ファイルが指定されていません。'));
                 }
                 // ファイル名
-                $fieldsAsMultiDimensionalArray[$questionType === 1 ? 'audio' : 'image'][] = $questionFields[3];
+                $fieldsAsMultiDimensionalArray[$questionType === 1 ? 'audio' : 'image'][]
+                    = $this->decodeCommaInTaggingEntity($questionFields[3]);
                 // 問題オプション
                 if (isset($questionFields[4])) {
                     foreach (explode(',', $questionFields[4]) as $option) {
@@ -504,6 +505,21 @@ class InteligenceoParser extends AbstractParser
         } catch (SyntaxException $e) {
             $this->logInconvertibleError($line, $e);
         }
+    }
+    
+    /**
+     * tag URLにおけるtaggingEntity中の不正にパーセント符号化された「,」を複号します。
+     * @param string $fileLocation
+     */
+    protected function decodeCommaInTaggingEntity(string $fileLocation): string
+    {
+        return preg_replace_callback(
+            '/^(tag:)((?:"(?:[^"\\\\]|\\\\.)*"|[^"]+@)?[^:]+)/iu',
+            function (array $matches): string {
+                return $matches[1] . str_replace('%2C', ',', $matches[2]);
+            },
+            $fileLocation
+        );
     }
     
     /**

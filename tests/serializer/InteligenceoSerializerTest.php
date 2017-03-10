@@ -63,19 +63,19 @@ class InteligenceoSerializerTest extends \PHPUnit\Framework\TestCase implements 
                 [
                     [
                         'text' => ['太陽'],
-                        'image' => ['local/sun.png'],
+                        'image' => ['https://resource.test/s,u,n.png'],
                         'answer' => ['たいよう', 'おひさま'],
                         'description' => ['恒星。'],
                     ],
                     [
                         'text' => ['地球'],
-                        'image' => ['local/earth.png'],
+                        'image' => ['tag:resource.test,2016:earth.png'],
                         'answer' => ['ちきゅう'],
                         'description' => ['惑星。'],
                     ],
                     [
                         'text' => ['カロン'],
-                        'image' => ['local/charon.png'],
+                        'image' => ['urn:uuid:b1ff60e4-0c01-4680-a2d1-b24eb5a34132'],
                         'description' => [$this->stripIndents(
                             '冥王星の衛星。
 
@@ -103,11 +103,11 @@ class InteligenceoSerializerTest extends \PHPUnit\Framework\TestCase implements 
                     % - 惑星
                     % - 衛星
 
-                    Q,2,,local/sun.png
+                    Q,2,,https://resource.test/s%2Cu%2Cn.png
                     A,0,たいよう,おひさま,\\explain=太陽\\n\\n恒星。
-                    Q,2,,local/earth.png
+                    Q,2,,tag:resource.test%2C2016:earth.png
                     A,0,ちきゅう,\\explain=地球\\n\\n惑星。
-                    Q,2,,local/charon.png
+                    Q,2,,urn:uuid:b1ff60e4-0c01-4680-a2d1-b24eb5a34132
                     A,0,カロン,\\explain=カロン\\n\\n冥王星の衛星。\\n\\n> カロンは1978年6月22日にアメリカの天文学者ジェームズ・クリスティーによって発見された。\\n> その後、冥王星が冥府の王プルートーの名に因むことから、\\n> この衛星はギリシア神話の冥府の川・アケローンの渡し守カローンにちなんで「カロン」と命名された。\\n> なおクリスティーは当初から一貫してCharonの「char」を\\n> 妻シャーリーン（Charlene） のニックネーム「シャー（Char）」と同じように発音していたため、\\n> これが英語圏で定着して「シャーロン」と呼ばれるようになった。\\n引用元: [カロン (衛星) - Wikipedia](https://ja.wikipedia.org/wiki/%E3%82%AB%E3%83%AD%E3%83%B3_(%E8%A1%9B%E6%98%9F))
                     ',
                     'type' => 'text/plain; charset=Shift_JIS',
@@ -119,13 +119,13 @@ class InteligenceoSerializerTest extends \PHPUnit\Framework\TestCase implements 
                 [
                     [
                         'text' => ['太陽'],
-                        'image' => ['local/sun.png'],
+                        'image' => ['https://resource.test/sun.png'],
                         'answer' => ['太陽', 'サン', 'たいよう', 'sun'],
                         'specifics' => ['magnification=10&last-magnification=1&bonus=0&bonus=0&bonus=10&bonus=0'],
                     ],
                     [
                         'text' => ['四季'],
-                        'audio' => ['local/four-seasons.mp4'],
+                        'audio' => ['https://resource.test/four-seasons.mp4'],
                         'answer' => ['しき', 'はる'],
                         'specifics' => ['start=60&repeat=3&length=0.5005&speed=0.105&valume=2'],
                     ],
@@ -177,9 +177,9 @@ class InteligenceoSerializerTest extends \PHPUnit\Framework\TestCase implements 
                     '% 【選択
                     %   並べ替え】
 
-                    Q,2,,local/sun.png,zoom_start=10,zoom_end=1
+                    Q,2,,https://resource.test/sun.png,zoom_start=10,zoom_end=1
                     A,0,太陽,サン,たいよう,\\bonus=10,sun,\\explain=太陽
-                    Q,1,,local/four-seasons.mp4,start=60000,repeat=3,length=501,speed=11
+                    Q,1,,https://resource.test/four-seasons.mp4,start=60000,repeat=3,length=501,speed=11
                     A,0,しき,はる,\\explain=四季
                     Q,0,仲間外れはどれでしょう
                     A,1,リンゴ,\\seikai,ゴリラ,ラクダ,ダチョウ,\\explain=リンゴ\\n\\n選択肢を表示しなければ問題が成立しない場合。
@@ -231,21 +231,21 @@ class InteligenceoSerializerTest extends \PHPUnit\Framework\TestCase implements 
                 [
                     [
                         'text' => ['太陽'],
-                        'image' => ['local/sun.png'],
+                        'image' => ['https://resource.test/sun.png'],
                         'answer' => ['たいよう', 'おひさま'],
                         'description' => ['恒星。'],
                         'weight' => ['0.3'],
                     ],
                     [
                         'text' => ['地球'],
-                        'image' => ['local/earth.png'],
+                        'image' => ['https://resource.test/earth.png'],
                         'answer' => ['ちきゅう'],
                         'description' => ['惑星。'],
                         'weight' => ['0.5'],
                     ],
                     [
                         'text' => ['カロン'],
-                        'image' => ['local/charon.png'],
+                        'image' => ['https://resource.test/charon.png'],
                         'description' => [$this->stripIndents(
                             '冥王星の衛星。
 
@@ -286,13 +286,13 @@ class InteligenceoSerializerTest extends \PHPUnit\Framework\TestCase implements 
                 [
                     [
                         'text' => ['太陽'],
-                        'image' => ['local/sun.png'],
+                        'image' => ['https://resource.test/sun.png'],
                         'answer' => ['太陽', 'サン', 'たいよう', 'sun'],
                         'specifics' => ['magnification=10&last-magnification=1&bonus=0&bonus=0&bonus=10&bonus=0'],
                     ],
                     [
                         'text' => ['四季'],
-                        'audio' => ['local/four-seasons.mp4'],
+                        'audio' => ['https://resource.test/four-seasons.mp4'],
                         'answer' => ['しき', 'はる'],
                         'specifics' => ['start=60&repeat=3&length=0.5005&speed=0.1005&valume=2'],
                     ],

@@ -83,7 +83,7 @@ Composer のインストール方法については、[Composer のグローバ�
 
 要件
 ----
-* PHP 7.0 以上
+* PHP 7.1 以上
 * php-mbstring ([mbstring拡張モジュール])
 * php-intl ([Intl拡張モジュール])
 * php-pecl-zip ([Zip拡張モジュール])

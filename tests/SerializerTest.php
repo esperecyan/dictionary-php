@@ -65,19 +65,19 @@ class SerializerTest extends \PHPUnit\Framework\TestCase implements \Psr\Log\Log
                 [
                     [
                         'text' => ['太陽'],
-                        'image' => ['local/sun.png'],
+                        'image' => ['tag:resource.test,2016:sun.png'],
                         'answer' => ['たいよう', 'おひさま'],
                         'description' => ['恒星。'],
                     ],
                     [
                         'text' => ['地球'],
-                        'image' => ['local/earth.png'],
+                        'image' => ['tag:resource.test,2016:earth.png'],
                         'answer' => ['ちきゅう'],
                         'description' => ['惑星。'],
                     ],
                     [
                         'text' => ['カロン'],
-                        'image' => ['local/charon.png'],
+                        'image' => ['tag:resource.test,2016:charon.png'],
                         'description' => [$this->stripIndents(
                             '冥王星の衛星。
 
@@ -98,9 +98,9 @@ class SerializerTest extends \PHPUnit\Framework\TestCase implements \Psr\Log\Log
                 [],
                 [
                     'bytes' => 'text,image,answer,answer,description,@title,@summary
-                    太陽,local/sun.png,たいよう,おひさま,恒星。,恒星/惑星/衛星,恒星、惑星、衛星などのリスト。
-                    地球,local/earth.png,ちきゅう,,惑星。,,
-                    カロン,local/charon.png,,,"冥王星の衛星。
+                    太陽,"tag:resource.test,2016:sun.png",たいよう,おひさま,恒星。,恒星/惑星/衛星,恒星、惑星、衛星などのリスト。
+                    地球,"tag:resource.test,2016:earth.png",ちきゅう,,惑星。,,
+                    カロン,"tag:resource.test,2016:charon.png",,,"冥王星の衛星。
 
                     > カロンは1978年6月22日にアメリカの天文学者ジェームズ・クリスティーによって発見された。
                     > その後、冥王星が冥府の王プルートーの名に因むことから、
@@ -314,13 +314,13 @@ class SerializerTest extends \PHPUnit\Framework\TestCase implements \Psr\Log\Log
                 [
                     [
                         'text' => ['太陽'],
-                        'image' => ['local/sun.png'],
+                        'image' => ['https://resource.test/sun.png'],
                         'answer' => ['太陽', 'サン', 'たいよう', 'sun'],
                         'specifics' => ['magnification=10&last-magnification=1&bonus=0&bonus=0&bonus=10&bonus=0'],
                     ],
                     [
                         'text' => ['四季'],
-                        'audio' => ['local/four-seasons.mp4'],
+                        'audio' => ['https://resource.test/four-seasons.mp4'],
                         'answer' => ['しき', 'はる'],
                         'specifics' => ['start=60&repeat=3&length=0.5005&speed=0.1005&valume=2'],
                     ],
@@ -371,9 +371,9 @@ class SerializerTest extends \PHPUnit\Framework\TestCase implements \Psr\Log\Log
                     '% 【選択
                     %   並べ替え】
 
-                    Q,2,,local/sun.png,zoom_start=10,zoom_end=1
+                    Q,2,,https://resource.test/sun.png,zoom_start=10,zoom_end=1
                     A,0,太陽,サン,たいよう,\\bonus=10,sun,\\explain=太陽
-                    Q,1,,local/four-seasons.mp4,start=60000,repeat=3,length=501,speed=10
+                    Q,1,,https://resource.test/four-seasons.mp4,start=60000,repeat=3,length=501,speed=10
                     A,0,しき,はる,\\explain=四季
                     Q,0,仲間外れはどれでしょう
                     A,1,リンゴ,\\seikai,ゴリラ,ラクダ,ダチョウ,\\explain=リンゴ\\n\\n選択肢を表示しなければ問題が成立しない場合。

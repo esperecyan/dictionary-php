@@ -201,7 +201,7 @@ class ParserTest extends \PHPUnit\Framework\TestCase implements \Psr\Log\LoggerI
                 [
                     [
                         'text' => ['太陽'],
-                        'image' => ['local/sun.png'],
+                        'image' => ['tag:pokemori.jp,2016:local:sun.mp4'],
                         'option' => ['地球', 'カロン', '太陽'],
                         'answer' => ['太陽'],
                         'type' => ['selection'],
@@ -298,19 +298,19 @@ class ParserTest extends \PHPUnit\Framework\TestCase implements \Psr\Log\LoggerI
                 [
                     [
                         'text' => ['太陽'],
-                        'image' => ['local/sun.png'],
+                        'image' => ['tag:pokemori.jp,2016:local:sun.png'],
                         'answer' => ['たいよう', 'おひさま'],
                         'description' => [['lml' => '恒星。', 'html' => "<p>恒星。</p>\n"]],
                     ],
                     [
                         'text' => ['地球'],
-                        'image' => ['local/earth.png'],
+                        'image' => ['tag:pokemori.jp,2016:local:earth.png'],
                         'answer' => ['ちきゅう'],
                         'description' => [['lml' => '惑星。', 'html' => "<p>惑星。</p>\n"]],
                     ],
                     [
                         'text' => ['カロン'],
-                        'image' => ['local/charon.png'],
+                        'image' => ['tag:pokemori.jp,2016:local:charon.png'],
                         'description' => [[
                             'lml' => $this->stripIndents('冥王星の衛星。
 
@@ -432,7 +432,7 @@ class ParserTest extends \PHPUnit\Framework\TestCase implements \Psr\Log\LoggerI
                     ],
                     [
                         'text' => ['ウェブエム'],
-                        'video' => ['local/webm-vb8.mp4'],
+                        'video' => ['tag:pokemori.jp,2016:local:webm-vb8.webm'],
                     ],
                 ],
                 [],
@@ -556,7 +556,7 @@ class ParserTest extends \PHPUnit\Framework\TestCase implements \Psr\Log\LoggerI
             [
                 $this->stripIndentsAndToCRLF(
                     'text,description
-                    ピン,"![ピン](test/png.png) <audio src=""test/mp4.m4a""></audio> <video src=""test/mp4.mp4""></video>"
+                    ピン,"![ピン](https://resource.test/png.png) <audio src=""tag:resource.test,2016:mp4.m4a""></audio> <video src=""urn:uuid:bd111782-5b46-426e-b0ec-4a47d4f7e577""></video>"
                     '
                 ),
                 null,
@@ -566,13 +566,57 @@ class ParserTest extends \PHPUnit\Framework\TestCase implements \Psr\Log\LoggerI
                     [
                         'text' => ['ピン'],
                         'description' => [[
-                            'lml' => '![ピン](test/png.png) <audio src="test/mp4.m4a"></audio> <video src="test/mp4.mp4"></video>',
-                            'html' => '<p><img src="test/png.png" alt="ピン" /> <audio src="test/mp4.m4a"></audio> <video src="test/mp4.mp4"></video></p>' . "\n",
+                            'lml' => '![ピン](https://resource.test/png.png) <audio src="tag:resource.test,2016:mp4.m4a"></audio> <video src="urn:uuid:bd111782-5b46-426e-b0ec-4a47d4f7e577"></video>',
+                            'html' => '<p><img src="https://resource.test/png.png" alt="ピン" /> <audio src="tag:resource.test,2016:mp4.m4a"></audio> <video src="urn:uuid:bd111782-5b46-426e-b0ec-4a47d4f7e577"></video></p>' . "\n",
                         ]],
                     ],
                 ],
                 [],
                 [],
+                [],
+            ],
+            'パーセント符号化 (CommonMark)' => [
+                $this->stripIndentsAndToCRLF(
+                    'text,description
+                    テスト,"![](https://resource.test/テスト.png)"
+                    '
+                ),
+                null,
+                null,
+                null,
+                [
+                    [
+                        'text' => ['テスト'],
+                        'description' => [[
+                            'lml' => '![](https://resource.test/テスト.png)',
+                            'html' => '<p><img src="https://resource.test/%E3%83%86%E3%82%B9%E3%83%88.png" alt="" /></p>' . "\n",
+                        ]],
+                    ],
+                ],
+                [],
+                [],
+                [],
+            ],
+            'パーセント符号化 (タグ)' => [
+                $this->stripIndentsAndToCRLF(
+                    'text,description
+                    テスト,"<img src=""https://resource.test/テスト.png"" alt="""" />"
+                    '
+                ),
+                null,
+                null,
+                null,
+                [
+                    [
+                        'text' => ['テスト'],
+                        'description' => [[
+                            'lml' => '![](https://resource.test/%E3%83%86%E3%82%B9%E3%83%88.png)',
+                            'html' => '<p><img src="https://resource.test/%E3%83%86%E3%82%B9%E3%83%88.png" alt="" /></p>' . "\n",
+                        ]],
+                    ],
+                ],
+                [],
+                [LogLevel::ERROR],
                 [],
             ],
         ];

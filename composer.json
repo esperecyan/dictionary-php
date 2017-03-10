@@ -14,7 +14,7 @@
 		"issues": "https://github.com/esperecyan/dictionary-php/issues"
 	},
 	"require": {
-		"php": ">=7.0",
+		"php": ">=7.1",
 		"esperecyan/url": "^4.1.0",
 		"league/commonmark": "^0.15.0",
 		"league/html-to-markdown": "^4.2.0",

@@ -1,13 +1,16 @@
 <?php
 namespace esperecyan\dictionary_php\validator;
 
+use esperecyan\webidl\TypeError;
+use esperecyan\url\URL;
+
 /**
  * image、audio、videoフィールド、src属性値、およびアーカイブ中のファイル名の矯正。
  */
 class FileLocationValidator extends AbstractFieldValidator
 {
-    /** @var string 不正な入力値の矯正後に付加するWebサービス識別子。 */
-    const DEFAULT_WEB_SERVICE_IDENTIFIER = 'local';
+    /** @var string 不正な入力値の矯正後、tag URLとして出力する場合に付加する接頭辞。 */
+    const DEFAULT_TAG_URL_PREFIX = 'tag:pokemori.jp,2016:local:';
     
     /** @var string|null */
     protected $fieldName = null;
@@ -42,27 +45,27 @@ class FileLocationValidator extends AbstractFieldValidator
      */
     public function validate(string $input): bool
     {
-        return in_array($input, $this->filenames) || $this->validateWebServiceIdentifierAndFilename($input);
+        return in_array($input, $this->filenames)
+            || $input !== '' &&$input === $this->correctAbsoluteURLWithAllowedScheme($input);
     }
     
     /**
-     * Webサービス識別子、ソリダス、妥当なファイル名の並びになっていれば真を返します。
+     * 許可されたスキーム (https、tag、urn) を持つ絶対URL文字列として矯正します。
      * @see https://github.com/esperecyan/dictionary/blob/master/dictionary.md#file-location
      * @param string $input
-     * @return bool
+     * @return string 矯正できなかった場合は空文字列を返します。
      */
-    protected function validateWebServiceIdentifierAndFilename(string $input): bool
+    protected function correctAbsoluteURLWithAllowedScheme(string $input): string
     {
-        return \Normalizer::isNormalized($input)
-            && preg_match(
-                '/^[0-9a-z-]+\\/(?!((?i)CON|PRN|AUX|NUL|(LPT|COM)[1-9]|\\p{Z}.*|.*\\p{Z})\\.)[^\\p{C}"*.\\/:<>?\\\\|]+\\.(' . implode(
-                    '|',
-                    $this->fieldName
-                        ? FilenameValidator::EXTENSIONS[$this->fieldName]
-                        : call_user_func_array('array_merge', FilenameValidator::EXTENSIONS)
-                ) . ')$/u',
-                $input
-            ) === 1;
+        try {
+            $url = new URL($input);
+        } catch (TypeError $exception) {
+            return '';
+        }
+        if ($url->protocol === 'http:') {
+            $url->protocol = 'https';
+        }
+        return in_array($url->protocol, ['https:', 'tag:', 'urn:']) ? $url : '';
     }
     
     /**
@@ -96,76 +99,32 @@ class FileLocationValidator extends AbstractFieldValidator
         return $matches[1] ?? '';
     }
     
-    /** @var int 全角形が存在するASCII符号位置を対応する全角形の符号位置にするときの加数。 */
-    const BETWEEN_HALF_AND_FULL = 0xFEE0;
-    
     /**
-     * 入力を妥当なファイル名に変換します。
-     * @param string $filename NFC適用済みのファイル名。
+     * tag URL構文のspecificルールにおいて、パーセント符号化が必要な文字をパーセント符号化します。
+     * @link https://tools.ietf.org/html/rfc4151#section-2.1
+     *      Tag Syntax and Examples | Tag Syntax and Rules | RFC 4151 — The ‘tag’ URI Scheme
+     * @param string $specific
      * @return string
      */
-    protected function convertToValidFilename(string $filename): string
+    protected function percentEncodeSpecific(string $specific): string
     {
-        $fullstopIndex = mb_strrpos($filename, '.', 0, 'UTF-8');
-        
-        return $this->convertToValidFilenameWithoutExtension(
-            is_int($fullstopIndex) ? mb_substr($filename, 0, $fullstopIndex, 'UTF-8') : $filename
-        ) . '.' . $this->convertToValidExtension(
-            is_int($fullstopIndex) ? mb_substr($filename, $fullstopIndex + 1, null, 'UTF-8') : ''
-        );
-    }
-    
-    /**
-     * 入力を妥当な拡張子を除くファイル名に変換します。
-     * @param string $filenameWithoutExtension NFC適用済みの拡張子を除くファイル名。
-     * @return string 制御文字、および空白文字のみで構成されていた場合、ランダムな文字列生成します。
-     */
-    public function convertToValidFilenameWithoutExtension(string $filenameWithoutExtension): string
-    {
-        /** @var string 制御文字、先頭末尾の空白を取り除いた文字列。 */
-        $trimed = preg_replace('/^\\p{Z}+|\\p{C}+|\\p{Z}+$/u', '', $filenameWithoutExtension);
-        
-        return $trimed === ''
-            ? (new FilenameValidator())->generateRandomFilename()
-            : preg_replace_callback(
-                '/^(CON|PRN|AUX|CLOCK\\$|NUL|(COM|LPT)[1-9])$|["*.\\/:<>?\\\\|]+/i',
-                function (array $matches): string {
-                    $breakIterator = \IntlCodePointBreakIterator::createCodePointInstance();
-                    $breakIterator->setText($matches[0]);
-                    $fullWidthChars = '';
-                    foreach ($breakIterator as $index) {
-                        if ($index > 0) {
-                            $fullWidthChars .= \IntlChar::chr(
-                                $breakIterator->getLastCodePoint() + self::BETWEEN_HALF_AND_FULL
-                            );
-                        }
-                    }
-                    return $fullWidthChars;
-                },
-                $trimed
-            );
-    }
-    
-    /**
-     * 入力を妥当な拡張子に変換します。
-     * @param string $extension
-     * @return string 誤った拡張子だった場合、妥当な拡張子の1つを返します。
-     */
-    protected function convertToValidExtension(string $extension): string
-    {
-        return (in_array($extension, FilenameValidator::EXTENSIONS[$this->fieldName])
-            ? $extension
-            : FilenameValidator::EXTENSIONS[$this->fieldName][0]);
+        return preg_replace_callback('/[^!$&-;=?-Z_a-z~]/u', function (array $matches): string {
+            return rawurlencode($matches[0]);
+        }, $specific);
     }
 
     public function correct(string $input): string
     {
-        if (in_array($input, $this->filenames)) {
+        if ($this->validate($input)) {
             $output = $input;
-        } elseif (in_array(strtolower($input), $this->filenames)) {
-                $output = $basename;
         } elseif (isset($this->filenames[strtolower($input)])) {
             $output = $this->filenames[strtolower($input)];
+        } elseif (in_array(strtolower($input), $this->filenames)) {
+            $output = strtolower($input);
+            $this->logger->error(sprintf(_('大文字小文字無視で合致するファイルが含まれているため、「%s」を小文字化しました。'), $input));
+        } elseif ($url = $this->correctAbsoluteURLWithAllowedScheme($input)) {
+            $output = $url;
+            $this->logger->error(sprintf(_('URL「%s」を「%s」に修正しました。'), $input, $output));
         } else {
             $basename = $this->getBasename($input);
             if ($this->validate($basename)) {
@@ -174,14 +133,10 @@ class FileLocationValidator extends AbstractFieldValidator
             } elseif (isset($this->filenames[strtolower($basename)])) {
                 $output = $this->filenames[strtolower($basename)];
                 $this->logger->error(sprintf(_('「%s」はファイル所在の規則に合致しません。'), $input));
-            } elseif ($this->validate($input)) {
-                $output = $input;
-            } elseif ($this->validate($input)) {
-                $output = $basename;
             } else {
-                $normalized = \Normalizer::normalize($basename);
-                $output = self::DEFAULT_WEB_SERVICE_IDENTIFIER . '/'
-                    . ($this->validate($normalized) ? $normalized : $this->convertToValidFilename($normalized));
+                $output = static::DEFAULT_TAG_URL_PREFIX . $this->percentEncodeSpecific(
+                    $basename === '' ? (new FilenameValidator())->generateRandomFilename() : $basename
+                );
                 $this->logger->error(sprintf(_('「%s」はファイル所在の規則に合致しません。'), $input));
             }
         }

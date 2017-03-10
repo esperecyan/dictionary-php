@@ -85,7 +85,7 @@ class InteligenceoParserTest extends \PHPUnit\Framework\TestCase implements \Psr
                 [
                     [
                         'text' => ['太陽'],
-                        'image' => ['local/sun.png'],
+                        'image' => ['tag:pokemori.jp,2016:local:sun.mp4'],
                         'option' => ['地球', 'カロン', '太陽'],
                         'answer' => ['太陽'],
                         'specifics' => ['pixelization='],
@@ -93,7 +93,7 @@ class InteligenceoParserTest extends \PHPUnit\Framework\TestCase implements \Psr
                     ],
                     [
                         'text' => ['四季'],
-                        'audio' => ['local/four-seasons.mp4'],
+                        'audio' => ['tag:pokemori.jp,2016:local:four-seasons.mp4'],
                         'option' => ['四季', '魔王', 'ラデツキー行進曲'],
                         'answer' => ['四季'],
                         'specifics' => ['speed=5&start=13.5&length=0.5'],
@@ -144,7 +144,7 @@ class InteligenceoParserTest extends \PHPUnit\Framework\TestCase implements \Psr
                 [
                     [
                         'text' => ['太陽'],
-                        'image' => ['local/sun.png'],
+                        'image' => ['tag:pokemori.jp,2016:local:sun.png'],
                         'answer' => ['太陽', 'たいよう', 'sun'],
                         'description' => [['lml' => 'テスト', 'html' => "<p>テスト</p>\n"]],
                     ],
@@ -185,7 +185,7 @@ class InteligenceoParserTest extends \PHPUnit\Framework\TestCase implements \Psr
                 [
                     [
                         'text' => ['太陽'],
-                        'image' => ['local/sun.png'],
+                        'image' => ['tag:pokemori.jp,2016:local:sun.mp4'],
                         'option' => ['地球', 'カロン', '太陽'],
                         'answer' => ['太陽'],
                         'specifics' => ['score=100'],
@@ -287,6 +287,55 @@ class InteligenceoParserTest extends \PHPUnit\Framework\TestCase implements \Psr
                     [
                         'text' => ['エスブイジー'],
                         'image' => ['svg.svg'],
+                    ],
+                ],
+                [],
+                [],
+            ],
+            'tag URL' => [
+                'Q,2,,tag:resource.test%2C2016:sun.png,zoom_end=10,mozaic=1,finalscore=100
+                A,1,地球,カロン,太陽,\\seikai,ケレス
+                Q,2,,tag:image@resource.test%2C2016-12:earth.png,zoom_end=10,mozaic=1,finalscore=100
+                A,1,地球,\\seikai,カロン,太陽,ケレス
+                Q,2,,tag:"%2C:@\\""@resource.test%2C2016-12-31:charon.png,zoom_end=10,mozaic=1,finalscore=100
+                A,1,地球,カロン,\\seikai,太陽,ケレス
+                Q,2,,http://example.ne.jp/ceres.png,zoom_end=10,mozaic=1,finalscore=100
+                A,1,地球,カロン,太陽,ケレス,\\seikai',
+                'Inteligenceω クイズ',
+                null,
+                null,
+                [
+                    [
+                        'text' => ['太陽'],
+                        'image' => ['tag:resource.test,2016:sun.png'],
+                        'option' => ['地球', 'カロン', '太陽', 'ケレス'],
+                        'answer' => ['太陽'],
+                        'specifics' => ['pixelization='],
+                        'type' => ['selection'],
+                    ],
+                    [
+                        'text' => ['地球'],
+                        'image' => ['tag:image@resource.test,2016-12:earth.png'],
+                        'option' => ['地球', 'カロン', '太陽', 'ケレス'],
+                        'answer' => ['地球'],
+                        'specifics' => ['pixelization='],
+                        'type' => ['selection'],
+                    ],
+                    [
+                        'text' => ['カロン'],
+                        'image' => ['tag:",:@\\""@resource.test,2016-12-31:charon.png'],
+                        'option' => ['地球', 'カロン', '太陽', 'ケレス'],
+                        'answer' => ['カロン'],
+                        'specifics' => ['pixelization='],
+                        'type' => ['selection'],
+                    ],
+                    [
+                        'text' => ['ケレス'],
+                        'image' => ['https://example.ne.jp/ceres.png'],
+                        'option' => ['地球', 'カロン', '太陽', 'ケレス'],
+                        'answer' => ['ケレス'],
+                        'specifics' => ['pixelization='],
+                        'type' => ['selection'],
                     ],
                 ],
                 [],

@@ -21,6 +21,40 @@ abstract class AbstractSerializer extends AbstractLoggerAware
     /** @var string Shift_JISに存在しない文字を調べる際に利用する置換文字。 */
     const SUBSTITUTE_CHARACTER = '〓';
     
+    /** @var int 全角形が存在するASCII符号位置を対応する全角形の符号位置にするときの加数。 */
+    const BETWEEN_HALF_AND_FULL = 0xFEE0;
+    
+    /**
+     * 入力を妥当な拡張子を除くファイル名に変換します。
+     * @param string $filenameWithoutExtension NFC適用済みの拡張子を除くファイル名。
+     * @return string 制御文字、および空白文字のみで構成されていた場合、ランダムな文字列生成します。
+     */
+    protected function convertToValidFilenameWithoutExtension(string $filenameWithoutExtension): string
+    {
+        /** @var string 制御文字、先頭末尾の空白を取り除いた文字列。 */
+        $trimed = preg_replace('/^\\p{Z}+|\\p{C}+|\\p{Z}+$/u', '', $filenameWithoutExtension);
+        
+        return $trimed === ''
+            ? (new FilenameValidator())->generateRandomFilename()
+            : preg_replace_callback(
+                '/^(CON|PRN|AUX|CLOCK\\$|NUL|(COM|LPT)[1-9])$|["*.\\/:<>?\\\\|]+/i',
+                function (array $matches): string {
+                    $breakIterator = \IntlCodePointBreakIterator::createCodePointInstance();
+                    $breakIterator->setText($matches[0]);
+                    $fullWidthChars = '';
+                    foreach ($breakIterator as $index) {
+                        if ($index > 0) {
+                            $fullWidthChars .= \IntlChar::chr(
+                                $breakIterator->getLastCodePoint() + static::BETWEEN_HALF_AND_FULL
+                            );
+                        }
+                    }
+                    return $fullWidthChars;
+                },
+                $trimed
+            );
+    }
+    
     /**
      * ファイル名を取得します。
      * @param Dictionary $dictionary
@@ -29,7 +63,7 @@ abstract class AbstractSerializer extends AbstractLoggerAware
      */
     protected function getFilename(Dictionary $dictionary, string $extension, string $suffix = '')
     {
-        return (new FileLocationValidator())->convertToValidFilenameWithoutExtension(
+        return $this->convertToValidFilenameWithoutExtension(
             ($dictionary->getMetadata()['@title'] ?? self::DEFAULT_FILENAME) . $suffix
         ) . ".$extension";
     }

@@ -251,7 +251,7 @@ class WordValidatorTest extends \PHPUnit\Framework\TestCase implements \Psr\Log\
                 ],
                 [
                     'text' => ['四季'],
-                    'audio' => ['local/four-seasons.mp4'],
+                    'audio' => ['tag:pokemori.jp,2016:local:four-seasons.mp4'],
                     'answer' => ['しき', 'はる'],
                 ],
                 [LogLevel::ERROR],
@@ -264,7 +264,7 @@ class WordValidatorTest extends \PHPUnit\Framework\TestCase implements \Psr\Log\
                 ],
                 [
                     'text' => ['四季'],
-                    'audio' => ['local/four-seasons.mp4'],
+                    'audio' => ['tag:pokemori.jp,2016:local:four-seasons.mp4'],
                     'answer' => ['しき', 'はる'],
                 ],
                 [LogLevel::ERROR],
@@ -277,7 +277,7 @@ class WordValidatorTest extends \PHPUnit\Framework\TestCase implements \Psr\Log\
                 ],
                 [
                     'text' => ['四季'],
-                    'audio' => ['local/four-seasons.mp4'],
+                    'audio' => ['tag:pokemori.jp,2016:local:four-seasons'],
                     'answer' => ['しき', 'はる'],
                 ],
                 [LogLevel::ERROR],
@@ -290,7 +290,7 @@ class WordValidatorTest extends \PHPUnit\Framework\TestCase implements \Psr\Log\
                 ],
                 [
                     'text' => ['四季'],
-                    'audio' => ['local/four-seasons_ver1．0.mp4'],
+                    'audio' => ['tag:pokemori.jp,2016:local:four-seasons_ver1.0.mp4'],
                     'answer' => ['しき', 'はる'],
                 ],
                 [LogLevel::ERROR],
@@ -303,7 +303,7 @@ class WordValidatorTest extends \PHPUnit\Framework\TestCase implements \Psr\Log\
                 ],
                 [
                     'text' => ['四季'],
-                    'audio' => ['local/four-seasons．mp4.mp4'],
+                    'audio' => ['tag:pokemori.jp,2016:local:four-seasons.mp4.ja'],
                     'answer' => ['しき', 'はる'],
                 ],
                 [LogLevel::ERROR],
@@ -316,7 +316,7 @@ class WordValidatorTest extends \PHPUnit\Framework\TestCase implements \Psr\Log\
                 ],
                 [
                     'text' => ['四季'],
-                    'audio' => ['local/four-seasons．mp4．m4a．mp3.mp4'],
+                    'audio' => ['tag:pokemori.jp,2016:local:four-seasons.mp4.m4a.mp3.svg'],
                     'answer' => ['しき', 'はる'],
                 ],
                 [LogLevel::ERROR],
@@ -328,7 +328,7 @@ class WordValidatorTest extends \PHPUnit\Framework\TestCase implements \Psr\Log\
                 ],
                 [
                     'text' => ['テスト'],
-                    'image' => ['local/テスト.png'],
+                    'image' => ['tag:pokemori.jp,2016:local:%E3%83%86%E3%82%B9%E3%83%88.png'],
                 ],
                 [LogLevel::ERROR],
             ],
@@ -339,7 +339,7 @@ class WordValidatorTest extends \PHPUnit\Framework\TestCase implements \Psr\Log\
                 ],
                 [
                     'text' => ['テスト'],
-                    'video' => ['local/テスト.mp4'],
+                    'video' => ['tag:pokemori.jp,2016:local:%E3%83%86%E3%82%B9%E3%83%88.mp4'],
                 ],
                 [LogLevel::ERROR],
             ],

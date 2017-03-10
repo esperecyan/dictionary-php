@@ -49,7 +49,8 @@ class FileLocationValidatorTest extends \PHPUnit\Framework\TestCase implements \
             $input !== $output && (empty($filenames[$input]) || $filenames[$input] !== $output)
                 ? [\Psr\Log\LogLevel::ERROR]
                 : [],
-            array_column($this->logs, 'level')
+            array_column($this->logs, 'level'),
+            $this->logs ? $this->logs[0]['message'] : ''
         );
     }
     
@@ -59,56 +60,86 @@ class FileLocationValidatorTest extends \PHPUnit\Framework\TestCase implements \
             [
                 'image',
                 [],
+                'https://resource.test/sun.png',
+                'https://resource.test/sun.png',
+            ],
+            [
+                'image',
+                [],
+                'http://resource.test/sun.png',
+                'https://resource.test/sun.png',
+            ],
+            [
+                'image',
+                [],
+                'tag:pokemori.jp,2016:local:sun.png',
+                'tag:pokemori.jp,2016:local:sun.png',
+            ],
+            [
+                'image',
+                [],
+                'tag:pokemori.jp,2016:local:sun',
+                'tag:pokemori.jp,2016:local:sun',
+            ],
+            [
+                'image',
+                [],
                 'test/太陽.png',
-                'test/太陽.png',
+                'tag:pokemori.jp,2016:local:%E5%A4%AA%E9%99%BD.png',
             ],
             [
                 'image',
                 [],
-                'test/太陽.jpg',
-                'test/太陽.jpg',
+                'tag:pokemori.jp,2016:local:%E5%A4%AA%E9%99%BD.png',
+                'tag:pokemori.jp,2016:local:%E5%A4%AA%E9%99%BD.png',
             ],
             [
                 'image',
                 [],
-                'test/太陽.jpeg',
-                'test/太陽.jpeg',
+                'test/sun.jpg',
+                'tag:pokemori.jp,2016:local:sun.jpg',
             ],
             [
                 'image',
                 [],
-                'test/太陽.svg',
-                'test/太陽.svg',
+                'test/sun.jpeg',
+                'tag:pokemori.jp,2016:local:sun.jpeg',
             ],
             [
                 'image',
                 [],
-                'test/太陽.jpe',
-                'local/太陽.png',
+                'test/sun.svg',
+                'tag:pokemori.jp,2016:local:sun.svg',
+            ],
+            [
+                'image',
+                [],
+                'test/sun.jpe',
+                'tag:pokemori.jp,2016:local:sun.jpe',
             ],
             [
                 'audio',
                 [],
                 'four-seasons.mp4',
-                'local/four-seasons.mp4',
+                'tag:pokemori.jp,2016:local:four-seasons.mp4',
             ],
             [
                 'audio',
                 [],
                 'C:\\Users\\山田太郎\\Desktop\\曲\\four-seasons.mp4',
-                'local/four-seasons.mp4',
+                'tag:pokemori.jp,2016:local:four-seasons.mp4',
             ],
             [
                 'audio',
                 [],
                 'four-seasons',
-                'local/four-seasons.mp4',
+                'tag:pokemori.jp,2016:local:four-seasons',
             ],
             [
                 'audio',
                 ['four-seasons.mp4'],
                 'four-seasons',
-                'local/four-seasons.mp4',
+                'tag:pokemori.jp,2016:local:four-seasons',
             ],
             [
                 'audio',
@@ -120,25 +151,31 @@ class FileLocationValidatorTest extends \PHPUnit\Framework\TestCase implements \
                 'audio',
                 [],
                 'four-seasons_ver1.0.mp4',
-                'local/four-seasons_ver1．0.mp4',
+                'tag:pokemori.jp,2016:local:four-seasons_ver1.0.mp4',
             ],
             [
                 'audio',
                 [],
                 'four-seasons.mp4.ja',
-                'local/four-seasons．mp4.mp4',
+                'tag:pokemori.jp,2016:local:four-seasons.mp4.ja',
             ],
             [
                 'audio',
                 [],
                 '.mp4',
-                '/^local\\/[0-9a-f]{8}\\.mp4$/u',
+                'tag:pokemori.jp,2016:local:.mp4',
+            ],
+            [
+                'audio',
+                [],
+                '',
+                '/^tag:pokemori.jp,2016:local:[0-9a-f]{8}$/u',
             ],
             [
                 'audio',
                 [],
                 'C:\\Users\\山田太郎\\Desktop\\曲\\四季『春』.mp4',
-                'local/四季『春』.mp4',
+                'tag:pokemori.jp,2016:local:%E5%9B%9B%E5%AD%A3%E3%80%8E%E6%98%A5%E3%80%8F.mp4',
             ],
             [
                 'audio',
@@ -181,6 +218,18 @@ class FileLocationValidatorTest extends \PHPUnit\Framework\TestCase implements \
                 ['test--TEST.mp4' => 'test-test.mp4'],
                 'web-service-identifier/test--TEST.mp4',
                 'test-test.mp4',
+            ],
+            [
+                'image',
+                ['test.png'],
+                'TEST.png',
+                'test.png',
+            ],
+            [
+                'image',
+                ['TEST.png' => 'test.png'],
+                'TEST.png',
+                'test.png',
             ],
         ];
     }

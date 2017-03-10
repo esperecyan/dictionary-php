@@ -22,13 +22,13 @@ class LightweightMarkupValidator extends AbstractFieldValidator implements \Psr\
             'title',
             'translate' => ['', 'yes', 'no'],
         ],
-        'a' => ['href' => self::class . '::isURLWithHTTPScheme'], 'abbr', 'audio' => ['src' => null], 'b', 'bdi', 'bdo',
-        'blockquote' => ['cite' => self::class . '::isURLWithHTTPScheme'],
-        'br', 'caption', 'cite', 'code',
+        'a' => ['href' => self::class . '::isURLWithHTTPScheme'], 'abbr', 'audio' => ['src' => '/./u'],
+        'b', 'bdi', 'bdo', 'blockquote' => ['cite' => self::class . '::isURLWithHTTPScheme'], 'br',
+        'caption', 'cite', 'code',
         'col' => ['span' => '/^[1-9][0-9]*$/u'], 'colgroup' => ['span' => '/^[1-9][0-9]*$/u'], 'dd',
         'del' => ['cite' => self::class . '::isURLWithHTTPScheme', 'datetime'], 'details',
         'dfn', 'div', 'dl', 'dt', 'em', 'figcaption', 'figure', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'hr', 'i',
-        'img' => ['alt', 'height' => '/^[1-9][0-9]*$/u', 'src' => null, 'width' => '/^[1-9][0-9]*$/u'],
+        'img' => ['alt', 'height' => '/^[1-9][0-9]*$/u', 'src' => '/./u', 'width' => '/^[1-9][0-9]*$/u'],
         'ins' => ['cite' => self::class . '::isURLWithHTTPScheme', 'datetime'], 'kbd', 'li',
         'ol' => ['reversed' => [''], 'start' => '/^(?:0|-?[1-9][0-9]*)$/u', 'type' => ['1', 'A', 'a', 'i', 'I']],
         'p', 'pre', 'q' => ['cite' => self::class . '::isURLWithHTTPScheme'],
@@ -39,7 +39,8 @@ class LightweightMarkupValidator extends AbstractFieldValidator implements \Psr\
             'scope' => ['row', 'col', 'rowgroup', 'colgroup'],
         ],
         'thead', 'time' => 'datetime', 'tr', 'u', 'ul', 'var',
-        'video' => ['height' => '/^[1-9][0-9]*$/u', 'src' => null, 'width' => '/^[1-9][0-9]*$/u'], 'wbr',
+        'video' => ['height' => '/^[1-9][0-9]*$/u', 'src' => '/./u', 'width' => '/^[1-9][0-9]*$/u'],
+        'wbr',
     ];
     
     /** @var (string|(string|callable|string[])[])[] image-source、audio-source、video-source フィールドで利用できる要素・属性。 */
@@ -101,62 +102,29 @@ class LightweightMarkupValidator extends AbstractFieldValidator implements \Psr\
     }
     
     /**
-     * src属性値が妥当であれば真を返します。
-     * @param string $fieldName
-     * @param string $value
-     * @return bool
-     */
-    protected function validateLocation(string $fieldName, string $value): bool
-    {
-        return (new \esperecyan\dictionary_php\validator\FileLocationValidator($fieldName, $this->filenames))
-            ->validate($value);
-    }
-    
-    /**
-     * audio要素のsrc属性値が妥当であれば真を返します。
-     * @param string $value
-     * @return bool
-     */
-    public function validateAudioLocation(string $value): bool
-    {
-        return $this->validateLocation('audio', $value);
-    }
-    
-    /**
-     * img要素のsrc属性値が妥当であれば真を返します。
-     * @param string $value
-     * @return bool
-     */
-    public function validateImageLocation(string $value): bool
-    {
-        return $this->validateLocation('image', $value);
-    }
-    
-    /**
-     * video要素のsrc属性値が妥当であれば真を返します。
-     * @param string $value
-     * @return bool
-     */
-    public function validateVideoLocation(string $value): bool
-    {
-        return $this->validateLocation('video', $value);
-    }
-    
-    /**
      * HTMLフィルターを生成します。
      * @return HTMLFilter
      */
     protected function createHTMLFilter(): HTMLFilter
     {
-        if ($this->source) {
-            $whitelist = self::SOURCE_WHITELIST;
-        } else {
-            $whitelist = self::DESCRIPTION_WHITELIST;
-            $whitelist['audio']['src'] = [$this, 'validateAudioLocation'];
-            $whitelist['img']['src'] = [$this, 'validateImageLocation'];
-            $whitelist['video']['src'] = [$this, 'validateVideoLocation'];
-        }
-        $filter = new \esperecyan\html_filter\Filter($whitelist);
+        $filter = new HTMLFilter(
+            $this->source ? static::SOURCE_WHITELIST : static::DESCRIPTION_WHITELIST,
+            ['before' => $this->source ? null : function (\DOMElement $body): void {
+                foreach (['img', 'audio', 'video'] as $elementName) {
+                    foreach ($body->getElementsByTagName($elementName) as $element) {
+                        if ($element->hasAttribute('src')) {
+                            $fileLocationValidator = new \esperecyan\dictionary_php\validator\FileLocationValidator(
+                                $elementName === 'img' ? 'image' : $elementName,
+                                $this->filenames
+                            );
+                            $fileLocationValidator->setLogger($this);
+                            $element
+                                ->setAttribute('src', $fileLocationValidator->correct($element->getAttribute('src')));
+                        }
+                    }
+                }
+            }]
+        );
         $filter->setLogger($this);
         return $filter;
     }

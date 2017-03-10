@@ -76,19 +76,19 @@ class GenericDictionaryParserTest extends \PHPUnit\Framework\TestCase implements
                 [
                     [
                         'text' => ['太陽'],
-                        'image' => ['local/sun.png'],
+                        'image' => ['tag:pokemori.jp,2016:local:sun.png'],
                         'answer' => ['たいよう', 'おひさま'],
                         'description' => [['lml' => '恒星。', 'html' => "<p>恒星。</p>\n"]],
                     ],
                     [
                         'text' => ['地球'],
-                        'image' => ['local/earth.png'],
+                        'image' => ['tag:pokemori.jp,2016:local:earth.png'],
                         'answer' => ['ちきゅう'],
                         'description' => [['lml' => '惑星。', 'html' => "<p>惑星。</p>\n"]],
                     ],
                     [
                         'text' => ['カロン'],
-                        'image' => ['local/charon.png'],
+                        'image' => ['tag:pokemori.jp,2016:local:charon.png'],
                         'description' => [[
                             'lml' => '冥王星の衛星。
 
@@ -200,7 +200,7 @@ class GenericDictionaryParserTest extends \PHPUnit\Framework\TestCase implements
             ],
             [
                 'text,image,image-source,description
-                テスト,local/test.png,"# 見出し1
+                テスト,https://resource.test/image.png,"# 見出し1
                 本文
 
                 見出し2
@@ -229,7 +229,7 @@ class GenericDictionaryParserTest extends \PHPUnit\Framework\TestCase implements
                 [
                     [
                         'text' => ['テスト'],
-                        'image' => ['local/test.png'],
+                        'image' => ['https://resource.test/image.png'],
                         'image-source' => [[
                             'lml' => '見出し1
 
@@ -335,7 +335,7 @@ class GenericDictionaryParserTest extends \PHPUnit\Framework\TestCase implements
                     ],
                     [
                         'text' => ['ウェブエム'],
-                        'video' => ['local/webm-vb8.mp4'],
+                        'video' => ['tag:pokemori.jp,2016:local:webm-vb8.webm'],
                         'specifics' => ['score=1000000000000000'],
                     ],
                 ],

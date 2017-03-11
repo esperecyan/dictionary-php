@@ -30,7 +30,7 @@ class InteligenceoSerializer extends AbstractSerializer
     
     /**
      * @param string $type
-     * @param bool $textFileOnly ZIPファイルの代わりにクイズファイルのみを返すときに真に設定します。
+     * @param bool|string $textFileOnly ZIPファイルの代わりにクイズファイルのみを返すときに真に設定します。
      * @throws Exception \DomainException $typeが「Inteligenceω しりとり」「Inteligenceω クイズ」のいずれにも一致しない場合。
      */
     public function __construct(string $type, $textFileOnly = false)
@@ -144,9 +144,11 @@ class InteligenceoSerializer extends AbstractSerializer
         $line[] = isset($word['question'][0]) ? $this->serializeQuizField($word['question'][0]) : '';
         
         if (isset($fileLocation)) {
-            $line[] = in_array($fileLocation, $filenames)
-                ? "./$directoryName/$fileLocation"
-                : str_replace(',', '%2C', $fileLocation);
+            $line[] = str_replace(',', '%2C', in_array($fileLocation, $filenames)
+                ? (is_string($this->textFileOnly)
+                    ? sprintf($this->textFileOnly, $fileLocation)
+                    : "./$directoryName/$fileLocation")
+                : $fileLocation);
         }
         
         if (isset($word['specifics'][0])) {

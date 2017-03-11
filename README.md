@@ -212,7 +212,7 @@ SyntaxException#getMessage() から、ユーザーに示すエラーメッセー
 
 指定されていないか間違った値が指定されていれば、`汎用辞書` になります。
 
-#### [string\[\] esperecyan\dictionary_php\Serializer#serialize(Dictionary $dictionary, bool $csvOnly = false)](./src/Serializer.php#L21-L52)
+#### [string\[\] esperecyan\dictionary_php\Serializer#serialize(Dictionary $dictionary, bool|string $csvOnly = false)](./src/Serializer.php#L21-L52)
 次のような構造の連想配列で直列化したデータを返します。
 
 - \[bytes] => 直列化したデータのバイナリ文字列
@@ -224,8 +224,9 @@ SyntaxException#getMessage() から、ユーザーに示すエラーメッセー
 #### `Dictionary $dictionary`
 辞書。
 
-#### `bool $csvOnly = false`
-`汎用辞書` `Inteligenceω クイズ` の場合、ZIPファイルの代わりにCSVファイル、datファイルのみを返すときに真に設定します。
+#### `bool|string $csvOnly = false`
+`汎用辞書` `Inteligenceω クイズ` の場合、ZIPファイルの代わりにCSVファイル、txtファイルのみを返すときに真に設定します。
+真の代わりに `https://example.ne.jp/dictionaries/1/files/%s` のような文字列を設定することで、`%s` をファイル名に置き換えて辞書ファイル中に記述します。
 
 #### 例外 [esperecyan\dictionary_php\exception\SerializeExceptionInterface](./src/exception/SerializeExceptionInterface.php)
 SerializeExceptionInterface#getMessage() から、ユーザーに示すエラーメッセージを取得できます。
@@ -309,7 +310,7 @@ SerializeExceptionInterface#getMessage() から、ユーザーに示すエラー
 #### [string\[\] esperecyan\dictionary_php\Validator#correct(string|SplFileInfo $file, string $filename)](./src/Validator.php#L124-L161)
 [Serializer#serialize()]の戻り値と同じ構造の戻り値を返します。
 
-[Serializer#serialize()]: #string-esperecyandictionary_phpserializerserializedictionary-dictionary-bool-csvonly--false
+[Serializer#serialize()]: #string-esperecyandictionary_phpserializerserializedictionary-dictionary-boolstring-csvonly--false
 
 ##### `string|SplFileInfo $file`
 ファイルをバイナリ文字列、[SplFileInfo]、その派生クラスのいずれかで与えます。

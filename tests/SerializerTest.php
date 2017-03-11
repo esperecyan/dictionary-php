@@ -15,7 +15,7 @@ class SerializerTest extends \PHPUnit\Framework\TestCase implements \Psr\Log\Log
      * @param string[] $files
      * @param string[] $expectedFile
      * @param string[] $logLevels
-     * @param bool $csvOnly
+     * @param bool|string $csvOnly
      * @dataProvider dictionaryProvider
      */
     public function testSerialize(
@@ -25,7 +25,7 @@ class SerializerTest extends \PHPUnit\Framework\TestCase implements \Psr\Log\Log
         array $files,
         array $expectedFile,
         array $logLevels,
-        bool $csvOnly = false
+        $csvOnly = false
     ) {
         $dictionary = $this->generateDictionary($fieldsAsMultiDimensionalArrays, $metadata, $files);
         
@@ -596,6 +596,112 @@ class SerializerTest extends \PHPUnit\Framework\TestCase implements \Psr\Log\Log
                     'name' => '画像ファイル形式.txt',
                 ],
                 [],
+            ],
+            [
+                '汎用辞書',
+                [
+                    [
+                        'text' => ['ピン'],
+                        'image' => ['png.png'],
+                        'description' => ['![](embeded.png)'],
+                    ],
+                    [
+                        'text' => ['ジェイフィフ'],
+                        'image' => ['jfif.jpg'],
+                    ],
+                    [
+                        'text' => ['エスブイジー'],
+                        'image' => ['svg.svg'],
+                    ],
+                ],
+                [],
+                (function (): array {
+                    $image = imagecreatetruecolor(1000, 1000);
+                    ob_start();
+                    imagepng($image);
+                    $files['png.png'] = ob_get_clean();
+                    
+                    ob_start();
+                    imagepng($image);
+                    $files['embeded.png'] = ob_get_clean();
+                    
+                    ob_start();
+                    imagejpeg($image);
+                    $files['jfif.jpg'] = ob_get_clean();
+                    imagedestroy($image);
+                    
+                    $files['svg.svg'] = '<?xml version="1.0" ?>
+                        <svg xmlns="http://www.w3.org/2000/svg"><rect width="100" height="100" /></svg>';
+                    
+                    return $files;
+                })(),
+                [
+                    'bytes' => 'text,image,description
+                    ピン,https://resource.test/dictionaries/1/files/png.png,![](https://resource.test/dictionaries/1/files/embeded.png)
+                    ジェイフィフ,https://resource.test/dictionaries/1/files/jfif.jpg,
+                    エスブイジー,https://resource.test/dictionaries/1/files/svg.svg,
+                    ',
+                    'type' => 'text/csv; charset=UTF-8; header=present',
+                    'name' => 'dictionary.csv',
+                ],
+                [],
+                'https://resource.test/dictionaries/1/files/%s',
+            ],
+            [
+                'Inteligenceω クイズ',
+                [
+                    [
+                        'text' => ['ピン'],
+                        'image' => ['png.png'],
+                        'description' => ['![](embeded.png)'],
+                    ],
+                    [
+                        'text' => ['ジェイフィフ'],
+                        'image' => ['jfif.jpg'],
+                    ],
+                    [
+                        'text' => ['エスブイジー'],
+                        'image' => ['svg.svg'],
+                    ],
+                ],
+                [
+                    '@title' => '画像ファイル形式',
+                ],
+                (function (): array {
+                    $image = imagecreatetruecolor(1000, 1000);
+                    ob_start();
+                    imagepng($image);
+                    $files['png.png'] = ob_get_clean();
+                    
+                    ob_start();
+                    imagepng($image);
+                    $files['embeded.png'] = ob_get_clean();
+                    
+                    ob_start();
+                    imagejpeg($image);
+                    $files['jfif.jpg'] = ob_get_clean();
+                    imagedestroy($image);
+                    
+                    $files['svg.svg'] = '<?xml version="1.0" ?>
+                        <svg xmlns="http://www.w3.org/2000/svg"><rect width="100" height="100" /></svg>';
+                    
+                    return $files;
+                })(),
+                [
+                    'bytes' => '% 【画像ファイル形式】
+                    
+                    Q,2,,https://resource.test/%2C/dictionaries/1/files/png.png
+                    A,0,ピン,\\explain=ピン\\n\\n![](embeded.png)
+                    Q,2,,https://resource.test/%2C/dictionaries/1/files/jfif.jpg
+                    A,0,ジェイフィフ,\\explain=ジェイフィフ
+                    Q,2,,https://resource.test/%2C/dictionaries/1/files/svg.svg
+                    A,0,エスブイジー,\\explain=エスブイジー
+                    ',
+                    'type' => 'text/plain; charset=Shift_JIS',
+                    'name' => '画像ファイル形式.txt',
+                ],
+                [],
+                'https://resource.test/,/dictionaries/1/files/%s',
             ],
         ];
     }

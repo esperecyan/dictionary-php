@@ -14,11 +14,11 @@ class GenericDictionarySerializer extends AbstractSerializer
     const COLUMN_POSITIONS = ['text', 'image', 'image-source', 'audio', 'audio-source', 'video', 'video-source',
         'answer', 'description', 'weight', 'specifics', 'question', 'option', 'type', '@title', '@summary', '@regard'];
     
-    /** @var bool */
+    /** @var bool|string */
     protected $csvOnly;
 
     /**
-     * @param bool $csvOnly ZIPファイルの代わりにCSVファイルのみを返すときに真に設定します。
+     * @param bool|string $csvOnly ZIPファイルの代わりにCSVファイルのみを返すときに真に設定します。
      */
     public function __construct($csvOnly = false)
     {
@@ -86,9 +86,10 @@ class GenericDictionarySerializer extends AbstractSerializer
      * @param (string|string[]|float)[][] $word
      * @param string[] $fieldNames
      * @param (string|string[])[] $metadata
+     * @param string[] $filenames
      * @return string[]
      */
-    protected function convertWordToRecord(array $word, array $fieldNames, array $metadata): array
+    protected function convertWordToRecord(array $word, array $fieldNames, array $metadata, array $filenames): array
     {
         $numberValidator = new NumberValidator();
         $output = [];
@@ -97,9 +98,30 @@ class GenericDictionarySerializer extends AbstractSerializer
                 ? array_shift($word[$fieldName])
                 : (isset($metadata[$fieldName]) ? $metadata[$fieldName] : '');
             if (is_array($field)) {
-                $field = $field['lml'];
+                $includedFilename = false;
+                if (is_string($this->csvOnly)) {
+                    $html = (new \esperecyan\html_filter\Filter(
+                        null,
+                        ['before' => function (\DOMElement $body) use ($filenames, &$includedFilename) {
+                            foreach (['img', 'audio', 'video'] as $elementName) {
+                                foreach ($body->getElementsByTagName($elementName) as $element) {
+                                    $src = $element->getAttribute('src');
+                                    if (in_array($src, $filenames)) {
+                                        $includedFilename = true;
+                                        $element->setAttribute('src', sprintf($this->csvOnly, $src));
+                                    }
+                                }
+                            }
+                        }]
+                    ))->filter($field['html']);
+                }
+                $field
+                    = $includedFilename ? (new \League\HTMLToMarkdown\HtmlConverter())->convert($html) : $field['lml'];
             } elseif (is_float($field)) {
                 $field = $numberValidator->serializeFloat($field);
+            } elseif (is_string($this->csvOnly)
+                && in_array($fieldName, ['image', 'audio', 'video']) && in_array($field, $filenames)) {
+                $field = sprintf($this->csvOnly, $field);
             }
             $output[] = $field;
         }
@@ -117,10 +139,12 @@ class GenericDictionarySerializer extends AbstractSerializer
         $csv = new \SplTempFileObject();
         $this->putCSVRecord($csv, $fieldNames);
         foreach ($dictionary->getWords() as $i => $word) {
-            $this->putCSVRecord(
-                $csv,
-                $this->convertWordToRecord($word, $fieldNames, $i === 0 ? $dictionary->getMetadata() : [])
-            );
+            $this->putCSVRecord($csv, $this->convertWordToRecord(
+                $word,
+                $fieldNames,
+                $i === 0 ? $dictionary->getMetadata() : [],
+                $dictionary->getFilenames()
+            ));
         }
         $csv->rewind();
         return $csv;

@@ -44,10 +44,7 @@ class Dictionary extends log\AbstractLoggerAware
                     if ($filenames) {
                         $this->filenames = $filenames;
                     } else {
-                        $files->setFlags(\FilesystemIterator::KEY_AS_FILENAME
-                            | \FilesystemIterator::CURRENT_AS_FILEINFO
-                            | \FilesystemIterator::SKIP_DOTS);
-                        $this->filenames = array_keys(iterator_to_array($files));
+                        $this->updateFilenames();
                     }
                 }
             }
@@ -116,6 +113,7 @@ class Dictionary extends log\AbstractLoggerAware
     public function setFiles(\FilesystemIterator $files)
     {
         $this->files = $files;
+        $this->updateFilenames();
     }
     
     /**
@@ -144,5 +142,16 @@ class Dictionary extends log\AbstractLoggerAware
     public function getTitle(): string
     {
         return $this->metadata['@title'] ?? '';
+    }
+    
+    /**
+     * $this->files からファイル名を抽出して $this->filenames に設定します。
+     */
+    protected function updateFilenames(): void
+    {
+        $this->files->setFlags(\FilesystemIterator::KEY_AS_FILENAME
+            | \FilesystemIterator::CURRENT_AS_FILEINFO
+            | \FilesystemIterator::SKIP_DOTS);
+        $this->filenames = array_keys(iterator_to_array($this->files));
     }
 }

@@ -22,10 +22,11 @@ class Serializer extends log\AbstractLoggerAware
      * 直列化したデータを返します。
      * @see https://github.com/esperecyan/dictionary-php#void-esperecyandictionary_phpserializerserializedictionary-dictionary
      * @param Dictionary $dictionary
-     * @param bool $csvOnly `汎用辞書` の場合、ZIPファイルの代わりにCSVファイルのみを返すときに真に設定します。
+     * @param bool|string $csvOnly `汎用辞書` `Inteligenceω クイズ` の場合、ZIPファイルの代わりにCSVファイル、txtファイルのみを返すときに真に設定します。
+            真の代わりに `https://example.ne.jp/dictionaries/1/files/%s` のような文字列を設定することで、`%s` をファイル名に置き換えて辞書ファイル中に記述します。
      * @return string[]
      */
-    public function serialize(Dictionary $dictionary, bool $csvOnly = false): array
+    public function serialize(Dictionary $dictionary, $csvOnly = false): array
     {
         switch ($this->to) {
             case 'キャッチフィーリング':

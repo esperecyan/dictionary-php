@@ -15,7 +15,7 @@
 	},
 	"require": {
 		"php": ">=7.1",
-		"esperecyan/url": "^4.1.0",
+		"esperecyan/url": "^5.0.0",
 		"league/commonmark": "^0.15.0",
 		"league/html-to-markdown": "^4.2.0",
 		"psr/log": "^1.0.0",
@@ -23,7 +23,7 @@
 		"esperecyan/html-filter": "^1.0.1",
 		"logue/igo-php": "@dev",
 		"mbilbille/jpnforphp": "^0.6.1",
-		"danielstjules/stringy": "^2.3.2",
+		"danielstjules/stringy": "^3.0.0",
 		"nelexa/zip": "^2.1.0",
 		"james-heinrich/getid3": "^1.9.12",
 		"ext-gettext": "*",

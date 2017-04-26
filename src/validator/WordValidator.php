@@ -141,6 +141,8 @@ class WordValidator extends \esperecyan\dictionary_php\log\AbstractLoggerAware
      */
     protected function parseField(string $fieldName, string $field)
     {
+        $field = str_replace("\t", '    ', $field);
+        
         switch ($fieldName) {
             case 'image':
             case 'audio':

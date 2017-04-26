@@ -244,10 +244,10 @@ class GenericDictionaryParser extends AbstractParser
                         . _('壊れたCSVファイル (ダブルクォートでエスケープされていないダブルクォートを含む等) の可能性があります。'));
                 }
                 
-                // 改行をLFに統一し、改行以外のC0制御文字を取り除く
+                // 改行をLFに統一し、水平タブと改行以外のC0制御文字を取り除く
                 foreach ($fields as &$field) {
                     $field = preg_replace(
-                        '/[\\x00-\\x09\\x11\\x7F]+/u',
+                        '/[\\x00-\\x08\\x11\\x7F]+/u',
                         '',
                         strtr($field, ["\r\n" => "\n", "\r" => "\n", "\n" => "\n"])
                     );
@@ -258,7 +258,9 @@ class GenericDictionaryParser extends AbstractParser
                         $header = in_array('text', $fields);
                     }
                     if ($header) {
-                        $fieldNames = $fields;
+                        $fieldNames = array_map(function (string $fieldName): string {
+                            return str_replace("\t", '', $fieldName);
+                        }, $fields);
                         continue;
                     }
                 }

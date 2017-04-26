@@ -342,6 +342,41 @@ class GenericDictionaryParserTest extends \PHPUnit\Framework\TestCase implements
                 [],
                 [LogLevel::ERROR, LogLevel::ERROR],
             ],
+            [
+                "text,answer,description
+                水平タブ,タブ,「\t」
+                ",
+                null,
+                null,
+                [
+                    [
+                        'text' => ['水平タブ'],
+                        'answer' => ['タブ'],
+                        'description' => [[
+                            'lml' => '「    」',
+                            'html' => '<p>「    」</p>
+                                ',
+                        ]],
+                    ],
+                ],
+                [],
+                [],
+            ],
+            [
+                "text,水平タブを\t含むフィールド名
+                テスト,test
+                ",
+                null,
+                null,
+                [
+                    [
+                        'text' => ['テスト'],
+                        '水平タブを含むフィールド名' => ['test'],
+                    ],
+                ],
+                [],
+                [],
+            ],
         ];
     }
     

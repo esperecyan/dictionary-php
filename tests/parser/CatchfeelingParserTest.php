@@ -156,6 +156,19 @@ class CatchfeelingParserTest extends \PHPUnit\Framework\TestCase implements \Psr
                 [],
                 [LogLevel::ERROR, LogLevel::ERROR, LogLevel::ERROR],
             ],
+            [
+                "すいへいたぶ    // 「\t」
+                ",
+                null,
+                null,
+                [
+                    [
+                        'text' => ['すいへいたぶ'],
+                        'description' => [['lml' => '「    」', 'html' => "<p>「    」</p>\n"]],
+                    ],
+                ],
+                [],
+            ],
         ];
     }
     

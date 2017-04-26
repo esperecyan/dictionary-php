@@ -24,7 +24,7 @@ class CatchfeelingParser extends AbstractParser
             
             if (isset($textAndDescription[1])) {
                 // コメントが存在すれば
-                $description = trim($textAndDescription[1], " 　\t");
+                $description = preg_replace('/^[ 　\\t]+|[ 　\\t]+$/u', '', $textAndDescription[1]);
                 if ($description !== '') {
                     $fieldsAsMultiDimensionalArray['description'] = [$description];
                 }

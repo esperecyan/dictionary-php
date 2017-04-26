@@ -135,7 +135,7 @@ class CatchfeelingParserTest extends \PHPUnit\Framework\TestCase implements \Psr
             [
                 '゜
                 ゛
-                テスト
+                テスト    // 「UTF-8において、表意空白 U+3000 (0xE3 0x80 0x80) に含まれるバイトが除去されないことをテスト」
                 / /
                 ／てすと／
                 ',
@@ -144,6 +144,10 @@ class CatchfeelingParserTest extends \PHPUnit\Framework\TestCase implements \Psr
                 [
                     [
                         'text' => ['テスト'],
+                        'description' => [[
+                            'lml' => '「UTF-8において、表意空白 U+3000 (0xE3 0x80 0x80) に含まれるバイトが除去されないことをテスト」',
+                            'html' => "<p>「UTF-8において、表意空白 U+3000 (0xE3 0x80 0x80) に含まれるバイトが除去されないことをテスト」</p>\n",
+                        ]],
                     ],
                     [
                         'text' => ['てすと'],

@@ -14,7 +14,7 @@ Inteligenceωの辞書で画像・音声ファイルへのパスが含まれる�
 
 [主に単語で答えるゲームにおける汎用的な辞書形式]: https://github.com/esperecyan/dictionary/blob/master/dictionary.md
 [キャッチフィーリング]: http://www.forest.impress.co.jp/library/software/catchfeeling/
-[Drawing Catch]: http://drafly.nazo.cc/games/olds/DC
+[Drawing Catch]: http://www.houmotsuko.net/game/old/drawcatch/index
 [きゃっちま]: http://vodka-catchm.seesaa.net/article/115922159.html
 [ピクトセンス]: http://pictsense.com/
 [Inteligenceω]: http://loxee.web.fc2.com/inteli.html

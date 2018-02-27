@@ -3,7 +3,7 @@ namespace esperecyan\dictionary_php\parser;
 
 use esperecyan\dictionary_php\{Dictionary, validator, exception\SyntaxException, fileinfo\Finfo};
 use esperecyan\url\URLSearchParams;
-use PhpZip\{ZipFile, ZipOutputFile};
+use PhpZip\ZipFile;
 
 class InteligenceoParser extends AbstractParser
 {
@@ -608,9 +608,9 @@ class InteligenceoParser extends AbstractParser
     
     /**
      * アーカイブ中のファイル名の符号化方式をUTF-8に矯正します。
-     * @param ZipOutputFile $archive
+     * @param ZipFile $archive
      */
-    protected function correctArchiveFilenamesEncoding(ZipOutputFile $archive)
+    protected function correctArchiveFilenamesEncoding(ZipFile $archive)
     {
         $parser = new GenericDictionaryParser();
         foreach ($archive->getListFiles() as $filename) {
@@ -623,10 +623,10 @@ class InteligenceoParser extends AbstractParser
     
     /**
      * アーカイブ中のディレクトリ構造を除去します。
-     * @param ZipOutputFile $archive
+     * @param ZipFile $archive
      * @throws SyntaxException 同名のファイルが存在する場合。
      */
-    protected function flattenArchive(ZipOutputFile $archive)
+    protected function flattenArchive(ZipFile $archive)
     {
         $validator = new validator\FileLocationValidator();
         foreach ($archive->getListFiles() as $filename) {
@@ -646,10 +646,10 @@ class InteligenceoParser extends AbstractParser
     
     /**
      * アーカイブ中のファイル名を矯正します。
-     * @param ZipOutputFile $archive
+     * @param ZipFile $archive
      * @return string[] ファイル名の一覧。矯正を行った場合は、キーに矯正前のファイル名を持ちます。
      */
-    protected function correctArchiveFilenames(ZipOutputFile $archive): array
+    protected function correctArchiveFilenames(ZipFile $archive): array
     {
         $filenames = [];
         
@@ -675,9 +675,9 @@ class InteligenceoParser extends AbstractParser
      */
     protected function parseArchive(\SplFileInfo $file): \SplFileInfo
     {
-        $archive = new ZipOutputFile(ZipFile::openFromFile(
+        $archive = (new ZipFile())->openFile(
             $file instanceof \SplTempFileObject ? $this->generateTempFile($file) : $file->getRealPath()
-        ));
+        );
         $this->correctArchiveFilenamesEncoding($archive);
         $this->flattenArchive($archive);
         $this->filenames = $this->correctArchiveFilenames($archive);

@@ -1,6 +1,8 @@
 <?php
 namespace esperecyan\dictionary_php\internal;
 
+use JpnForPhp\Transliterator\{Transliterator as JpnForPhpTransliterator, System\Hepburn};
+
 /**
  * 漢字仮名交じり文の翻字。
  */
@@ -16,9 +18,12 @@ class Transliterator
      */
     public static function translateUsingLatinAlphabet(string $kanjiAndKanaString): string
     {
-        return static::deleteMarks((new \JpnForPhp\Transliterator\Romaji())->transliterate(preg_match('/[^ -~]/u', $kanjiAndKanaString)
-            ? static::translateUsingKatakana($kanjiAndKanaString)
-            : $kanjiAndKanaString));
+        return static::deleteMarks(
+            (new JpnForPhpTransliterator())->setSystem(new Hepburn())
+                ->transliterate(preg_match('/[^ -~]/u', $kanjiAndKanaString)
+                ? static::translateUsingKatakana($kanjiAndKanaString)
+                : $kanjiAndKanaString)
+        );
     }
     
     /**

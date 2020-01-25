@@ -2,6 +2,8 @@
 namespace esperecyan\dictionary_php\validator;
 
 use esperecyan\dictionary_php\exception\SyntaxException;
+use esperecyan\dictionary_php\parser\GenericDictionaryParser;
+use Intervention\Image\{ImageManager, Image, Exception\NotReadableException};
 
 /**
  * 画像ファイルの矯正。
@@ -44,50 +46,27 @@ class ImageValidator extends AbstractFieldValidator
     }
     
     /**
-     * 入力された画像がExifであればエラーを記録し、JFIFに変換します。
-     * @param \Imagick $imagick JFIFかExif。
+     * 入力された画像がExifであればエラーを記録し、向きを補正します。
+     * @param Image $image JFIFかExif。
+     * @return 
      */
-    protected function convertExifToJFIF(\Imagick $imagick)
+    protected function convertExifToJFIF(Image $image)
     {
-        if ($imagick->getImageProperties('exif:*')) {
-            $this->logger->error(sprintf(_('「%s」はExif形式です。'), $this->filename));
-            switch ($imagick->getImageOrientation()) {
-                case \Imagick::ORIENTATION_TOPRIGHT:
-                    $imagick->flopImage();
-                    break;
-                case \Imagick::ORIENTATION_BOTTOMRIGHT:
-                    $imagick->rotateImage('none', 180);
-                    break;
-                case \Imagick::ORIENTATION_BOTTOMLEFT:
-                    $imagick->rotateImage('none', 180);
-                    $imagick->flopImage();
-                    break;
-                case \Imagick::ORIENTATION_LEFTTOP:
-                    $imagick->rotateImage('none', 90);
-                    $imagick->flopImage();
-                    break;
-                case \Imagick::ORIENTATION_RIGHTTOP:
-                    $imagick->rotateImage('none', 90);
-                    break;
-                case \Imagick::ORIENTATION_RIGHTBOTTOM:
-                    $imagick->rotateImage('none', 270);
-                    $imagick->flopImage();
-                    break;
-                case \Imagick::ORIENTATION_LEFTBOTTOM:
-                    $imagick->rotateImage('none', 270);
-                    break;
-            }
-            $imagick->stripImage();
+        if (strpos($image->exif('SectionsFound'), 'EXIF') === false) {
+            return $image;
         }
+
+        $this->logger->error(sprintf(_('「%s」はExif形式です。'), $this->filename));
+        return $image->orientate();
     }
     
     /**
      * 幅と高さをチェックします。
-     * @param \Imagick $imagick
+     * @param Image $image
      */
-    protected function checkSize($imagick)
+    protected function checkSize($image)
     {
-        $width = $imagick->getImageWidth();
+        $width = $image->getWidth();
         if ($width > self::MAX_RECOMMENDED_IMAGE_WIDTH) {
             $this->logger->warning(sprintf(
                 _('画像の幅は %1$s 以下にすべきです。「%2$s」の幅は %3$s です。'),
@@ -97,7 +76,7 @@ class ImageValidator extends AbstractFieldValidator
             ));
         }
 
-        $height = $imagick->getImageHeight();
+        $height = $image->getHeight();
         if ($height > self::MAX_RECOMMENDED_IMAGE_HEIGHT) {
             $this->logger->warning(sprintf(
                 _('画像の高さは %1$s 以下にすべきです。「%2$s」の高さは %3$s です。'),
@@ -128,53 +107,42 @@ class ImageValidator extends AbstractFieldValidator
         return sprintf(_('「%1$s」は妥当な%2$sではありません。'), $this->filename, $readableType);
     }
     
-    /**
-     * PHPがWindowsでコンパイルされていれば真を返します。
-     * @return bool
-     */
-    protected function isWindows():bool
-    {
-        return strpos(PHP_OS, 'WIN') === 0;
-    }
-    
     public function correct(string $input): string
     {
         if ($this->type === 'image/svg+xml') {
             try {
                 $validator = new SVGValidator();
                 $validator->setLogger($this->logger);
-                $input = $validator->correct($input);
+                $corrected = $validator->correct($input);
             } catch (SyntaxException $e) {
                 throw new SyntaxException($this->generateErrorMessage(), 0, $e);
             }
+            return $corrected;
         }
         
-        if ($this->isWindows() && $this->type === 'image/svg+xml') {
-            // IM_MOD_RL_svg_.dllを利用するとPHPがクラッシュするため
-            $corrected = $input;
-        } else {
-            $imagick = new \Imagick();
-            try {
-                $imagick->readImageBlob($input);
-            } catch (\ImagickException $e) {
-                throw preg_match('/`(PNG|JPEG|SVG)\'/u', $e->getMessage()) === 1
-                    ? $e
-                    : new SyntaxException($this->generateErrorMessage(), 0, $e);
-            }
-
-            if (str_replace('/x-', '/', $imagick->getImageMimeType()) !== $this->type) {
-                throw new SyntaxException($this->generateErrorMessage());
-            }
-
-            if ($this->type === 'image/jpeg') {
-                $this->convertExifToJFIF($imagick);
-            }
-
-            $this->checkSize($imagick);
-
-            $corrected = $imagick->getImageBlob();
-            $imagick->clear();
+        $manager = new ImageManager();
+        // ファイルパスではなくバイナリデータを読み込むと、Exif情報が失われる問題への対処
+        // Unable to read exif data unless loaded from path · Issue #745 · Intervention/image
+        // <https://github.com/Intervention/image/issues/745>
+        $path = (new GenericDictionaryParser())->generateTempFile($input);
+        try {
+            $image = $manager->make($path);
+        } catch (NotReadableException $e) {
+            throw new SyntaxException($this->generateErrorMessage(), 0, $e);
         }
+
+        if ($image->mime() !== $this->type) {
+            throw new SyntaxException($this->generateErrorMessage());
+        }
+
+        if ($this->type === 'image/jpeg') {
+            $this->convertExifToJFIF($image);
+        }
+
+        $this->checkSize($image);
+
+        $corrected = $image->encode();
+        $image->destroy();
         
         return $corrected;
     }

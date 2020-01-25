@@ -85,15 +85,17 @@ Composer のインストール方法については、[Composer のグローバ�
 ----
 * PHP 7.1 以上
 * php-mbstring ([mbstring拡張モジュール])
+* [exif拡張モジュール]
 * php-intl ([Intl拡張モジュール])
+* php-gd ([GD拡張モジュール])
 * php-pecl-zip ([Zip拡張モジュール])
-* php-pecl-imagick ([imagick (PECL拡張モジュール)])
 * [logue/igo-php:@dev] ※[minimum-stability]が`dev`以外 (既定値は`stable`) の場合、依存関係は自動的に解決されないため、[上記インストール手順]のように手動でインストールする必要があります。
 
 [mbstring拡張モジュール]: https://secure.php.net/manual/book.mbstring "mbstring はマルチバイト対応の文字列関数を提供し、PHP でマルチバイトエンコーディングを処理することを容易にします。"
+[exif拡張モジュール]: https://secure.php.net/manual/book.exif "exif 拡張モジュールを使用すると、画像のメタデータを扱うことが可能となります。"
 [Intl拡張モジュール]: https://secure.php.net/manual/book.intl.php "国際化用拡張モジュール (Intl と略します) は ICU ライブラリのラッパーです。 PHP プログラマが、UCA 準拠の照合順序 (collation) や日付/時刻/数値/通貨のフォーマットを扱えるようにします。"
+[GD拡張モジュール]: https://secure.php.net/manual/book.image "PHPができることは、HTML出力を生成することだけではありません。PHP は、多くの異なるイメージ形式でイメージファイルを作成したり、操作 したりすることもできます。"
 [Zip拡張モジュール]: https://secure.php.net/manual/book.zip "この拡張モジュールにより、ZIP 圧縮されたアーカイブとその内部のファイルに対する透過的な読み書きが可能となります。"
-[imagick (PECL拡張モジュール)]: https://secure.php.net/manual/book.imagick "Imagick は、ImageMagick API を使用して画像の作成や修正を行う ネイティブ PHP 拡張モジュールです。"
 [logue/igo-php:@dev]: https://packagist.org/packages/logue/igo-php "Morphological analysis engine 'Igo' porting and changed for PHP 5.3 and composer."
 [minimum-stability]: http://kohkimakimoto.hatenablog.com/entry/2014/04/04/102125 "スタビリティの判断はルートパッケージのminimum-stabilityフィールドに基づいて行われる。これはルートオンリーだ。スタビリティフラグのデフォルト値を定義し、下限として振る舞う。"
 [上記インストール手順]: #%E3%82%A4%E3%83%B3%E3%82%B9%E3%83%88%E3%83%BC%E3%83%AB

@@ -560,12 +560,12 @@ class WordValidatorTest extends \PHPUnit\Framework\TestCase implements \Psr\Log\
     /**
      * @param string[][] $input
      * @param bool $metadata
-     * @expectedException \esperecyan\dictionary_php\exception\SyntaxException
      * @dataProvider invalidWords
      */
     public function testSyntaxException(array $input, bool $metadata = false)
     {
         $wordValidator = new WordValidator();
+        $this->expectException(\esperecyan\dictionary_php\exception\SyntaxException::class);
         if ($metadata) {
             $wordValidator->parseMetadata($input);
         } else {

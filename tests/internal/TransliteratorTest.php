@@ -19,7 +19,7 @@ class TransliteratorTest extends \PHPUnit\Framework\TestCase
             ['春と修羅', 'haru-to-shura'],
             ['これは何？', 'kore-wa-nani-?'],
             ['fooｂａｒ', 'foobar'],
-            ['a.,。z', 'a-.-,.-z'],
+            ['a.,。z', 'a-.,.-z'],
             ['太陽', 'taiyo'],
             ['taiyō', 'taiyo'],
             ['①', '1'],

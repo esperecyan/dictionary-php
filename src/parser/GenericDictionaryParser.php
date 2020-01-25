@@ -222,7 +222,7 @@ class GenericDictionaryParser extends AbstractParser
     protected function parseCSVFile(Dictionary $dictionary, \SplFileInfo $csv, bool $header = null)
     {
         if (!($csv instanceof \SplFileObject)) {
-            $csv = $csv->openFile();
+            $csv = $csv->openFile('r+');
         }
         
         $binary = $this->correctEncoding((new Parser())->getBinary($csv));

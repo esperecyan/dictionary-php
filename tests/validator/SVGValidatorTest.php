@@ -181,11 +181,11 @@ class SVGValidatorTest extends \PHPUnit\Framework\TestCase implements \Psr\Log\L
     
     /**
      * @param string $input
-     * @expectedException \esperecyan\dictionary_php\exception\SyntaxException
      * @dataProvider invalidSVGProvider
      */
     public function testSyntaxException(string $input)
     {
+        $this->expectException(\esperecyan\dictionary_php\exception\SyntaxException::class);
         (new SVGValidator())->correct($input);
     }
     

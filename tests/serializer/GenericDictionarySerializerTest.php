@@ -9,13 +9,13 @@ class GenericDictionarySerializerTest extends \PHPUnit\Framework\TestCase implem
     /** @var string */
     protected static $previousLocale;
     
-    public static function setUpBeforeClass()
+    public static function setUpBeforeClass(): void
     {
         self::$previousLocale = setlocale(LC_NUMERIC, '0');
         setlocale(LC_NUMERIC, 'es', 'es-ES', 'es_ES');
     }
     
-    public static function tearDownAfterClass()
+    public static function tearDownAfterClass(): void
     {
         setlocale(LC_NUMERIC, self::$previousLocale);
     }
@@ -172,7 +172,6 @@ class GenericDictionarySerializerTest extends \PHPUnit\Framework\TestCase implem
      * @param string[][][] $fieldsAsMultiDimensionalArrays
      * @param string[] $metadata
      * @param string[] $filenames
-     * @expectedException \BadMethodCallException
      * @dataProvider invalidAttributesProvider
      */
     public function testBadMethodCallException(
@@ -184,6 +183,7 @@ class GenericDictionarySerializerTest extends \PHPUnit\Framework\TestCase implem
         foreach ($fieldsAsMultiDimensionalArrays as $word) {
             $dictionary->addWord($word);
         }
+        $this->expectException(\BadMethodCallException::class);
         (new GenericDictionarySerializer())->serialize($dictionary);
     }
     

@@ -48,13 +48,12 @@ class Transliterator
     protected static function translateUsingKatakana(string $kanjiAndKanaString): string
     {
         if (!static::$igo) {
-            static::$igo = new \Igo\Tagger(['dict_dir' => __DIR__ . '/../../naist-jdic']);
+            static::$igo = new \Igo\Tagger();
         }
 
         return implode('-', array_map(function ($morpheme) {
-            $feature = explode(',', $morpheme->feature);
-            return isset($feature[8]) && !in_array($feature[1], ['数', 'アルファベット'])
-                ? $feature[8]
+            return isset($morpheme->feature[8]) && !in_array($morpheme->feature[1], ['数', 'アルファベット'])
+                ? $morpheme->feature[8]
                 : $morpheme->surface;
         }, static::$igo->parse($kanjiAndKanaString)));
     }

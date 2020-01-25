@@ -379,11 +379,11 @@ class PictsenseSerializerTest extends \PHPUnit\Framework\TestCase implements \Ps
      * @param string[][][] $fieldsAsMultiDimensionalArrays
      * @param string[] $metadata
      * @param string[] $files
-     * @expectedException \esperecyan\dictionary_php\exception\EmptyOutputException
      * @dataProvider invalidDictionaryProvider
      */
     public function testEmptyOutputException(array $fieldsAsMultiDimensionalArrays, array $metadata, array $files)
     {
+        $this->expectException(\esperecyan\dictionary_php\exception\EmptyOutputException::class);
         (new PictsenseSerializer())->serialize(
             $this->generateDictionary($fieldsAsMultiDimensionalArrays, $metadata, $files)
         );

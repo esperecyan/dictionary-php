@@ -174,13 +174,13 @@ class CatchfeelingParserTest extends \PHPUnit\Framework\TestCase implements \Psr
     
     /**
      * @param string $input
-     * @expectedException \esperecyan\dictionary_php\exception\SyntaxException
      * @dataProvider invalidDictionaryProvider
      */
     public function testSyntaxException(string $input)
     {
         $temp = new \SplTempFileObject();
         $temp->fwrite(preg_replace('/\\n */u', "\r\n", $input));
+        $this->expectException(\esperecyan\dictionary_php\exception\SyntaxException::class);
         $dictionary = (new CatchfeelingParser())->parse($temp);
     }
     

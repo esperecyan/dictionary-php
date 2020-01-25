@@ -236,11 +236,11 @@ class FileLocationValidatorTest extends \PHPUnit\Framework\TestCase implements \
     
     /**
      * @param string $fieldName
-     * @expectedException \DomainException
      * @dataProvider invalidFieldNameProvider
      */
     public function testInvalidFieldName(string $fieldName)
     {
+        $this->expectException(\DomainException::class);
         new FileLocationValidator($fieldName);
     }
     

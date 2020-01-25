@@ -348,7 +348,6 @@ class InteligenceoParserTest extends \PHPUnit\Framework\TestCase implements \Psr
      * @param string $input
      * @param string $from
      * @param string|null $partOfMessage エラーメッセージの一部。
-     * @expectedException \esperecyan\dictionary_php\exception\SyntaxException
      * @dataProvider invalidDictionaryProvider
      */
     public function testSyntaxException(string $input, string $from, string $partOfMessage = null)
@@ -358,6 +357,7 @@ class InteligenceoParserTest extends \PHPUnit\Framework\TestCase implements \Psr
         }
         $temp = new \SplTempFileObject();
         $temp->fwrite(preg_replace('/\\n */u', "\r\n", $input));
+        $this->expectException(\esperecyan\dictionary_php\exception\SyntaxException::class);
         (new InteligenceoParser($from))->parse($temp);
     }
     

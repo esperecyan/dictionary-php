@@ -625,11 +625,11 @@ class ParserTest extends \PHPUnit\Framework\TestCase implements \Psr\Log\LoggerI
     /**
      * @param string $input
      * @param string $from
-     * @expectedException \esperecyan\dictionary_php\exception\SyntaxException
      * @dataProvider invalidDictionaryProvider
      */
     public function testSyntaxException(string $input, string $from)
     {
+        $this->expectException(\esperecyan\dictionary_php\exception\SyntaxException::class);
         (new Parser($from))->parse($this->generateTempFileObject($this->stripIndents($input)));
     }
     

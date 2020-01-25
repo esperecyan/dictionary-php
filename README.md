@@ -74,7 +74,7 @@ text,image,answer,answer,description,specifics,question,option,option,option,opt
 インストール
 ------------
 ```sh
-composer require esperecyan/dictionary-php logue/igo-php:@dev
+composer require esperecyan/dictionary-php
 ```
 
 Composer のインストール方法については、[Composer のグローバルインストール - Qiita]などをご覧ください。
@@ -89,19 +89,12 @@ Composer のインストール方法については、[Composer のグローバ�
 * php-intl ([Intl拡張モジュール])
 * php-gd ([GD拡張モジュール])
 * php-pecl-zip ([Zip拡張モジュール])
-* [logue/igo-php:@dev] ※[minimum-stability]が`dev`以外 (既定値は`stable`) の場合、依存関係は自動的に解決されないため、[上記インストール手順]のように手動でインストールする必要があります。
 
 [mbstring拡張モジュール]: https://secure.php.net/manual/book.mbstring "mbstring はマルチバイト対応の文字列関数を提供し、PHP でマルチバイトエンコーディングを処理することを容易にします。"
 [exif拡張モジュール]: https://secure.php.net/manual/book.exif "exif 拡張モジュールを使用すると、画像のメタデータを扱うことが可能となります。"
 [Intl拡張モジュール]: https://secure.php.net/manual/book.intl.php "国際化用拡張モジュール (Intl と略します) は ICU ライブラリのラッパーです。 PHP プログラマが、UCA 準拠の照合順序 (collation) や日付/時刻/数値/通貨のフォーマットを扱えるようにします。"
 [GD拡張モジュール]: https://secure.php.net/manual/book.image "PHPができることは、HTML出力を生成することだけではありません。PHP は、多くの異なるイメージ形式でイメージファイルを作成したり、操作 したりすることもできます。"
 [Zip拡張モジュール]: https://secure.php.net/manual/book.zip "この拡張モジュールにより、ZIP 圧縮されたアーカイブとその内部のファイルに対する透過的な読み書きが可能となります。"
-[logue/igo-php:@dev]: https://packagist.org/packages/logue/igo-php "Morphological analysis engine 'Igo' porting and changed for PHP 5.3 and composer."
-[minimum-stability]: http://kohkimakimoto.hatenablog.com/entry/2014/04/04/102125 "スタビリティの判断はルートパッケージのminimum-stabilityフィールドに基づいて行われる。これはルートオンリーだ。スタビリティフラグのデフォルト値を定義し、下限として振る舞う。"
-[上記インストール手順]: #%E3%82%A4%E3%83%B3%E3%82%B9%E3%83%88%E3%83%BC%E3%83%AB
-
-### 依存するライブラリ由来の要件
-* PHP 64bit — [nelexa/zip](https://packagist.org/packages/nelexa/zip)
 
 パブリックAPI
 -------------
@@ -359,12 +352,3 @@ Pull Request、または Issue よりお願いいたします。
 当スクリプトのライセンスは [Mozilla Public License Version 2.0] \(MPL-2.0) です。
 
 [Mozilla Public License Version 2.0]: https://www.mozilla.org/MPL/2.0/
-
-### [naist-jdic](naist-jdic)
-当ディレクトリに含まれるファイルは、[修正BSDライセンス]の[NAIST-jdic] \(ライセンス全文は[naist-jdic/COPYNG]) を
-[Igo]解析用バイナリ辞書に変換したものです。
-
-[修正BSDライセンス]: https://ja.osdn.net/projects/opensource/wiki/licenses%2Fnew_BSD_license
-[NAIST-jdic]: https://ja.osdn.net/projects/naist-jdic/wiki/FrontPage "NAIST-jdic は、IPAdic の後継です。 IPAdic の固有名詞以外の全エントリをチェック（可能性に基づく品詞の整理）し、 表記ゆれ情報を付与し、複合語の構造を付与する作業を行っています。 固有名詞については不要な語、新規追加などの整理を随時行っていきます。 この作業により IPAdic のライセンスで問題となっていた ICOT 条項を削除し、 広告条項無しの BSD ライセンスに変更致しました。"
-[naist-jdic/COPYNG]: naist-jdic/COPYNG
-[Igo]: https://igo.osdn.jp/ "Javaで実装された形態素解析器"

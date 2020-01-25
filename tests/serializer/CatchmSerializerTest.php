@@ -174,11 +174,11 @@ class CatchmSerializerTest extends \PHPUnit\Framework\TestCase implements \Psr\L
      * @param string[][][] $fieldsAsMultiDimensionalArrays
      * @param string[] $metadata
      * @param string[] $files
-     * @expectedException \esperecyan\dictionary_php\exception\EmptyOutputException
      * @dataProvider invalidDictionaryProvider
      */
     public function testEmptyOutputException(array $fieldsAsMultiDimensionalArrays, array $metadata, array $files)
     {
+        $this->expectException(\esperecyan\dictionary_php\exception\EmptyOutputException::class);
         (new CatchmSerializer())->serialize(
             $this->generateDictionary($fieldsAsMultiDimensionalArrays, $metadata, $files)
         );

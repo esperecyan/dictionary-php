@@ -183,11 +183,11 @@ class FilenameValidatorTest extends \PHPUnit\Framework\TestCase
     
     /**
      * @param string $fieldName
-     * @expectedException \DomainException
      * @dataProvider invalidFieldNameProvider
      */
     public function testInvalidFieldName(string $fieldName)
     {
+        $this->expectException(\DomainException::class);
         new FilenameValidator($fieldName);
     }
     
@@ -222,11 +222,11 @@ class FilenameValidatorTest extends \PHPUnit\Framework\TestCase
     /**
      * @param string $filename
      * @param string|null $fieldName
-     * @expectedException \esperecyan\dictionary_php\exception\SyntaxException
      * @dataProvider invalidFilenameProvider
      */
     public function testInvalidFilename(string $filename, string $fieldName = null)
     {
+        $this->expectException(\esperecyan\dictionary_php\exception\SyntaxException::class);
         (new FilenameValidator($fieldName))->correct($filename);
     }
     

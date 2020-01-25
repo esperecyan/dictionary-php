@@ -258,13 +258,13 @@ class GenericDictionaryParserTest extends \PHPUnit\Framework\TestCase implements
                                 見出し3
                                 ----
 
-                                [リンク](https://example.jp/) **強調** **名前** _強勢_ _心の声_`コード`',
+                                [リンク](https://example.jp/) **強調** **名前** _強勢_ _心の声_ `コード`',
                             'html' => '<h1>見出し1</h1>
                                 <p>本文</p>
                                 <h1>見出し2</h1>
                                 <p>本文</p>
                                 <h2>見出し3</h2>
-                                <p><a href="https://example.jp/">リンク</a> <strong>強調</strong> <strong>名前</strong> <em>強勢</em> <em>心の声</em><code>コード</code></p>
+                                <p><a href="https://example.jp/">リンク</a> <strong>強調</strong> <strong>名前</strong> <em>強勢</em> <em>心の声</em> <code>コード</code></p>
                                 ',
                         ]],
                     ],
@@ -383,7 +383,6 @@ class GenericDictionaryParserTest extends \PHPUnit\Framework\TestCase implements
     /**
      * @param string|\Closure $input
      * @param string[] $filenames
-     * @expectedException \esperecyan\dictionary_php\exception\SyntaxException
      * @dataProvider invalidDictionaryProvider
      */
     public function testSyntaxException($input, $filenames = [])
@@ -397,6 +396,7 @@ class GenericDictionaryParserTest extends \PHPUnit\Framework\TestCase implements
             $file = $this->generateTempFileObject($this->stripIndents($input));
         }
         
+        $this->expectException(\esperecyan\dictionary_php\exception\SyntaxException::class);
         (new GenericDictionaryParser(null, $filenames))->parse($file);
     }
     

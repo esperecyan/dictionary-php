@@ -385,11 +385,11 @@ class PictsenseParserTest extends \PHPUnit\Framework\TestCase implements \Psr\Lo
     
     /**
      * @param string $input
-     * @expectedException \esperecyan\dictionary_php\exception\SyntaxException
      * @dataProvider invalidDictionaryProvider
      */
     public function testSyntaxException(string $input)
     {
+        $this->expectException(\esperecyan\dictionary_php\exception\SyntaxException::class);
         (new PictsenseParser())->parse($this->generateTempFileObject($this->stripIndents($input)));
     }
     

@@ -105,11 +105,11 @@ class ImageValidatorTest extends \PHPUnit\Framework\TestCase implements \Psr\Log
     /**
      * @param string $type
      * @param \Closure $generateImage
-     * @expectedException \esperecyan\dictionary_php\exception\SyntaxException
      * @dataProvider invalidImageProvider
      */
     public function testSyntaxException(string $type, \Closure $generateImage)
     {
+        $this->expectException(\esperecyan\dictionary_php\exception\SyntaxException::class);
         (new ImageValidator($type, ''))->correct($generateImage());
     }
     
@@ -138,11 +138,11 @@ class ImageValidatorTest extends \PHPUnit\Framework\TestCase implements \Psr\Log
     
     /**
      * @param string $type
-     * @expectedException \DomainException
      * @dataProvider invalidTypeProvider
      */
     public function testDomainException(string $type)
     {
+        $this->expectException(\DomainException::class);
         new ImageValidator($type, '');
     }
     

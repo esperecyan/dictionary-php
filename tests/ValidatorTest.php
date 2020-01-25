@@ -19,7 +19,7 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase implements \Psr\Log\Logg
         $validator = new Validator();
         $validator->setLogger($this);
         $actualOutput = $validator->correct($file, $filename);
-        $this->assertInternalType('string', $actualOutput['bytes']);
+        $this->assertIsString($actualOutput['bytes']);
         unset($actualOutput['bytes']);
         $this->assertEquals($output, $actualOutput);
         $this->assertEquals($logLevels, $this->logLevels);
@@ -114,11 +114,11 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase implements \Psr\Log\Logg
     /**
      * @param string|\SplFileInfo $file
      * @param string $filename
-     * @expectedException \esperecyan\dictionary_php\exception\SyntaxException
      * @dataProvider invalidFileProvider
      */
     public function testSyntaxException($file, string $filename)
     {
+        $this->expectException(\esperecyan\dictionary_php\exception\SyntaxException::class);
         (new Validator())->correct($file, $filename);
     }
     

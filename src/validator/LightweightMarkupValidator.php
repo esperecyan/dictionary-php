@@ -146,7 +146,7 @@ class LightweightMarkupValidator extends AbstractFieldValidator implements \Psr\
      */
     protected function convertFromHTML(string $html): string
     {
-        return (new \League\HTMLToMarkdown\HtmlConverter())->convert($html);
+        return (new \League\HTMLToMarkdown\HtmlConverter(['italic_style' => '_']))->convert($html);
     }
     
     public function correct(string $input): string

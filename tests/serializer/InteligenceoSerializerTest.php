@@ -435,7 +435,6 @@ class InteligenceoSerializerTest extends \PHPUnit\Framework\TestCase implements 
      * @param string[] $metadata
      * @param string[] $files
      * @param string $type
-     * @expectedException \esperecyan\dictionary_php\exception\EmptyOutputException
      * @dataProvider invalidDictionaryProvider
      */
     public function testEmptyOutputException(
@@ -444,6 +443,7 @@ class InteligenceoSerializerTest extends \PHPUnit\Framework\TestCase implements 
         array $files,
         string $type
     ) {
+        $this->expectException(\esperecyan\dictionary_php\exception\EmptyOutputException::class);
         (new InteligenceoSerializer($type))->serialize(
             $this->generateDictionary($fieldsAsMultiDimensionalArrays, $metadata, $files)
         );

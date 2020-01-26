@@ -222,14 +222,14 @@ class GenericDictionaryParser extends AbstractParser
     protected function parseCSVFile(Dictionary $dictionary, \SplFileInfo $csv, bool $header = null)
     {
         if (!($csv instanceof \SplFileObject)) {
-            $csv = $csv->openFile('r+');
+            $csv = $csv->openFile();
         }
         
         $binary = $this->correctEncoding((new Parser())->getBinary($csv));
-        $csv->ftruncate(0);
-        $csv->fwrite($binary);
+        $temp = new \SplTempFileObject();
+        $temp->fwrite($binary);
         
-        $csv->setFlags(\SplFileObject::READ_AHEAD | \SplFileObject::SKIP_EMPTY | \SplFileObject::READ_CSV);
+        $temp->setFlags(\SplFileObject::READ_AHEAD | \SplFileObject::SKIP_EMPTY | \SplFileObject::READ_CSV);
         
         if ($this->isWindows()) {
             $previousLocale = setlocale(LC_CTYPE, '0');
@@ -238,7 +238,7 @@ class GenericDictionaryParser extends AbstractParser
         
         try {
             $first = true;
-            foreach ($csv as $i => $fields) {
+            foreach ($temp as $i => $fields) {
                 if (is_null($fields[0])) {
                     throw new SyntaxException(_('汎用辞書はCSVファイルかZIPファイルでなければなりません。')
                         . _('壊れたCSVファイル (ダブルクォートでエスケープされていないダブルクォートを含む等) の可能性があります。'));

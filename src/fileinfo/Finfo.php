@@ -4,28 +4,18 @@ namespace esperecyan\dictionary_php\fileinfo;
 use esperecyan\dictionary_php\parser\GenericDictionaryParser;
 
 /**
- * Fileinfo拡張モジュールに "`\r\n`\r\n" のような文字列を与えた際に発生するエラー「Notice: Array to string conversion」を抑制します。
+ * Fileinfo拡張モジュールで「audio/mp4」を「video/mp4」と区別できるようにします。
  */
 class Finfo extends \finfo
 {
-    protected function suppressErrorAndCallMethod(): string
+    protected function correctMP4MimeType(): string
     {
         $caller = debug_backtrace(0, 2)[1];
-        set_error_handler(function (int $severity, string $message) {
-            if ($message !== 'Array to string conversion') {
-                return false;
-            }
-        }, E_NOTICE);
         $info = call_user_func_array([$this, "parent::$caller[function]"], $caller['args']);
-        restore_error_handler();
-        return $this->correctMP4MimeType($info, $caller['args'][0], $caller['function'] === 'buffer');
-    }
-    
-    protected function correctMP4MimeType(string $info, string $file, bool $binary): string
-    {
+        $file = $caller['args'][0];
         return $info === 'video/mp4'
             && (new \getID3())->analyze(
-                $binary ? (new GenericDictionaryParser())->generateTempFile($file) : $file
+                $caller['function'] === 'buffer' ? (new GenericDictionaryParser())->generateTempFile($file) : $file
             )['mime_type'] === 'audio/mp4'
             ? 'audio/mp4'
             : $info;
@@ -40,7 +30,7 @@ class Finfo extends \finfo
      */
     public function buffer($string, $options = null, $context = null): string
     {
-        return $this->suppressErrorAndCallMethod();
+        return $this->correctMP4MimeType();
     }
     
     /**
@@ -52,6 +42,6 @@ class Finfo extends \finfo
      */
     public function file($filename, $options = null, $context = null): string
     {
-        return $this->suppressErrorAndCallMethod();
+        return $this->correctMP4MimeType();
     }
 }

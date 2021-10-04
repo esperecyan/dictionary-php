@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "dcfc371c0ed493e24c0fc03ada3bb995",
+    "content-hash": "6da4000b43ee9ccc1089d46715887799",
     "packages": [
         {
             "name": "danielstjules/stringy",
@@ -372,23 +372,23 @@
         },
         {
             "name": "james-heinrich/getid3",
-            "version": "v1.9.19",
+            "version": "v1.9.21",
             "source": {
                 "type": "git",
                 "url": "https://github.com/JamesHeinrich/getID3.git",
-                "reference": "c6fd499a690ae67eea2eec6b2edba5df13f60f6f"
+                "reference": "36f5dabb1325415a4b07a401113f8db2eb81eca1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/JamesHeinrich/getID3/zipball/c6fd499a690ae67eea2eec6b2edba5df13f60f6f",
-                "reference": "c6fd499a690ae67eea2eec6b2edba5df13f60f6f",
+                "url": "https://api.github.com/repos/JamesHeinrich/getID3/zipball/36f5dabb1325415a4b07a401113f8db2eb81eca1",
+                "reference": "36f5dabb1325415a4b07a401113f8db2eb81eca1",
                 "shasum": ""
             },
             "require": {
                 "php": ">=5.3.0"
             },
             "require-dev": {
-                "jakub-onderka/php-parallel-lint": "^0.9 || ^1.0"
+                "php-parallel-lint/php-parallel-lint": "^1.0"
             },
             "suggest": {
                 "ext-SimpleXML": "SimpleXML extension is required to analyze RIFF/WAV/BWF audio files (also requires `ext-libxml`).",
@@ -431,7 +431,7 @@
                 "php",
                 "tags"
             ],
-            "time": "2019-12-17T21:17:26+00:00"
+            "time": "2021-09-22T16:34:51+00:00"
         },
         {
             "name": "league/commonmark",
@@ -1992,6 +1992,7 @@
             "keywords": [
                 "tokenizer"
             ],
+            "abandoned": true,
             "time": "2019-09-17T06:23:10+00:00"
         },
         {
@@ -2795,12 +2796,12 @@
             "version": "1.6.0",
             "source": {
                 "type": "git",
-                "url": "https://github.com/webmozart/assert.git",
+                "url": "https://github.com/webmozarts/assert.git",
                 "reference": "573381c0a64f155a0d9a23f4b0c797194805b925"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/webmozart/assert/zipball/573381c0a64f155a0d9a23f4b0c797194805b925",
+                "url": "https://api.github.com/repos/webmozarts/assert/zipball/573381c0a64f155a0d9a23f4b0c797194805b925",
                 "reference": "573381c0a64f155a0d9a23f4b0c797194805b925",
                 "shasum": ""
             },
@@ -2846,14 +2847,14 @@
     "prefer-lowest": false,
     "platform": {
         "php": ">=7.1",
+        "ext-exif": "*",
+        "ext-gd": "*",
         "ext-gettext": "*",
         "ext-intl": "*",
         "ext-mbstring": "*",
         "ext-spl": "*",
         "ext-zip": "*"
     },
-    "platform-dev": {
-        "ext-exif": "*",
-        "ext-gd": "*"
-    }
+    "platform-dev": [],
+    "plugin-api-version": "1.1.0"
 }
